@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "UID.one Passkey Wrapper" },
+  "extensionDesc": { "message": "Nâng cấp xác thực trang web legacy với công nghệ bảo mật Passkey và WebAuthn chuẩn doanh nghiệp." },
+  "iconTitle": { "message": "Đăng nhập bằng Passkey (UID.one)" },
+  "errorVaultNotFound": { "message": "Lỗi: Không tìm thấy Két sắt (Vault) cho trang web này." },
+  "errorDecryptionFailed": { "message": "Lỗi: Không thể giải mã tài khoản." },
+  "errorNoUsernameProvided": { "message": "Vui lòng gõ Tên đăng nhập / Email của bạn vào ô trước khi nhấn biểu tượng Passkey." },
+  "pickerHeader": { "message": "Chọn Tài khoản" },
+  "setupGuidance": { "message": "Lần đầu tiên sử dụng: Vui lòng gõ Email và Mật khẩu rồi nhấn Đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!" }
+}

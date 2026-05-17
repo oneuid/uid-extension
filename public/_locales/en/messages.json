@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "UID.one Passkey Wrapper" },
+  "extensionDesc": { "message": "Seamlessly upgrade legacy website authentication with enterprise-grade Passkey and WebAuthn security." },
+  "iconTitle": { "message": "Login with Passkey (UID.one)" },
+  "errorVaultNotFound": { "message": "Error: Vault not found for this website." },
+  "errorDecryptionFailed": { "message": "Error: Failed to decrypt credentials." },
+  "errorNoUsernameProvided": { "message": "Please enter your email or username first to use your Passkey." },
+  "pickerHeader": { "message": "Select Account" },
+  "setupGuidance": { "message": "First time setup: Please enter your email and password to log in normally. A secure Passkey vault will be created automatically!" }
+}
