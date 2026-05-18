@@ -140,7 +140,8 @@ function injectIcon(input: HTMLInputElement) {
 
       if (!reqRes?.success) {
         if (reqRes?.error && (reqRes.error.includes('NOT_LOGGED_IN') || reqRes.error.includes('SESSION_EXPIRED'))) {
-          alert("Phiên đăng nhập UID.ONE đã hết hạn. Vui lòng mở tiện ích ở góc phải trình duyệt và đăng nhập lại!");
+          // Open the login window automatically via background script
+          chrome.runtime.sendMessage({ type: 'OPEN_LOGIN_WINDOW' });
         } else {
           alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
         }
