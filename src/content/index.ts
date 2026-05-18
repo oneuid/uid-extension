@@ -192,9 +192,20 @@ function injectIcon(input: HTMLInputElement) {
       
       // 3. Poll for Status
       const pollInterval = setInterval(async () => {
-        const pollRes = await new Promise<any>((resolve) => {
-          chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token }, resolve);
-        });
+        let pollRes;
+        try {
+          pollRes = await new Promise<any>((resolve, reject) => {
+            try {
+              chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token }, resolve);
+            } catch (err) {
+              reject(err);
+            }
+          });
+        } catch (err) {
+          console.log('[uid.one] Polling stopped (Extension context invalidated). Please refresh the page.');
+          clearInterval(pollInterval);
+          return;
+        }
 
         if (pollRes?.success) {
           if (pollRes.status === 'APPROVED') {
