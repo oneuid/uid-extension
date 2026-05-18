@@ -13,6 +13,12 @@
   "permissions": [
     "storage"
   ],
+  "host_permissions": [
+    "*://api.uid.one/*",
+    "*://*.uid.one/*",
+    "*://localhost/*",
+    "*://127.0.0.1/*"
+  ],
   "background": {
     "service_worker": "src/background/index.ts"
   },
