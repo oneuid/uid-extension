@@ -11,13 +11,16 @@
     "128": "icon.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "contextMenus",
+    "activeTab"
   ],
   "host_permissions": [
     "*://api.uid.one/*",
     "*://*.uid.one/*",
     "*://localhost/*",
-    "*://127.0.0.1/*"
+    "*://127.0.0.1/*",
+    "file:///*"
   ],
   "background": {
     "service_worker": "src/background/index.ts"
@@ -40,7 +43,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "passkey@uid.one",
+      "id": "identity@uid.one",
       "strict_min_version": "109.0",
       "data_collection_permissions": {
         "required": ["none"]

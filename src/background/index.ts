@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
+const API_BASE = 'https://api.uid.one/v1/auth';
 const CLIENT_ID = 'uid_extension_client';
 
 // Memory store: token -> privateKey
@@ -181,6 +181,38 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     handlePushRequest(request)
       .then(data => sendResponse({ success: true, data }))
       .catch(error => sendResponse({ success: false, error: error.toString() }));
+    return true;
+  }
+  else  if (request.action === 'POLL_STATUS') {
+    handlePollStatus(request)
+      .then(res => sendResponse({ success: true, data: res }))
+      .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+  
+  if (request.action === 'REQUEST_DIGITAL_SIGNATURE') {
+    // 6. Request Challenge for Digital Signature (EXTENSION method)
+    fetch(`${API_BASE}/challenges/request/`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+        // Extension method requires Authorization, but wait, the user needs to be logged in?
+        // Let's rely on the token passed from content script if needed, or if it relies on cookie, it will be passed.
+      },
+      body: JSON.stringify({
+        method: 'DIGITAL_SIGNATURE',
+        domain: request.domain,
+        user_agent: request.user_agent,
+        identifier: request.identifier,
+        metadata: request.metadata
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      sendResponse({ success: true, data });
+    })
+    .catch(err => sendResponse({ success: false, error: err.message }));
     return true;
   }
   else if (request.type === 'DECRYPT_PAYLOAD') {

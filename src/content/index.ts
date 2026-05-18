@@ -321,3 +321,118 @@ if (document.readyState === 'loading') {
   init();
 }
 
+// -------- PDF DIGITAL SIGNING --------
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'START_PDF_SIGNING') {
+    handlePdfSigning(request.url).catch(console.error);
+  }
+});
+
+function showToast(msg: string, type: string) {
+  // Simple toast placeholder
+  console.log(`[uid.one - ${type}] ${msg}`);
+}
+
+async function handlePdfSigning(pdfUrl: string) {
+  // 1. Fetch the PDF as ArrayBuffer
+  showToast("Fetching PDF for signing...", "info");
+  const response = await fetch(pdfUrl);
+  const arrayBuffer = await response.arrayBuffer();
+  
+  // 2. Hash the PDF securely (SHA-256)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  // 3. Send request to background to create Challenge
+  chrome.runtime.sendMessage({
+    action: 'REQUEST_DIGITAL_SIGNATURE',
+    domain: window.location.hostname,
+    user_agent: navigator.userAgent,
+    identifier: "Digital Signature",
+    metadata: {
+      pdf_hash: hashHex,
+      document_url: pdfUrl
+    }
+  }, (res) => {
+    if (res && res.success) {
+      showSigningDialog(res.data);
+    } else {
+      showToast("Failed to initiate signing: " + (res?.error || "Unknown error"), "error");
+    }
+  });
+}
+
+function showSigningDialog(challengeData: any) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+  overlay.style.zIndex = '9999999';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+
+  const modal = document.createElement('div');
+  modal.style.backgroundColor = '#fff';
+  modal.style.padding = '32px';
+  modal.style.borderRadius = '16px';
+  modal.style.textAlign = 'center';
+  modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+  modal.style.color = '#000';
+  modal.style.fontFamily = 'system-ui, sans-serif';
+
+  const title = document.createElement('h2');
+  title.innerText = 'UID.ONE Digital Signature';
+  title.style.margin = '0 0 16px 0';
+
+  const matchNum = document.createElement('div');
+  matchNum.style.fontSize = '48px';
+  matchNum.style.fontWeight = 'bold';
+  matchNum.style.letterSpacing = '8px';
+  matchNum.style.margin = '24px 0';
+  matchNum.innerText = challengeData.metadata?.match_number || '--';
+
+  const info = document.createElement('p');
+  info.innerText = 'Open the UID.ONE Mobile App and tap the matching number to sign this document.';
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.innerText = 'Cancel';
+  cancelBtn.style.marginTop = '24px';
+  cancelBtn.style.padding = '8px 16px';
+  cancelBtn.style.border = '1px solid #ccc';
+  cancelBtn.style.borderRadius = '8px';
+  cancelBtn.style.cursor = 'pointer';
+  cancelBtn.onclick = () => document.body.removeChild(overlay);
+
+  modal.appendChild(title);
+  modal.appendChild(info);
+  modal.appendChild(matchNum);
+  modal.appendChild(cancelBtn);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Poll for status
+  const pollInterval = setInterval(() => {
+    chrome.runtime.sendMessage({
+      action: 'POLL_STATUS',
+      token: challengeData.token
+    }, (res) => {
+      if (res && res.success && res.data.status === 'APPROVED') {
+        clearInterval(pollInterval);
+        document.body.removeChild(overlay);
+        showToast("Signature applied successfully!", "success");
+        // TODO: Inject PKCS#7 using pdf-lib here
+      } else if (res && res.success && (res.data.status === 'EXPIRED' || res.data.status === 'REJECTED')) {
+        clearInterval(pollInterval);
+        document.body.removeChild(overlay);
+        showToast(`Signing failed: ${res.data.status}`, "error");
+      }
+    });
+  }, 2000);
+}
+
