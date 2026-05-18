@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://api.localhost:8001/v1/auth';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
 const CLIENT_ID = 'uid_extension_client';
 
 // Memory store: token -> privateKey

@@ -226,7 +226,7 @@ function injectIcon(input: HTMLInputElement) {
       overlay.querySelector('#close-match')?.addEventListener('click', () => overlay.remove());
 
       // Open WebSocket
-      const wsBase = import.meta.env.VITE_WS_BASE || 'ws://api.localhost:8001';
+      const wsBase = import.meta.env.VITE_WS_BASE || 'wss://api.uid.one';
       const wsUrl = `${wsBase}/ws/challenges/${challengeId}/`;
       const ws = new WebSocket(wsUrl);
 
