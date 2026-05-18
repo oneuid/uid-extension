@@ -25,6 +25,11 @@ function base64ToBuffer(base64: string): ArrayBuffer {
 }
 
 async function handleStartOOB(request: any) {
+  const storageData = await chrome.storage.local.get(['access_token', 'refresh_token']);
+  if (!storageData.access_token) {
+    throw new Error('NOT_LOGGED_IN');
+  }
+
   // 1. Generate Ephemeral RSA-OAEP Keypair
   const keyPair = await crypto.subtle.generateKey(
     {
@@ -42,9 +47,12 @@ async function handleStartOOB(request: any) {
   const publicKeyBase64 = bufferToBase64(spkiBuffer);
 
   // 3. Send OOB Request with Public Key
-  const res = await fetch(`${API_BASE}/challenges/request/`, {
+  let res = await fetch(`${API_BASE}/challenges/request/`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${storageData.access_token}`
+    },
     body: JSON.stringify({
       method: 'EXTENSION',
       domain: request.domain,
@@ -53,6 +61,47 @@ async function handleStartOOB(request: any) {
       public_key: publicKeyBase64
     })
   });
+
+  // 3b. Handle Token Expiration
+  if (res.status === 401 && storageData.refresh_token) {
+    const refreshParams = new URLSearchParams();
+    refreshParams.append('grant_type', 'refresh_token');
+    refreshParams.append('client_id', CLIENT_ID);
+    refreshParams.append('refresh_token', storageData.refresh_token as string);
+
+    const refreshRes = await fetch(`https://api.uid.one/o/token/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: refreshParams
+    });
+
+    if (refreshRes.ok) {
+      const tokens = await refreshRes.json();
+      await chrome.storage.local.set({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token
+      });
+      
+      // Retry request
+      res = await fetch(`${API_BASE}/challenges/request/`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokens.access_token}`
+        },
+        body: JSON.stringify({
+          method: 'EXTENSION',
+          domain: request.domain,
+          device: request.device,
+          identifier: request.identifier,
+          public_key: publicKeyBase64
+        })
+      });
+    } else {
+      await chrome.storage.local.remove(['access_token', 'refresh_token', 'user_email']);
+      throw new Error('SESSION_EXPIRED');
+    }
+  }
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to request challenge');

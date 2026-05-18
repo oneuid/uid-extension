@@ -25,8 +25,25 @@ function init() {
 const injectedInputs = new WeakSet<HTMLInputElement>();
 
 function injectAll() {
+  const nativeMeta = document.querySelector('meta[name="uid-passkey-native"]');
+  if (nativeMeta && nativeMeta.getAttribute('content') === 'true') {
+    return; // Abort injection if native integration is detected
+  }
+
   const passwordInputs = document.querySelectorAll<HTMLInputElement>('input[type="password"]');
   passwordInputs.forEach((input) => {
+    // Skip if input is hidden, disabled, readonly, or part of a new-password/change-password form
+    if (
+      input.disabled || 
+      input.readOnly || 
+      input.type === 'hidden' || 
+      input.style.display === 'none' ||
+      input.style.visibility === 'hidden' ||
+      input.autocomplete === 'new-password'
+    ) {
+      return;
+    }
+
     if (!injectedInputs.has(input)) {
       injectIcon(input);
       injectedInputs.add(input);
@@ -122,7 +139,11 @@ function injectIcon(input: HTMLInputElement) {
       });
 
       if (!reqRes?.success) {
-        alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
+        if (reqRes?.error && (reqRes.error.includes('NOT_LOGGED_IN') || reqRes.error.includes('SESSION_EXPIRED'))) {
+          alert("Phiên đăng nhập UID.ONE đã hết hạn. Vui lòng mở tiện ích ở góc phải trình duyệt và đăng nhập lại!");
+        } else {
+          alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
+        }
         return;
       }
 
@@ -182,6 +203,10 @@ function injectIcon(input: HTMLInputElement) {
     if (form) {
       const usernameInput = form.querySelector<HTMLInputElement>('input[type="text"], input[type="email"], input[name="email"], input[name="username"]');
       if (usernameInput) username = usernameInput.value.trim();
+    }
+    if (!username) {
+      alert(chrome.i18n.getMessage("errorNoUsernameProvided") || "Please enter your email or username first to use your Passkey.");
+      return;
     }
     
     await performOOBAuth(username, input);

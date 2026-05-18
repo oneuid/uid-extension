@@ -1,60 +1,92 @@
 import './style.css'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.ts'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const API_BASE = "https://api.uid.one";
+const CLIENT_ID = "uid_extension_client";
 
-<div class="ticks"></div>
+async function checkAuth() {
+  const data = await chrome.storage.local.get(['access_token', 'user_email']);
+  if (data.access_token) {
+    document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+      <div class="auth-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 18px;">Vault Connected</h2>
+        <p style="margin: 0 0 24px 0; color: #64748b; font-size: 14px;">Logged in as: <strong>${data.user_email || 'Active'}</strong></p>
+        <button id="logout" class="btn btn-outline" style="width: 100%;">Disconnect Vault</button>
+      </div>
+    `;
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+    document.getElementById('logout')?.addEventListener('click', () => {
+      chrome.storage.local.remove(['access_token', 'refresh_token', 'user_email'], () => {
+        checkAuth();
+      });
+    });
+  } else {
+    document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+      <div class="auth-form">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; margin-left: auto; margin-right: auto; display: block;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <h2 style="text-align: center; margin: 0 0 24px 0; color: #0f172a; font-size: 18px;">Unlock UID Passkey</h2>
+        <form id="loginForm" style="display: flex; flex-direction: column; gap: 12px;">
+          <input type="email" id="email" placeholder="Email address" required class="input" />
+          <input type="password" id="password" placeholder="Master Password" required class="input" />
+          <button type="submit" class="btn btn-primary" id="loginBtn" style="margin-top: 8px;">Connect to UID.ONE</button>
+          <div id="errorMsg" style="color: #ef4444; font-size: 13px; text-align: center; display: none; margin-top: 8px;"></div>
+        </form>
+      </div>
+    `;
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+    document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+      const btn = document.getElementById('loginBtn') as HTMLButtonElement;
+      const errorMsg = document.getElementById('errorMsg') as HTMLDivElement;
+      
+      btn.textContent = "Connecting...";
+      btn.disabled = true;
+      errorMsg.style.display = 'none';
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+      try {
+        const params = new URLSearchParams();
+        params.append('grant_type', 'password');
+        params.append('client_id', CLIENT_ID);
+        params.append('username', email);
+        params.append('password', password);
+
+        const res = await fetch(`${API_BASE}/o/token/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params
+        });
+
+        const data = await res.json();
+        
+        if (res.ok && data.access_token) {
+          await chrome.storage.local.set({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            user_email: email
+          });
+          checkAuth();
+        } else {
+          errorMsg.textContent = data.error_description || data.error || "Invalid credentials.";
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = "Network error connecting to UID.ONE";
+        errorMsg.style.display = 'block';
+      } finally {
+        btn.textContent = "Connect to UID.ONE";
+        btn.disabled = false;
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkAuth);

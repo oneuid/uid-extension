@@ -5,8 +5,10 @@ UID.ONE Passkey Wrapper is an enterprise-grade security extension designed to el
 ## ✨ Key Features
 
 - **Multi-Tenant Vault**: Granular credential isolation (`vault_${domain}_${username}`) guarantees zero cross-user data leakage on shared computers.
-- **Dynamic Account Picker**: A sleek, floating UI for effortless multi-account management.
 - **Universal Injection**: Detects and upgrades standard password inputs (`<input type="password">`) to support biometric logins (TouchID/Windows Hello) via the WebAuthn API.
+- **Out-of-Band (OOB) Authentication**: Leverages the UID.ONE Mobile app for secure, out-of-band authorization for 3rd party websites.
+- **Anti-Spam & Zero-Trust Verification**: Enforces a strict OAuth2 Token requirement for generating OOB challenges, ensuring users can only initiate login requests for themselves, eliminating notification spam vectors.
+- **Native SDK Detection**: Smartly avoids double-injection (UI conflicts) by detecting the `<meta name="uid-passkey-native" content="true">` tag broadcasted by the `@oneuid-auth-js/core` SDK.
 - **Absolute Privacy**: Zero telemetry. Passkeys are encrypted (AES-GCM 256-bit) and stored entirely locally.
 
 ---
