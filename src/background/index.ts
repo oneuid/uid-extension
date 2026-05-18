@@ -120,14 +120,4 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.toString() }));
     return true; 
   }
-  else if (request.type === 'OPEN_LOGIN_WINDOW') {
-    chrome.windows.create({
-      url: chrome.runtime.getURL('index.html'),
-      type: 'popup',
-      width: 360,
-      height: 480
-    });
-    sendResponse({ success: true });
-    return true;
-  }
 });
