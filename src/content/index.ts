@@ -146,7 +146,7 @@ function injectIcon(input: HTMLInputElement) {
       }
 
       // Display QR Code Overlay
-      const qrUrl = `https://uid.one/qr?challenge=${reqRes.data.token}&client_name=BrowserExtension`;
+      const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_name=BrowserExtension`;
       const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
 
       const overlay = document.createElement('div');
@@ -170,7 +170,7 @@ function injectIcon(input: HTMLInputElement) {
         overlay.remove();
       });
 
-      const token = reqRes.data.token;
+      const token = reqRes.challenge.token;
       
       // 3. Poll for Status
       const pollInterval = setInterval(async () => {
