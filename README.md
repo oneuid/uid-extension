@@ -27,9 +27,13 @@ To build the extension from source, you will need Node.js (v18 or higher) and `n
    ```bash
    npm install
    ```
-3. Compile the source code:
+3. Compile the source code (Chrome/Edge/Brave):
    ```bash
    npm run build
+   ```
+   *For Mozilla Firefox, use the specific Firefox build command:*
+   ```bash
+   npm run build:firefox
    ```
 
 Upon a successful build, a `dist/` directory will be created containing the compiled extension files ready for installation.
