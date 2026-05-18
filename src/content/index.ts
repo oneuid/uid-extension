@@ -1,3 +1,5 @@
+import QRCode from 'qrcode';
+
 console.log('[uid.one] Content script loaded on', window.location.hostname);
 
 let isChecking = false;
@@ -139,20 +141,37 @@ function injectIcon(input: HTMLInputElement) {
       });
 
       if (!reqRes?.success) {
-        if (reqRes?.error && (reqRes.error.includes('NOT_LOGGED_IN') || reqRes.error.includes('SESSION_EXPIRED'))) {
-          // Open the login window automatically via background script
-          chrome.runtime.sendMessage({ type: 'OPEN_LOGIN_WINDOW' });
-        } else {
-          alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
-        }
+        alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
         return;
       }
 
-      const token = reqRes.challenge.token;
-      
-      // 2. Show Overlay
-      showOverlay("Waiting for Mobile Approval...", "Please open the UID.ONE app on your phone and scan your face/fingerprint to approve this login.");
+      // Display QR Code Overlay
+      const qrUrl = `https://uid.one/qr?challenge=${reqRes.data.token}&client_name=BrowserExtension`;
+      const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
 
+      const overlay = document.createElement('div');
+      overlay.innerHTML = `
+        <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
+          <div style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative;">
+            <button id="close-qr" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Scan to Unlock</h3>
+            <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
+            </div>
+            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
+              Open the UID.ONE mobile app and scan this code to securely inject your password.
+            </p>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#close-qr')?.addEventListener('click', () => {
+        overlay.remove();
+      });
+
+      const token = reqRes.data.token;
+      
       // 3. Poll for Status
       const pollInterval = setInterval(async () => {
         const pollRes = await new Promise<any>((resolve) => {
@@ -162,12 +181,13 @@ function injectIcon(input: HTMLInputElement) {
         if (pollRes?.success) {
           if (pollRes.status === 'APPROVED') {
             clearInterval(pollInterval);
-            removeOverlay();
+            overlay.remove();
             
             if (pollRes.data.decrypted_password) {
               console.log('[uid.one] E2EE Payload received. Injecting password...');
               passwordInput.value = pollRes.data.decrypted_password;
               passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+              passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
               
               // Optional: auto-submit the form
               const form = passwordInput.closest('form');
@@ -183,15 +203,18 @@ function injectIcon(input: HTMLInputElement) {
             
           } else if (pollRes.status === 'EXPIRED') {
             clearInterval(pollInterval);
-            removeOverlay();
-            alert("Login request expired.");
+            overlay.remove();
+            alert("This Passkey request has expired. Please try again.");
           }
+        } else {
+          clearInterval(pollInterval);
+          overlay.remove();
+          alert("Failed to poll status: " + (pollRes?.error || "Unknown error"));
         }
       }, 2000);
 
     } catch (error) {
       console.error('[uid.one] Error:', error);
-      removeOverlay();
     }
   };
 
@@ -216,60 +239,7 @@ function injectIcon(input: HTMLInputElement) {
   shadowRoot.appendChild(icon);
 }
 
-// UI Overlay Helpers
-let overlayHost: HTMLDivElement | null = null;
 
-function showOverlay(title: string, message: string) {
-  if (!overlayHost) {
-    overlayHost = document.createElement('div');
-    overlayHost.style.position = 'fixed';
-    overlayHost.style.top = '0';
-    overlayHost.style.left = '0';
-    overlayHost.style.width = '100vw';
-    overlayHost.style.height = '100vh';
-    overlayHost.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    overlayHost.style.backdropFilter = 'blur(4px)';
-    overlayHost.style.zIndex = '9999999';
-    overlayHost.style.display = 'flex';
-    overlayHost.style.alignItems = 'center';
-    overlayHost.style.justifyContent = 'center';
-    document.body.appendChild(overlayHost);
-    
-    const shadow = overlayHost.attachShadow({ mode: 'closed' });
-    const modal = document.createElement('div');
-    modal.style.backgroundColor = 'white';
-    modal.style.padding = '32px';
-    modal.style.borderRadius = '16px';
-    modal.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-    modal.style.maxWidth = '400px';
-    modal.style.textAlign = 'center';
-    modal.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-    
-    modal.innerHTML = `
-      <div style="margin-bottom: 24px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </div>
-      <h2 style="margin: 0 0 12px 0; color: #0f172a; font-size: 20px; font-weight: 600;">${title}</h2>
-      <p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.5;">${message}</p>
-      <style>
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: .5; transform: scale(0.95); }
-        }
-      </style>
-    `;
-    shadow.appendChild(modal);
-  }
-}
-
-function removeOverlay() {
-  if (overlayHost) {
-    overlayHost.remove();
-    overlayHost = null;
-  }
-}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);

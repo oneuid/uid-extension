@@ -11,8 +11,12 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.1.42",
+    "@types/qrcode": "^1.5.6",
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
     "vite-plugin-web-extension": "^4.5.1"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }
