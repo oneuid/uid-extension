@@ -107,8 +107,59 @@ async function handlePollStatus(request: any) {
   return data;
 }
 
+// 1. Identity Token Management
+async function getIdentityToken(): Promise<string | null> {
+  const result = await chrome.storage.local.get(['identity_token']);
+  return (result.identity_token as string) || null;
+}
+
+async function handleSavePairing(request: any) {
+  // Called by content script after polling indicates SUCCESS
+  await chrome.storage.local.set({ 'identity_token': request.token });
+  return { success: true };
+}
+
+// 3. Push Request (Number Matching)
+async function handlePushRequest(request: any) {
+  const identityToken = await getIdentityToken();
+  if (!identityToken) {
+    throw new Error('Device not paired. Please pair first.');
+  }
+
+  // Generate ephemeral Session Key
+  const keyPair = await crypto.subtle.generateKey(
+    { name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
+    true, ["encrypt", "decrypt"]
+  );
+  const spkiBuffer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
+  const publicKeyBase64 = bufferToBase64(spkiBuffer);
+
+  const res = await fetch(`${API_BASE}/challenges/request/`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${identityToken}`
+    },
+    body: JSON.stringify({
+      method: 'EXTENSION',
+      domain: request.domain,
+      public_key: publicKeyBase64
+    })
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to request push');
+
+  pendingKeys.set(data.token, keyPair.privateKey);
+  return data; // Returns { token, match_number }
+}
+
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.type === 'START_OOB_AUTH') {
+  if (request.type === 'CHECK_PAIRING') {
+    getIdentityToken().then(token => sendResponse({ isPaired: !!token }));
+    return true;
+  }
+  else if (request.type === 'START_OOB_AUTH') {
     handleStartOOB(request)
       .then(challenge => sendResponse({ success: true, challenge }))
       .catch(error => sendResponse({ success: false, error: error.toString() }));
@@ -119,5 +170,41 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .then(data => sendResponse({ success: true, status: data.status, data }))
       .catch(error => sendResponse({ success: false, error: error.toString() }));
     return true; 
+  }
+  else if (request.type === 'SAVE_PAIRING') {
+    handleSavePairing(request)
+      .then(data => sendResponse(data))
+      .catch(error => sendResponse({ success: false, error: error.toString() }));
+    return true;
+  }
+  else if (request.type === 'PUSH_REQUEST') {
+    handlePushRequest(request)
+      .then(data => sendResponse({ success: true, data }))
+      .catch(error => sendResponse({ success: false, error: error.toString() }));
+    return true;
+  }
+  else if (request.type === 'DECRYPT_PAYLOAD') {
+    // Decrypt payload received via WebSocket in content script
+    const privateKey = pendingKeys.get(request.token);
+    if (!privateKey) {
+      sendResponse({ success: false, error: 'Private key not found' });
+      return true;
+    }
+    try {
+      const encryptedBuffer = base64ToBuffer(request.encrypted_payload);
+      crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, encryptedBuffer)
+        .then(decryptedBuffer => {
+          const password = new TextDecoder().decode(decryptedBuffer);
+          pendingKeys.delete(request.token);
+          sendResponse({ success: true, decrypted_password: password });
+        })
+        .catch(err => {
+          console.error(err);
+          sendResponse({ success: false, error: 'Decryption failed' });
+        });
+    } catch (e) {
+      sendResponse({ success: false, error: 'Decryption setup failed' });
+    }
+    return true;
   }
 });

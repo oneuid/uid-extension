@@ -130,86 +130,48 @@ function injectIcon(input: HTMLInputElement) {
       const domain = window.location.hostname;
       const device = navigator.userAgent.includes("Mac") ? "Chrome on macOS" : "Chrome Web";
       
-      // 1. Request Challenge
-      const reqRes = await new Promise<any>((resolve) => {
-        try {
-          chrome.runtime.sendMessage({ 
-            type: 'START_OOB_AUTH', 
-            domain,
-            device,
-            identifier: targetUsername 
-          }, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error("[uid.one] Runtime error:", chrome.runtime.lastError);
-              resolve({ success: false, error: chrome.runtime.lastError.message });
-            } else {
-              resolve(response);
-            }
-          });
-        } catch (e: any) {
-          resolve({ success: false, error: e.toString() });
-        }
+      // Check if paired
+      const isPairedRes = await new Promise<any>((resolve) => {
+        chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, resolve);
       });
 
-      console.log("[uid.one] START_OOB_AUTH response:", reqRes);
+      if (!isPairedRes?.isPaired) {
+        // --- PHASE 1: PAIRING MODE ---
+        const reqRes = await new Promise<any>((resolve) => {
+          chrome.runtime.sendMessage({ type: 'START_OOB_AUTH', domain, device, identifier: targetUsername }, resolve);
+        });
 
-      if (!reqRes?.success) {
-        alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
-        return;
-      }
-      
-      if (!reqRes?.challenge?.token) {
-        alert("Failed to initiate OOB login: Invalid response from extension background (missing token). Please refresh and try again.");
-        return;
-      }
+        if (!reqRes?.success) return alert("Failed to initiate Pairing");
 
-      // Display QR Code Overlay
-      const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_id=uid_extension_client&client_name=Extension`;
-      const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
+        const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_id=uid_extension_client&client_name=Extension`;
+        const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
 
-      const overlay = document.createElement('div');
-      overlay.innerHTML = `
-        <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-          <div id="uid-qr-container" style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
-            <button id="close-qr" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-            <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Scan to Unlock</h3>
-            <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
-              <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
+        const overlay = document.createElement('div');
+        overlay.innerHTML = `
+          <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
+            <div id="uid-qr-container" style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
+              <button id="close-qr" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+              <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Pair Device</h3>
+              <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
+              </div>
+              <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
+                Scan this code with the UID.ONE App to pair this browser.
+              </p>
             </div>
-            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
-              Open the UID.ONE mobile app and scan this code to securely inject your password.
-            </p>
           </div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#close-qr')?.addEventListener('click', () => overlay.remove());
 
-      overlay.querySelector('#close-qr')?.addEventListener('click', () => {
-        overlay.remove();
-      });
-
-      const token = reqRes.challenge.token;
-      
-      // 3. Poll for Status
-      const pollInterval = setInterval(async () => {
-        let pollRes;
-        try {
-          pollRes = await new Promise<any>((resolve, reject) => {
-            try {
-              chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token }, resolve);
-            } catch (err) {
-              reject(err);
-            }
+        const pollInterval = setInterval(async () => {
+          const pollRes = await new Promise<any>((resolve) => {
+            chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token: reqRes.challenge.token }, resolve);
           });
-        } catch (err) {
-          console.log('[uid.one] Polling stopped (Extension context invalidated). Please refresh the page.');
-          clearInterval(pollInterval);
-          return;
-        }
 
-        if (pollRes?.success) {
-          if (pollRes.status === 'APPROVED') {
+          if (pollRes?.success && pollRes.status === 'APPROVED') {
             clearInterval(pollInterval);
+            await new Promise((resolve) => chrome.runtime.sendMessage({ type: 'SAVE_PAIRING', token: reqRes.challenge.token }, resolve));
             
             const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
             if (container) {
@@ -218,98 +180,111 @@ function injectIcon(input: HTMLInputElement) {
                   <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
-                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Login Approved</h3>
-                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Injecting credentials...</p>
+                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Paired Successfully!</h3>
+                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">You can now use push notifications.</p>
                 </div>
               `;
+              setTimeout(() => { overlay.remove(); performOOBAuth(targetUsername, passwordInput); }, 2000);
             }
+          }
+        }, 2000);
+        return;
+      }
 
-            if (pollRes.data.decrypted_password) {
-              console.log('[uid.one] E2EE Payload received. Injecting password...');
-              // Bypass React/Vue value tracking
-              const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-              if (nativeInputValueSetter) {
-                nativeInputValueSetter.call(passwordInput, pollRes.data.decrypted_password);
-              } else {
-                passwordInput.value = pollRes.data.decrypted_password;
-              }
-              
-              passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
-              passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
-              
-              // Optional: auto-submit the form with a slight delay
-              setTimeout(() => {
-                const form = passwordInput.closest('form');
-                if (form) {
-                  const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]') as HTMLElement;
-                  if (submitBtn) {
-                    submitBtn.click();
-                  } else {
-                    // Fallback to dispatching submit event and then calling form.submit()
-                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                    form.submit();
-                  }
-                }
-                setTimeout(() => overlay.remove(), 500);
-              }, 500);
-            } else {
-              console.warn('[uid.one] Missing password payload. User likely scanned with a regular camera instead of the UID.ONE app.');
+      // --- PHASE 2: NUMBER MATCHING MODE ---
+      const reqRes = await new Promise<any>((resolve) => {
+        chrome.runtime.sendMessage({ type: 'PUSH_REQUEST', domain }, resolve);
+      });
+
+      if (!reqRes?.success) {
+        alert("Failed to request push: " + (reqRes?.error || "Unknown error"));
+        return;
+      }
+
+      const matchNumber = reqRes.data.match_number;
+      const challengeId = reqRes.data.token;
+
+      const overlay = document.createElement('div');
+      overlay.innerHTML = `
+        <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
+          <div id="uid-match-container" style="background: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 300px;">
+            <button id="close-match" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center;">Check your phone</h3>
+            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Enter the following number in the UID.ONE app to approve this login.</p>
+            <div style="font-size: 48px; font-weight: 800; letter-spacing: 8px; color: #0f172a; padding: 16px 32px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 8px;">
+              ${matchNumber}
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+               <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+               <span style="font-size: 12px; color: #64748b;">Waiting for approval...</span>
+            </div>
+            <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#close-match')?.addEventListener('click', () => overlay.remove());
+
+      // Open WebSocket
+      const wsUrl = `wss://api.uid.one/ws/challenges/${challengeId}/`;
+      const ws = new WebSocket(wsUrl);
+
+      ws.onmessage = async (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.status === 'APPROVED' && data.encrypted_payload) {
+            ws.close();
+            const decryptRes = await new Promise<any>((resolve) => {
+              chrome.runtime.sendMessage({ type: 'DECRYPT_PAYLOAD', token: challengeId, encrypted_payload: data.encrypted_payload }, resolve);
+            });
+
+            const container = overlay.querySelector('#uid-match-container') as HTMLElement;
+            if (decryptRes?.success && decryptRes.decrypted_password) {
               if (container) {
                 container.innerHTML = `
-                  <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
-                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #fef08a; display: flex; align-items: center; justify-content: center; color: #ca8a04;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #ca8a04;">Missing Password</h3>
-                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
-                      Please use the <b>UID.ONE Mobile App</b> to scan this code. Regular cameras cannot access your password vault.
-                    </p>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Approved!</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Login successful. Auto-filling...</p>
                   </div>
                 `;
-                container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
+              }
+              setTimeout(() => {
+                passwordInput.value = decryptRes.decrypted_password;
+                passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
+                overlay.remove();
+                setTimeout(() => {
+                  const submitButton = document.querySelector('button[type="submit"], input[type="submit"]') as HTMLElement;
+                  if (submitButton) submitButton.click();
+                }, 500);
+              }, 500);
+            } else {
+              if (container) {
+                container.innerHTML = `
+                  <button id="close-match-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    </div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Failed</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Could not inject password.</p>
+                  </div>
+                `;
+                container.querySelector('#close-match-error')?.addEventListener('click', () => overlay.remove());
               }
             }
-            
-          } else if (pollRes.status === 'EXPIRED') {
-            clearInterval(pollInterval);
-            const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
-            if (container) {
-              container.innerHTML = `
-                <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
-                  <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                  </div>
-                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Request Expired</h3>
-                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">This Passkey request has expired. Please try again.</p>
-                </div>
-              `;
-              container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
-            } else {
-              overlay.remove();
-            }
           }
-        } else {
-          clearInterval(pollInterval);
-          const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
-          if (container) {
-            container.innerHTML = `
-              <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
-                <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-                </div>
-                <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Failed</h3>
-                <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">\${pollRes?.error || "Failed to communicate with server."}</p>
-              </div>
-            `;
-            container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
-          } else {
-            overlay.remove();
-          }
+        } catch (err) {
+          console.error("WS parse error", err);
         }
-      }, 2000);
+      };
+
+      ws.onerror = (err) => {
+        console.error("WS Error", err);
+      };
 
     } catch (error) {
       console.error('[uid.one] Error:', error);
