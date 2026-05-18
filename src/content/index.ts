@@ -253,19 +253,21 @@ function injectIcon(input: HTMLInputElement) {
                 setTimeout(() => overlay.remove(), 500);
               }, 500);
             } else {
-              console.log('[uid.one] OOB Login Approved. Tokens received:', pollRes.data);
+              console.warn('[uid.one] Missing password payload. User likely scanned with a regular camera instead of the UID.ONE app.');
               if (container) {
                 container.innerHTML = `
-                  <button id="close-qr-success" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+                  <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
-                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #fef08a; display: flex; align-items: center; justify-content: center; color: #ca8a04;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                     </div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Approved!</h3>
-                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Login successful. You can close this window.</p>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #ca8a04;">Missing Password</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
+                      Please use the <b>UID.ONE Mobile App</b> to scan this code. Regular cameras cannot access your password vault.
+                    </p>
                   </div>
                 `;
-                container.querySelector('#close-qr-success')?.addEventListener('click', () => overlay.remove());
+                container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
               }
             }
             
