@@ -170,7 +170,7 @@ function injectIcon(input: HTMLInputElement) {
       const overlay = document.createElement('div');
       overlay.innerHTML = `
         <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-          <div style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative;">
+          <div id="uid-qr-container" style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
             <button id="close-qr" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
             <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Scan to Unlock</h3>
             <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -199,8 +199,20 @@ function injectIcon(input: HTMLInputElement) {
         if (pollRes?.success) {
           if (pollRes.status === 'APPROVED') {
             clearInterval(pollInterval);
-            overlay.remove();
             
+            const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
+            if (container) {
+              container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                  <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Login Approved</h3>
+                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Injecting credentials...</p>
+                </div>
+              `;
+            }
+
             if (pollRes.data.decrypted_password) {
               console.log('[uid.one] E2EE Payload received. Injecting password...');
               // Bypass React/Vue value tracking
@@ -227,21 +239,62 @@ function injectIcon(input: HTMLInputElement) {
                     form.submit();
                   }
                 }
-              }, 300);
+                setTimeout(() => overlay.remove(), 500);
+              }, 500);
             } else {
               console.log('[uid.one] OOB Login Approved. Tokens received:', pollRes.data);
-              alert("Login Approved! (SSO Token Received)");
+              if (container) {
+                container.innerHTML = `
+                  <button id="close-qr-success" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Approved!</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Login successful. You can close this window.</p>
+                  </div>
+                `;
+                container.querySelector('#close-qr-success')?.addEventListener('click', () => overlay.remove());
+              }
             }
             
           } else if (pollRes.status === 'EXPIRED') {
             clearInterval(pollInterval);
-            overlay.remove();
-            alert("This Passkey request has expired. Please try again.");
+            const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
+            if (container) {
+              container.innerHTML = `
+                <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
+                  <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  </div>
+                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Request Expired</h3>
+                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">This Passkey request has expired. Please try again.</p>
+                </div>
+              `;
+              container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
+            } else {
+              overlay.remove();
+            }
           }
         } else {
           clearInterval(pollInterval);
-          overlay.remove();
-          alert("Failed to poll status: " + (pollRes?.error || "Unknown error"));
+          const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
+          if (container) {
+            container.innerHTML = `
+              <button id="close-qr-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                </div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Failed</h3>
+                <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">\${pollRes?.error || "Failed to communicate with server."}</p>
+              </div>
+            `;
+            container.querySelector('#close-qr-error')?.addEventListener('click', () => overlay.remove());
+          } else {
+            overlay.remove();
+          }
         }
       }, 2000);
 
