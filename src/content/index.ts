@@ -203,17 +203,31 @@ function injectIcon(input: HTMLInputElement) {
             
             if (pollRes.data.decrypted_password) {
               console.log('[uid.one] E2EE Payload received. Injecting password...');
-              passwordInput.value = pollRes.data.decrypted_password;
+              // Bypass React/Vue value tracking
+              const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+              if (nativeInputValueSetter) {
+                nativeInputValueSetter.call(passwordInput, pollRes.data.decrypted_password);
+              } else {
+                passwordInput.value = pollRes.data.decrypted_password;
+              }
+              
               passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
               passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
               
-              // Optional: auto-submit the form
-              const form = passwordInput.closest('form');
-              if (form) {
-                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]') as HTMLElement;
-                if (submitBtn) submitBtn.click();
-                else form.submit();
-              }
+              // Optional: auto-submit the form with a slight delay
+              setTimeout(() => {
+                const form = passwordInput.closest('form');
+                if (form) {
+                  const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]') as HTMLElement;
+                  if (submitBtn) {
+                    submitBtn.click();
+                  } else {
+                    // Fallback to dispatching submit event and then calling form.submit()
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                    form.submit();
+                  }
+                }
+              }, 300);
             } else {
               console.log('[uid.one] OOB Login Approved. Tokens received:', pollRes.data);
               alert("Login Approved! (SSO Token Received)");
