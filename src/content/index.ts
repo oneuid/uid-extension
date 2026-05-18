@@ -132,16 +132,34 @@ function injectIcon(input: HTMLInputElement) {
       
       // 1. Request Challenge
       const reqRes = await new Promise<any>((resolve) => {
-        chrome.runtime.sendMessage({ 
-          type: 'START_OOB_AUTH', 
-          domain,
-          device,
-          identifier: targetUsername 
-        }, resolve);
+        try {
+          chrome.runtime.sendMessage({ 
+            type: 'START_OOB_AUTH', 
+            domain,
+            device,
+            identifier: targetUsername 
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error("[uid.one] Runtime error:", chrome.runtime.lastError);
+              resolve({ success: false, error: chrome.runtime.lastError.message });
+            } else {
+              resolve(response);
+            }
+          });
+        } catch (e: any) {
+          resolve({ success: false, error: e.toString() });
+        }
       });
+
+      console.log("[uid.one] START_OOB_AUTH response:", reqRes);
 
       if (!reqRes?.success) {
         alert("Failed to initiate OOB login: " + (reqRes?.error || "Unknown error"));
+        return;
+      }
+      
+      if (!reqRes?.challenge?.token) {
+        alert("Failed to initiate OOB login: Invalid response from extension background (missing token). Please refresh and try again.");
         return;
       }
 
