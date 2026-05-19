@@ -8,6 +8,7 @@ UID.ONE Sovereign Identity Extension is an enterprise-grade security extension d
 - **Universal Injection**: Detects and upgrades standard password inputs (`<input type="password">`) to support biometric logins (TouchID/Windows Hello) via the WebAuthn API.
 - **Zero-Trust Digital Signatures**: Intercepts PDF documents in the browser, calculates SHA-256 hashes locally, and injects PKCS#7 signature blocks authorized by the mobile app—without ever uploading the document to a server.
 - **Zero-Trust Anonymous Flow (QR Code)**: The extension acts as a lightweight, dumb terminal. It requires **NO LOGIN** and stores **NO TOKENS**. All authentication is handled out-of-band via a secure QR code or Push Notification.
+- **Sovereign CA Enforcement:** Automatically verifies SVIDs and mathematically validates signatures to protect users from malicious sites without needing an external Auth Server connection.
 - **Mobile App Requirement**: To use this extension, you **MUST** have the UID.ONE mobile app installed on your smartphone and an active account. Authentication is authorized solely by scanning the extension's QR code or verifying the Matching Number on your phone.
 - **Native SDK Detection**: Smartly avoids double-injection (UI conflicts) by detecting the `<meta name="uid-passkey-native" content="true">` tag broadcasted by the `@oneuid-auth-js/core` SDK.
 - **Absolute Privacy**: Zero telemetry. Passkeys are encrypted (AES-GCM 256-bit) and stored entirely locally.
