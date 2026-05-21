@@ -26,7 +26,7 @@ For detailed architectural specifications, please see the [UID 7-Layer Architect
    - Click "Load unpacked" and select the `dist/` or `build/` folder.
 
 ## Native Messaging Setup
-To test Native Messaging with UID Agent locally, ensure the native messaging host manifest is installed in your browser's specific configuration directory.
+To test Native Messaging with the local host securely, ensure the native messaging host manifest is installed in your browser's specific configuration directory.
 
 ## License
 
