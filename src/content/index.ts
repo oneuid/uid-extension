@@ -2,6 +2,551 @@ import QRCode from 'qrcode';
 
 console.log('[uid.one] Content script loaded on', window.location.hostname);
 
+// ================= DLP ENGINE & PATTERNS =================
+
+export const SENSITIVE_PATTERNS = {
+  // Vietnamese ID / Passport
+  vnId: /\b\d{9}(\d{3})?\b/g,
+
+  // Credit card numbers (Luhn-valid)
+  creditCard: /\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b/g,
+
+  // Bank account (VN format)
+  bankAccount: /\b\d{9,16}\b/g,
+
+  // Email addresses in bulk (>3 emails = potential data exfil)
+  emailBulk: /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+
+  // Phone numbers
+  phone: /(\+84|0)[0-9]{9,10}/g,
+
+  // API Keys / Secrets (common patterns)
+  apiKey: /\b(sk-|pk-|api_key=|secret=)[A-Za-z0-9]{20,}\b/gi,
+
+  // JWT tokens
+  jwt: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g,
+
+  // Private keys
+  privateKey: /-----BEGIN (RSA |EC |)PRIVATE KEY-----/,
+};
+
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+
+export interface Finding {
+  type: string;
+  count: number;
+  sample: string;
+}
+
+export interface DLPResult {
+  blocked: boolean;
+  riskLevel: RiskLevel;
+  findings: Finding[];
+  recommendation: string;
+}
+
+export function scanContent(content: string): DLPResult {
+  const findings: Finding[] = [];
+
+  for (const [type, pattern] of Object.entries(SENSITIVE_PATTERNS)) {
+    const matches = content.match(pattern);
+    if (matches && matches.length > 0) {
+      findings.push({
+        type,
+        count: matches.length,
+        sample: redact(matches[0]),
+      });
+    }
+  }
+
+  if (findings.length === 0) {
+    return { blocked: false, riskLevel: 'low', findings: [], recommendation: '' };
+  }
+
+  const riskLevel = assessRisk(findings);
+  const blocked = riskLevel === 'critical' || riskLevel === 'high';
+
+  return {
+    blocked,
+    riskLevel,
+    findings,
+    recommendation: buildRecommendation(findings, riskLevel),
+  };
+}
+
+function assessRisk(findings: Finding[]): RiskLevel {
+  const types = findings.map(f => f.type);
+
+  if (types.includes('privateKey') || types.includes('jwt')) {
+    return 'critical';
+  }
+
+  if (types.some(t => ['creditCard', 'apiKey', 'vnId'].includes(t))) {
+    return 'high';
+  }
+
+  if (types.some(t => ['phone', 'emailBulk'].includes(t))) {
+    return 'medium';
+  }
+
+  return 'low';
+}
+
+function redact(sample: string): string {
+  if (sample.length <= 8) return '••••••••';
+  return sample.slice(0, 4) + '••••' + sample.slice(-4);
+}
+
+function buildRecommendation(_findings: Finding[], risk: RiskLevel): string {
+  if (risk === 'critical') {
+    return 'This content contains credentials or tokens. Sending it could compromise your accounts.';
+  }
+  if (risk === 'high') {
+    return 'This content may contain sensitive personal or financial data.';
+  }
+  return 'Review this content before sending.';
+}
+
+// ================= DLP WARNING UI =================
+
+export interface DLPWarningOptions {
+  context: 'file_upload' | 'clipboard_paste' | 'form_submit' | 'drag_drop';
+  result: DLPResult;
+  filename?: string;
+  onAllow?: () => void;
+}
+
+export async function showDLPWarning(options: DLPWarningOptions): Promise<void> {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 2147483647;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    `;
+
+    const contextLabel = {
+      file_upload: 'File upload',
+      clipboard_paste: 'Clipboard paste',
+      form_submit: 'Form submission',
+      drag_drop: 'File drop',
+    }[options.context];
+
+    const riskColor = {
+      critical: '#dc2626',
+      high: '#ea580c',
+      medium: '#d97706',
+      low: '#2563eb',
+    }[options.result.riskLevel];
+
+    overlay.innerHTML = `
+      <div style="
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      ">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div style="
+            width:40px;height:40px;border-radius:8px;
+            background:${riskColor};display:flex;
+            align-items:center;justify-content:center;
+            color:white;font-size:20px;flex-shrink:0
+          ">⚠</div>
+          <div>
+            <div style="font-weight:600;font-size:15px;color:#111827;">
+              Sensitive data detected
+            </div>
+            <div style="color:#6b7280;font-size:13px">
+              ${contextLabel}${options.filename ? ` — ${options.filename}` : ''}
+            </div>
+          </div>
+        </div>
+
+        <p style="color:#374151;font-size:14px;line-height:1.5;margin:0 0 16px">
+          ${options.result.recommendation}
+        </p>
+
+        <div style="
+          background:#f9fafb;border-radius:8px;
+          padding:12px;margin-bottom:20px;
+          border:1px solid #e5e7eb
+        ">
+          ${options.result.findings.map(f => `
+            <div style="font-size:13px;color:#374151;padding:2px 0">
+              <strong>${f.type}</strong>
+              ${f.count > 1 ? `× ${f.count}` : ''}
+              — <code style="color:#dc2626">${f.sample}</code>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          ${options.onAllow ? `
+            <button id="uid-dlp-allow" style="
+              background:none;border:1px solid #d1d5db;
+              color:#374151;padding:8px 16px;border-radius:6px;
+              cursor:pointer;font-size:14px
+            ">Send anyway</button>
+          ` : ''}
+          <button id="uid-dlp-block" style="
+            background:#111827;color:white;
+            border:none;padding:8px 20px;border-radius:6px;
+            cursor:pointer;font-size:14px;font-weight:500
+          ">Don't send</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#uid-dlp-block')?.addEventListener('click', () => {
+      overlay.remove();
+      resolve();
+    });
+
+    overlay.querySelector('#uid-dlp-allow')?.addEventListener('click', () => {
+      overlay.remove();
+      options.onAllow?.();
+      resolve();
+    });
+  });
+}
+
+// ================= DLP INTERCEPTORS =================
+
+export class FileUploadInterceptor {
+  private observer: MutationObserver | null = null;
+
+  init(): void {
+    this.scanFileInputs(document.querySelectorAll('input[type="file"]'));
+
+    this.observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach(node => {
+          if (node instanceof Element) {
+            const inputs = node.querySelectorAll('input[type="file"]');
+            this.scanFileInputs(inputs);
+          }
+        });
+      }
+    });
+
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    document.addEventListener('drop', this.handleDrop.bind(this), true);
+  }
+
+  private scanFileInputs(inputs: NodeListOf<Element>): void {
+    inputs.forEach(input => {
+      if (input.getAttribute('data-uid-scanned')) return;
+      input.setAttribute('data-uid-scanned', 'true');
+
+      input.addEventListener('change', async (e) => {
+        const inputEl = e.target as HTMLInputElement;
+        if (inputEl.getAttribute('data-uid-allowed') === 'true') {
+          inputEl.removeAttribute('data-uid-allowed');
+          return;
+        }
+
+        const files = inputEl.files;
+        if (!files || files.length === 0) return;
+
+        await this.handleFiles(Array.from(files), inputEl);
+      });
+    });
+  }
+
+  private async handleFiles(files: File[], input: HTMLInputElement): Promise<void> {
+    for (const file of files) {
+      const result = await this.scanFile(file);
+
+      if (result.blocked) {
+        input.value = '';
+
+        await showDLPWarning({
+          context: 'file_upload',
+          filename: file.name,
+          result,
+          onAllow: () => {
+            input.setAttribute('data-uid-allowed', 'true');
+            // Re-trigger the selection (or alert the page framework if needed)
+          },
+        });
+      }
+    }
+  }
+
+  private async scanFile(file: File): Promise<DLPResult> {
+    const textTypes = ['text/', 'application/json', 'application/xml', 'application/csv', 'application/sql'];
+    const isText = textTypes.some(t => file.type.startsWith(t))
+                   || file.name.endsWith('.txt')
+                   || file.name.endsWith('.csv')
+                   || file.name.endsWith('.json')
+                   || file.name.endsWith('.sql')
+                   || file.name.endsWith('.env')
+                   || file.name.endsWith('.key')
+                   || file.name.endsWith('.pem');
+
+    if (!isText) return { blocked: false, riskLevel: 'low', findings: [], recommendation: '' };
+
+    const MAX_SCAN_SIZE = 1024 * 1024;
+    if (file.size > MAX_SCAN_SIZE) {
+      return {
+        blocked: false,
+        riskLevel: 'medium',
+        findings: [{ type: 'large_file', count: 1, sample: `${(file.size / 1024 / 1024).toFixed(1)}MB` }],
+        recommendation: 'Large file — please verify it does not contain sensitive data.',
+      };
+    }
+
+    try {
+      const text = await file.text();
+      return scanContent(text);
+    } catch (e) {
+      return { blocked: false, riskLevel: 'low', findings: [], recommendation: '' };
+    }
+  }
+
+  private async handleDrop(e: DragEvent): Promise<void> {
+    if (!e.dataTransfer?.files?.length) return;
+    const files = Array.from(e.dataTransfer.files);
+
+    for (const file of files) {
+      const result = await this.scanFile(file);
+      if (result.blocked) {
+        e.preventDefault();
+        e.stopPropagation();
+        await showDLPWarning({ context: 'drag_drop', filename: file.name, result });
+        break;
+      }
+    }
+  }
+}
+
+export class ClipboardInterceptor {
+  init(): void {
+    document.addEventListener('paste', this.handlePaste.bind(this), true);
+    document.addEventListener('copy', this.handleCopy.bind(this), true);
+  }
+
+  private async handlePaste(e: ClipboardEvent): Promise<void> {
+    const target = e.target as HTMLElement;
+    if (target.getAttribute('data-uid-allowed') === 'true') {
+      target.removeAttribute('data-uid-allowed');
+      return;
+    }
+
+    const text = e.clipboardData?.getData('text/plain');
+    if (!text) return;
+
+    const result = scanContent(text);
+
+    if (result.riskLevel === 'critical') {
+      e.preventDefault();
+      e.stopPropagation();
+
+      await showDLPWarning({
+        context: 'clipboard_paste',
+        result,
+        onAllow: () => {
+          target.setAttribute('data-uid-allowed', 'true');
+          // Re-insert content
+          if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+            const start = target.selectionStart || 0;
+            const end = target.selectionEnd || 0;
+            const val = target.value;
+            target.value = val.slice(0, start) + text + val.slice(end);
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        },
+      });
+    }
+  }
+
+  private async handleCopy(_e: ClipboardEvent): Promise<void> {
+    const text = window.getSelection()?.toString();
+    if (!text) return;
+
+    const result = scanContent(text);
+
+    if (result.riskLevel === 'high' || result.riskLevel === 'critical') {
+      chrome.runtime.sendMessage({
+        type: 'SHOW_NOTIFICATION',
+        title: 'Sensitive Data Copied',
+        message: 'You copied potentially sensitive data. Review before sending it.',
+      });
+    }
+  }
+}
+
+export class FormInterceptor {
+  init(): void {
+    document.addEventListener('submit', this.handleSubmit.bind(this), true);
+  }
+
+  private async handleSubmit(e: SubmitEvent): Promise<void> {
+    const form = e.target as HTMLFormElement;
+
+    if (form.getAttribute('data-uid-owned') || form.getAttribute('data-uid-allowed')) return;
+
+    const content = this.extractFormContent(form);
+    if (!content) return;
+
+    const result = scanContent(content);
+
+    if (result.blocked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      await showDLPWarning({
+        context: 'form_submit',
+        result,
+        onAllow: () => {
+          form.setAttribute('data-uid-allowed', 'true');
+          form.requestSubmit();
+        },
+      });
+    }
+  }
+
+  private extractFormContent(form: HTMLFormElement): string {
+    const data = new FormData(form);
+    const parts: string[] = [];
+
+    data.forEach((value, key) => {
+      if (value instanceof File) return;
+      if (key.toLowerCase().includes('password')) return;
+      if (key.toLowerCase().includes('token')) return;
+      parts.push(`${key}=${value}`);
+    });
+
+    return parts.join('\n');
+  }
+}
+
+// ================= ORIGIN VERIFICATION (Phishing Detection) =================
+
+export class OriginVerifier {
+  private readonly SUSPICIOUS_PATTERNS = [
+    /uid\.one\./i,           // uid.one.evil.com
+    /uid-one/i,              // uid-one-login.com
+    /uidone/i,               // uidone-secure.com
+    /uid_one/i,
+  ];
+
+  init(): void {
+    this.checkCurrentPage();
+    this.monitorFormSubmissions();
+  }
+
+  private checkCurrentPage(): void {
+    const hostname = window.location.hostname;
+    const isLegit = this.isLegitimateUIDDomain(hostname);
+    const isFake = this.isSuspiciousUIDDomain(hostname);
+
+    if (isFake && !isLegit) {
+      this.showPhishingWarning(hostname);
+    }
+  }
+
+  private isLegitimateUIDDomain(hostname: string): boolean {
+    const LEGIT_DOMAINS = [
+      'uid.one',
+      'auth.uid.one',
+      'api.uid.one',
+    ];
+    return LEGIT_DOMAINS.some(d =>
+      hostname === d || hostname.endsWith(`.${d}`) || hostname === 'localhost' || hostname === '127.0.0.1'
+    );
+  }
+
+  private isSuspiciousUIDDomain(hostname: string): boolean {
+    return this.SUSPICIOUS_PATTERNS.some(p => p.test(hostname));
+  }
+
+  private showPhishingWarning(hostname: string): void {
+    const banner = document.createElement('div');
+    banner.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2147483647;
+      background: #dc2626;
+      color: white;
+      padding: 12px 16px;
+      font-family: sans-serif;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    `;
+    banner.innerHTML = `
+      <span>
+        ⚠ <strong>Phishing warning:</strong>
+        This page (${hostname}) may be impersonating UID.one.
+        Do not enter your credentials.
+      </span>
+      <button id="uid-phish-dismiss"
+        style="background:none;border:1px solid white;color:white;
+               padding:4px 12px;border-radius:4px;cursor:pointer">
+        Dismiss
+      </button>
+    `;
+    document.body.prepend(banner);
+    banner.querySelector('#uid-phish-dismiss')?.addEventListener('click', () => banner.remove());
+  }
+
+  private monitorFormSubmissions(): void {
+    document.addEventListener('submit', (e) => {
+      const form = e.target as HTMLFormElement;
+      if (!form.querySelector('[data-uid-autofill]')) return;
+
+      const action = new URL(form.action || window.location.href);
+      const isSecure = action.protocol === 'https:' || action.hostname === 'localhost' || action.hostname === '127.0.0.1';
+
+      if (!isSecure) {
+        e.preventDefault();
+        this.showInsecureSubmitWarning(action.hostname);
+      }
+    }, true);
+  }
+
+  private showInsecureSubmitWarning(hostname: string): void {
+    chrome.runtime.sendMessage({
+      type: 'SHOW_NOTIFICATION',
+      title: 'Insecure Form Blocked',
+      message: `${hostname} uses HTTP. Your credentials were not submitted.`,
+    });
+  }
+}
+
+// ================= SESSION CAPTURING =================
+
+function captureSessionToken() {
+  try {
+    const token = localStorage.getItem('oneuid_access_token');
+    if (token) {
+      chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
+    }
+  } catch (e) {
+    // ignore iframe/cross-origin localstorage security access restrictions
+  }
+}
+
+// ================= AUTOFILL ICON INJECTION & AUTH =================
+
 let isChecking = false;
 
 function init() {
@@ -14,12 +559,33 @@ function init() {
   }
   
   injectAll();
+
+  // Initialize DLP, Origin verification, and Session capturer
+  try {
+    const fileInterceptor = new FileUploadInterceptor();
+    fileInterceptor.init();
+
+    const clipboardInterceptor = new ClipboardInterceptor();
+    clipboardInterceptor.init();
+
+    const formInterceptor = new FormInterceptor();
+    formInterceptor.init();
+
+    const originVerifier = new OriginVerifier();
+    originVerifier.init();
+
+    captureSessionToken();
+  } catch (err) {
+    console.error('[uid.one] Security interceptors initialization failed:', err);
+  }
+
   const observer = new MutationObserver(() => {
     if (!chrome.runtime?.id) {
       observer.disconnect();
       return;
     }
     injectAll();
+    captureSessionToken();
   });
   observer.observe(document.body, { childList: true, subtree: true });
 }
@@ -29,12 +595,18 @@ const injectedInputs = new WeakSet<HTMLInputElement>();
 function injectAll() {
   const nativeMeta = document.querySelector('meta[name="uid-passkey-native"]');
   if (nativeMeta && nativeMeta.getAttribute('content') === 'true') {
-    return; // Abort injection if native integration is detected
+    return; 
   }
+
+  // Ensure not run on HTTP (except localhost) and not run on uid.one domains
+  const hostname = window.location.hostname;
+  const isHttp = window.location.protocol === 'http:' && hostname !== 'localhost' && hostname !== '127.0.0.1';
+  const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+
+  if (isHttp || isUidDomain) return;
 
   const passwordInputs = document.querySelectorAll<HTMLInputElement>('input[type="password"]');
   passwordInputs.forEach((input) => {
-    // Skip if input is hidden, disabled, readonly, or part of a new-password/change-password form
     if (
       input.disabled || 
       input.readOnly || 
@@ -66,6 +638,7 @@ function injectIcon(input: HTMLInputElement) {
   const originalPaddingRight = parseFloat(computedStyle.paddingRight) || 0;
   
   input.style.paddingRight = `${originalPaddingRight + 28}px`;
+  input.setAttribute('data-uid-autofill', 'true');
 
   const updatePosition = () => {
     const rect = input.getBoundingClientRect();
@@ -130,13 +703,11 @@ function injectIcon(input: HTMLInputElement) {
       const domain = window.location.hostname;
       const device = navigator.userAgent.includes("Mac") ? "Chrome on macOS" : "Chrome Web";
       
-      // Check if paired
       const isPairedRes = await new Promise<any>((resolve) => {
         chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, resolve);
       });
 
       if (!isPairedRes?.isPaired) {
-        // --- PHASE 1: PAIRING MODE ---
         const reqRes = await new Promise<any>((resolve) => {
           chrome.runtime.sendMessage({ type: 'START_OOB_AUTH', domain, device, identifier: targetUsername }, resolve);
         });
@@ -191,7 +762,6 @@ function injectIcon(input: HTMLInputElement) {
         return;
       }
 
-      // --- PHASE 2: NUMBER MATCHING MODE ---
       const reqRes = await new Promise<any>((resolve) => {
         chrome.runtime.sendMessage({ type: 'PUSH_REQUEST', domain }, resolve);
       });
@@ -225,7 +795,6 @@ function injectIcon(input: HTMLInputElement) {
       document.body.appendChild(overlay);
       overlay.querySelector('#close-match')?.addEventListener('click', () => overlay.remove());
 
-      // Open WebSocket
       const wsBase = import.meta.env.VITE_WS_BASE || 'wss://api.uid.one';
       const wsUrl = `${wsBase}/ws/challenges/${challengeId}/`;
       const ws = new WebSocket(wsUrl);
@@ -313,8 +882,6 @@ function injectIcon(input: HTMLInputElement) {
   shadowRoot.appendChild(icon);
 }
 
-
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
@@ -323,29 +890,25 @@ if (document.readyState === 'loading') {
 
 // -------- PDF DIGITAL SIGNING --------
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   if (request.action === 'START_PDF_SIGNING') {
     handlePdfSigning(request.url).catch(console.error);
   }
 });
 
 function showToast(msg: string, type: string) {
-  // Simple toast placeholder
   console.log(`[uid.one - ${type}] ${msg}`);
 }
 
 async function handlePdfSigning(pdfUrl: string) {
-  // 1. Fetch the PDF as ArrayBuffer
   showToast("Fetching PDF for signing...", "info");
   const response = await fetch(pdfUrl);
   const arrayBuffer = await response.arrayBuffer();
   
-  // 2. Hash the PDF securely (SHA-256)
   const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   
-  // 3. Send request to background to create Challenge
   chrome.runtime.sendMessage({
     action: 'REQUEST_DIGITAL_SIGNATURE',
     domain: window.location.hostname,
@@ -366,35 +929,41 @@ async function handlePdfSigning(pdfUrl: string) {
 
 function showSigningDialog(challengeData: any) {
   const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-  overlay.style.zIndex = '9999999';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
 
   const modal = document.createElement('div');
-  modal.style.backgroundColor = '#fff';
-  modal.style.padding = '32px';
-  modal.style.borderRadius = '16px';
-  modal.style.textAlign = 'center';
-  modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-  modal.style.color = '#000';
-  modal.style.fontFamily = 'system-ui, sans-serif';
+  modal.style.cssText = `
+    background-color: #fff;
+    padding: 32px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    color: #000;
+    font-family: system-ui, sans-serif;
+  `;
 
   const title = document.createElement('h2');
   title.innerText = 'UID.ONE Digital Signature';
   title.style.margin = '0 0 16px 0';
 
   const matchNum = document.createElement('div');
-  matchNum.style.fontSize = '48px';
-  matchNum.style.fontWeight = 'bold';
-  matchNum.style.letterSpacing = '8px';
-  matchNum.style.margin = '24px 0';
+  matchNum.style.cssText = `
+    font-size: 48px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    margin: 24px 0;
+  `;
   matchNum.innerText = challengeData.metadata?.match_number || '--';
 
   const info = document.createElement('p');
@@ -402,11 +971,13 @@ function showSigningDialog(challengeData: any) {
   
   const cancelBtn = document.createElement('button');
   cancelBtn.innerText = 'Cancel';
-  cancelBtn.style.marginTop = '24px';
-  cancelBtn.style.padding = '8px 16px';
-  cancelBtn.style.border = '1px solid #ccc';
-  cancelBtn.style.borderRadius = '8px';
-  cancelBtn.style.cursor = 'pointer';
+  cancelBtn.style.cssText = `
+    margin-top: 24px;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+  `;
   cancelBtn.onclick = () => document.body.removeChild(overlay);
 
   modal.appendChild(title);
@@ -416,7 +987,6 @@ function showSigningDialog(challengeData: any) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Poll for status
   const pollInterval = setInterval(() => {
     chrome.runtime.sendMessage({
       action: 'POLL_STATUS',
@@ -426,7 +996,6 @@ function showSigningDialog(challengeData: any) {
         clearInterval(pollInterval);
         document.body.removeChild(overlay);
         showToast("Signature applied successfully!", "success");
-        // TODO: Inject PKCS#7 using pdf-lib here
       } else if (res && res.success && (res.data.status === 'EXPIRED' || res.data.status === 'REJECTED')) {
         clearInterval(pollInterval);
         document.body.removeChild(overlay);
@@ -435,4 +1004,3 @@ function showSigningDialog(challengeData: any) {
     });
   }, 2000);
 }
-

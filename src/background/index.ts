@@ -5,6 +5,7 @@ const CLIENT_ID = 'uid_extension_client';
 
 // Memory store: token -> privateKey
 const pendingKeys = new Map<string, CryptoKey>();
+let activeSessionToken: string | null = null;
 
 function bufferToBase64(buffer: ArrayBuffer): string {
   let binary = '';
@@ -24,8 +25,185 @@ function base64ToBuffer(base64: string): ArrayBuffer {
   return bytes.buffer;
 }
 
+// ================= SESSION BINDING CLIENT =================
+
+export class SessionBinding {
+  async bindSession(sessionToken: string): Promise<string> {
+    const fingerprint = await this.getDeviceFingerprint();
+    const bindingKey = await this.hmac(fingerprint, sessionToken);
+
+    const key = `binding_${sessionToken.slice(-16)}`;
+    await chrome.storage.local.set({
+      [key]: {
+        bindingKey,
+        createdAt: Date.now(),
+      }
+    });
+
+    // Register with backend server
+    try {
+      await fetch('https://api.uid.one/v1/auth/session-binding/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify({ binding_key: bindingKey })
+      });
+    } catch (err) {
+      console.error('[uid.one] Failed to register session binding on server:', err);
+    }
+
+    return bindingKey;
+  }
+
+  async getBindingHeader(sessionToken: string): Promise<string | null> {
+    const key = `binding_${sessionToken.slice(-16)}`;
+    const stored = await chrome.storage.local.get(key);
+
+    if (!stored[key]) return null;
+
+    const fingerprint = await this.getDeviceFingerprint();
+    return await this.hmac(fingerprint, sessionToken);
+  }
+
+  private async getDeviceFingerprint(): Promise<string> {
+    const components = [
+      navigator.userAgent,
+      navigator.language,
+      screen.colorDepth?.toString() || '24',
+      screen.width?.toString() || '1920',
+      screen.height?.toString() || '1080',
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      navigator.hardwareConcurrency?.toString() || '8',
+    ];
+
+    const raw = components.join('|');
+    return await this.sha256(raw);
+  }
+
+  private async sha256(message: string): Promise<string> {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  private async hmac(keyStr: string, message: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const keyBuffer = encoder.encode(keyStr);
+    const messageBuffer = encoder.encode(message);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      keyBuffer,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+
+    const signature = await crypto.subtle.sign(
+      'HMAC',
+      cryptoKey,
+      messageBuffer
+    );
+
+    const hashArray = Array.from(new Uint8Array(signature));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+}
+
+async function getActiveSessionToken(): Promise<string | null> {
+  if (activeSessionToken) return activeSessionToken;
+  const stored = await chrome.storage.local.get(['oneuid_access_token', 'identity_token']);
+  const access = stored.oneuid_access_token as string | undefined;
+  const identity = stored.identity_token as string | undefined;
+  return access || identity || null;
+}
+
+// ================= OUTGOING REQUEST INTERCEPTOR =================
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  (details) => {
+    // We cannot use await directly inside onBeforeSendHeaders if blocking is expected to run synchronously.
+    // However, in Manifest V3, blocking requests require rules in declarativeNetRequest or we can run synchronously if the value is cached.
+    // Let's resolve the cached session token sync-like or run the check:
+    // To inject headers dynamically, we can use declarativeNetRequest or blocking webRequest in chrome.
+    // Since webRequestBlocking is in permissions, we can block or modify headers.
+    // In order to perform async storage lookup inside synchronous webRequest handler, we can keep the session token in RAM (activeSessionToken).
+    if (activeSessionToken) {
+      const binding = new SessionBinding();
+      // Since screen/navigator fingerprinting doesn't change, we can cache the final binding header value in memory.
+      // Let's retrieve from local storage and update memory cache.
+      
+      // Let's compute binding header value
+      // Note: we can compute it asynchronously but update header dynamically.
+      // A cleaner way in MV3 is using chrome.declarativeNetRequest to inject headers, but since we need session token binding,
+      // let's do synchronous injection using a memory-cached binding header.
+      const cachedHeaderKey = `cached_binding_header_${activeSessionToken.slice(-16)}`;
+      chrome.storage.local.get(cachedHeaderKey).then(res => {
+        if (res[cachedHeaderKey]) {
+          // Already cached in storage
+          return;
+        }
+        binding.getBindingHeader(activeSessionToken!).then(headerValue => {
+          if (headerValue) {
+            chrome.storage.local.set({ [cachedHeaderKey]: headerValue });
+          }
+        });
+      });
+
+      // Synchronously retrieve from memory if we loaded it, or wait for next.
+      // To ensure it is injected, we check if we have it in storage.
+      // As a fallback, we can read/cache it.
+    }
+    return { requestHeaders: details.requestHeaders };
+  },
+  { urls: ["*://*.uid.one/*"] },
+  ["requestHeaders", "extraHeaders"]
+);
+
+// We can also inject the header asynchronously using declarativeNetRequest dynamic rules!
+// This is the modern, highly recommended MV3 way which is extremely reliable.
+async function updateDeclarativeRules(token: string) {
+  const binding = new SessionBinding();
+  const headerValue = await binding.getBindingHeader(token);
+  if (!headerValue) return;
+
+  const ruleId = 1;
+  const rule = {
+    id: ruleId,
+    priority: 1,
+    action: {
+      type: "modifyRequestHeader",
+      requestHeaders: [
+        {
+          header: "X-UID-Session-Binding",
+          operation: "set",
+          value: headerValue
+        }
+      ]
+    },
+    condition: {
+      urlFilter: "||uid.one",
+      resourceTypes: ["main_frame", "sub_frame", "stylesheet", "script", "image", "font", "object", "xmlhttprequest", "ping", "csp_report", "media", "websocket", "other"]
+    }
+  };
+
+  try {
+    await chrome.declarativeNetRequest.updateSessionRules({
+      removeRuleIds: [ruleId],
+      addRules: [rule as any]
+    });
+    console.log('[uid.one] Declarative session rule set successfully.');
+  } catch (err) {
+    console.error('[uid.one] Failed to set declarative session rules:', err);
+  }
+}
+
+// ================= CORE BACKGROUND HANDLERS =================
+
 async function handleStartOOB(request: any) {
-  // 1. Generate local RSA-OAEP Key Pair
   const keyPair = await crypto.subtle.generateKey(
     {
       name: "RSA-OAEP",
@@ -37,11 +215,9 @@ async function handleStartOOB(request: any) {
     ["encrypt", "decrypt"]
   );
 
-  // 2. Export Public Key to SPKI Base64
   const spkiBuffer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
   const publicKeyBase64 = bufferToBase64(spkiBuffer);
 
-  // 3. Send OOB Request with Public Key (No auth required for QR)
   const res = await fetch(`${API_BASE}/challenges/request/`, {
     method: 'POST',
     headers: { 
@@ -59,7 +235,6 @@ async function handleStartOOB(request: any) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to request challenge');
 
-  // 4. Temporarily store the private key in RAM
   if (data.token) {
     pendingKeys.set(data.token, keyPair.privateKey);
   }
@@ -77,7 +252,6 @@ async function handlePollStatus(request: any) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to poll status');
 
-  // 5. Decrypt the payload if approved
   if (data.status === 'APPROVED' && data.encrypted_payload) {
     const privateKey = pendingKeys.get(request.token);
     if (!privateKey) {
@@ -107,26 +281,17 @@ async function handlePollStatus(request: any) {
   return data;
 }
 
-// 1. Identity Token Management
-async function getIdentityToken(): Promise<string | null> {
-  const result = await chrome.storage.local.get(['identity_token']);
-  return (result.identity_token as string) || null;
-}
-
 async function handleSavePairing(request: any) {
-  // Called by content script after polling indicates SUCCESS
   await chrome.storage.local.set({ 'identity_token': request.token });
   return { success: true };
 }
 
-// 3. Push Request (Number Matching)
 async function handlePushRequest(request: any) {
-  const identityToken = await getIdentityToken();
+  const identityToken = await getActiveSessionToken();
   if (!identityToken) {
     throw new Error('Device not paired. Please pair first.');
   }
 
-  // Generate ephemeral Session Key
   const keyPair = await crypto.subtle.generateKey(
     { name: "RSA-OAEP", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
     true, ["encrypt", "decrypt"]
@@ -151,12 +316,32 @@ async function handlePushRequest(request: any) {
   if (!res.ok) throw new Error(data.error || 'Failed to request push');
 
   pendingKeys.set(data.token, keyPair.privateKey);
-  return data; // Returns { token, match_number }
+  return data;
 }
+
+// Initialize active token on start
+getActiveSessionToken().then(token => {
+  if (token) {
+    activeSessionToken = token;
+    updateDeclarativeRules(token);
+  }
+});
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'CHECK_PAIRING') {
-    getIdentityToken().then(token => sendResponse({ isPaired: !!token }));
+    getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
+    return true;
+  }
+  else if (request.type === 'SET_SESSION_TOKEN') {
+    const token = request.token;
+    activeSessionToken = token;
+    chrome.storage.local.set({ 'oneuid_access_token': token }).then(() => {
+      const binding = new SessionBinding();
+      binding.bindSession(token)
+        .then(() => updateDeclarativeRules(token))
+        .then(() => sendResponse({ success: true }))
+        .catch(err => sendResponse({ success: false, error: err.toString() }));
+    });
     return true;
   }
   else if (request.type === 'START_OOB_AUTH') {
@@ -183,40 +368,39 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .catch(error => sendResponse({ success: false, error: error.toString() }));
     return true;
   }
-  else  if (request.action === 'POLL_STATUS') {
+  else if (request.action === 'POLL_STATUS') {
     handlePollStatus(request)
       .then(res => sendResponse({ success: true, data: res }))
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true;
   }
-  
-  if (request.action === 'REQUEST_DIGITAL_SIGNATURE') {
-    // 6. Request Challenge for Digital Signature (EXTENSION method)
-    fetch(`${API_BASE}/challenges/request/`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-        // Extension method requires Authorization, but wait, the user needs to be logged in?
-        // Let's rely on the token passed from content script if needed, or if it relies on cookie, it will be passed.
-      },
-      body: JSON.stringify({
-        method: 'DIGITAL_SIGNATURE',
-        domain: request.domain,
-        user_agent: request.user_agent,
-        identifier: request.identifier,
-        metadata: request.metadata
+  else if (request.action === 'REQUEST_DIGITAL_SIGNATURE') {
+    getActiveSessionToken().then(token => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      fetch(`${API_BASE}/challenges/request/`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          method: 'DIGITAL_SIGNATURE',
+          domain: request.domain,
+          user_agent: request.user_agent,
+          identifier: request.identifier,
+          metadata: request.metadata
+        })
       })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) throw new Error(data.error);
-      sendResponse({ success: true, data });
-    })
-    .catch(err => sendResponse({ success: false, error: err.message }));
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) throw new Error(data.error);
+        sendResponse({ success: true, data });
+      })
+      .catch(err => sendResponse({ success: false, error: err.message }));
+    });
     return true;
   }
   else if (request.type === 'DECRYPT_PAYLOAD') {
-    // Decrypt payload received via WebSocket in content script
     const privateKey = pendingKeys.get(request.token);
     if (!privateKey) {
       sendResponse({ success: false, error: 'Private key not found' });
@@ -237,6 +421,17 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     } catch (e) {
       sendResponse({ success: false, error: 'Decryption setup failed' });
     }
+    return true;
+  }
+  else if (request.type === 'SHOW_NOTIFICATION') {
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icon.png',
+      title: request.title,
+      message: request.message,
+      priority: 2
+    });
+    sendResponse({ success: true });
     return true;
   }
 });

@@ -13,7 +13,13 @@
   "permissions": [
     "storage",
     "contextMenus",
-    "activeTab"
+    "activeTab",
+    "tabs",
+    "clipboardRead",
+    "clipboardWrite",
+    "notifications",
+    "webRequest",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "*://api.uid.one/*",
