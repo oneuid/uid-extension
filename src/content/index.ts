@@ -457,15 +457,26 @@ export class ScreenshotProtector {
     `;
     document.head.appendChild(style);
 
-    // 2. Intercept print shortcuts and PrintScreen key
+    // 2. Intercept print shortcuts, PrintScreen key, and OS screenshot hotkeys
     document.addEventListener('keydown', (e) => {
       const isPrintKey = e.key === 'PrintScreen';
       const isPrintShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p';
+      const isWinScreenshot = e.metaKey && e.shiftKey && e.key.toLowerCase() === 's'; // Win+Shift+S
+      const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4'); // Cmd+Shift+3 or 4
 
-      if (isPrintKey || isPrintShortcut) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.showWarningToast("Printing and screen capturing are disabled by UID.ONE.");
+      if (isPrintKey || isPrintShortcut || isWinScreenshot || isMacScreenshot) {
+        document.body.classList.add('uid-blur-active');
+        if (isPrintKey || isPrintShortcut) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.showWarningToast("Printing and screen capturing are disabled by UID.ONE.");
+        }
+        // Keep the blur active for 2 seconds to cover the screenshot duration
+        setTimeout(() => {
+          if (document.hasFocus()) {
+            document.body.classList.remove('uid-blur-active');
+          }
+        }, 2000);
       }
     }, true);
 
@@ -476,6 +487,17 @@ export class ScreenshotProtector {
 
     window.addEventListener('focus', () => {
       document.body.classList.remove('uid-blur-active');
+    });
+
+    // 3.5. Listen to mouseleave/mouseenter to cover external utility selections
+    document.addEventListener('mouseleave', () => {
+      document.body.classList.add('uid-blur-active');
+    });
+
+    document.addEventListener('mouseenter', () => {
+      if (document.hasFocus()) {
+        document.body.classList.remove('uid-blur-active');
+      }
     });
 
     // 4. Listen to visibility change
