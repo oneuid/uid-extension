@@ -774,6 +774,15 @@ function init() {
   }
 
   console.log('[uid.one] Content script initialized on:', window.location.href);
+
+  // Inject active flag meta tag for handshake verification
+  const meta = document.createElement('meta');
+  meta.name = 'uid-extension-active';
+  meta.content = 'true';
+  const targetHead = document.head || document.documentElement;
+  if (targetHead) {
+    targetHead.appendChild(meta);
+  }
   
   try {
     injectAll();
