@@ -798,6 +798,7 @@ function init() {
     { name: 'OriginVerifier', run: () => new OriginVerifier().init() },
     { name: 'ScreenshotProtector', run: () => new ScreenshotProtector().init() },
     { name: 'ViewportCleaner', run: () => new ViewportCleaner().init() },
+    { name: 'NotificationBlocker', run: () => new NotificationBlocker().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1316,5 +1317,56 @@ export class ViewportCleaner {
         (child as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
       }
     });
+  }
+}
+
+export class NotificationBlocker {
+  init(): void {
+    // We inject a script into the main world to intercept notification and push request APIs
+    const script = document.createElement('script');
+    script.textContent = `
+      (function() {
+        const whitelist = [
+          'uid.one',
+          'trip.express',
+          'localhost',
+          '127.0.0.1'
+        ];
+        
+        function isWhitelisted() {
+          const hostname = window.location.hostname;
+          return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+        }
+
+        // 1. Intercept Notification.requestPermission
+        if (window.Notification) {
+          const originalRequest = window.Notification.requestPermission;
+          window.Notification.requestPermission = function() {
+            if (!isWhitelisted()) {
+              console.log('[uid.one] Blocked third-party notification request permission prompt on:', window.location.hostname);
+              return Promise.resolve('denied');
+            }
+            return originalRequest.apply(this, arguments);
+          };
+        }
+
+        // 2. Intercept PushManager.subscribe (Service Worker Push Notifications)
+        if (window.PushManager && window.PushManager.prototype.subscribe) {
+          const originalSubscribe = window.PushManager.prototype.subscribe;
+          window.PushManager.prototype.subscribe = function() {
+            if (!isWhitelisted()) {
+              console.log('[uid.one] Blocked third-party push subscription on:', window.location.hostname);
+              return Promise.reject(new DOMException('Permission denied', 'NotAllowedError'));
+            }
+            return originalSubscribe.apply(this, arguments);
+          };
+        }
+      })();
+    `;
+    const target = document.head || document.documentElement;
+    if (target) {
+      target.appendChild(script);
+      script.remove();
+    }
   }
 }
