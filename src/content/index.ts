@@ -439,6 +439,8 @@ export class FormInterceptor {
 
 export class ScreenshotProtector {
   init(): void {
+    console.log('[uid.one] Initializing ScreenshotProtector...');
+
     // 1. Add print and blur style sheet to document head
     const style = document.createElement('style');
     style.textContent = `
@@ -455,7 +457,10 @@ export class ScreenshotProtector {
         transition: filter 0.1s ease-in-out !important;
       }
     `;
-    document.head.appendChild(style);
+    const targetHead = document.head || document.documentElement;
+    if (targetHead) {
+      targetHead.appendChild(style);
+    }
 
     // 2. Intercept print shortcuts, PrintScreen key, OS screenshot hotkeys, and DevTools shortcuts
     document.addEventListener('keydown', (e) => {
@@ -469,7 +474,10 @@ export class ScreenshotProtector {
       const isSourceShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u';
 
       if (isPrintKey || isPrintShortcut || isWinScreenshot || isMacScreenshot) {
-        document.body.classList.add('uid-blur-active');
+        console.log('[uid.one] Keydown screenshot/print event detected:', e.key);
+        const container = document.body || document.documentElement;
+        if (container) container.classList.add('uid-blur-active');
+
         if (isPrintKey || isPrintShortcut) {
           e.preventDefault();
           e.stopPropagation();
@@ -478,7 +486,8 @@ export class ScreenshotProtector {
         // Keep the blur active for 2 seconds to cover the screenshot duration
         setTimeout(() => {
           if (document.hasFocus()) {
-            document.body.classList.remove('uid-blur-active');
+            const currentContainer = document.body || document.documentElement;
+            if (currentContainer) currentContainer.classList.remove('uid-blur-active');
           }
         }, 2000);
       } else if (isF12 || isInspectShortcut || isSourceShortcut) {
@@ -509,30 +518,41 @@ export class ScreenshotProtector {
 
     // 3. Listen to window blur/focus events to prevent OS screenshots
     window.addEventListener('blur', () => {
-      document.body.classList.add('uid-blur-active');
+      console.log('[uid.one] Window focus lost (blur event), applying blur filter');
+      const container = document.body || document.documentElement;
+      if (container) container.classList.add('uid-blur-active');
     });
 
     window.addEventListener('focus', () => {
-      document.body.classList.remove('uid-blur-active');
+      console.log('[uid.one] Window focus regained (focus event), removing blur filter');
+      const container = document.body || document.documentElement;
+      if (container) container.classList.remove('uid-blur-active');
     });
 
     // 3.5. Listen to mouseleave/mouseenter to cover external utility selections
     document.addEventListener('mouseleave', () => {
-      document.body.classList.add('uid-blur-active');
+      console.log('[uid.one] Mouse left the viewport (mouseleave event), applying blur filter');
+      const container = document.body || document.documentElement;
+      if (container) container.classList.add('uid-blur-active');
     });
 
     document.addEventListener('mouseenter', () => {
       if (document.hasFocus()) {
-        document.body.classList.remove('uid-blur-active');
+        console.log('[uid.one] Mouse returned and focus active (mouseenter event), removing blur filter');
+        const container = document.body || document.documentElement;
+        if (container) container.classList.remove('uid-blur-active');
       }
     });
 
     // 4. Listen to visibility change
     document.addEventListener('visibilitychange', () => {
+      const container = document.body || document.documentElement;
       if (document.hidden) {
-        document.body.classList.add('uid-blur-active');
+        console.log('[uid.one] Visibility hidden, applying blur filter');
+        if (container) container.classList.add('uid-blur-active');
       } else {
-        document.body.classList.remove('uid-blur-active');
+        console.log('[uid.one] Visibility visible, removing blur filter');
+        if (container) container.classList.remove('uid-blur-active');
       }
     });
 
@@ -550,10 +570,13 @@ export class ScreenshotProtector {
 
     if (!isUidDomain && !hasPassword) return;
 
+    console.log('[uid.one] Enabling DevTools console getter detector...');
     const element = new Image();
     Object.defineProperty(element, 'id', {
       get: () => {
-        document.body.classList.add('uid-blur-active');
+        console.log('[uid.one] DevTools console evaluated target object, triggering blur');
+        const container = document.body || document.documentElement;
+        if (container) container.classList.add('uid-blur-active');
         chrome.runtime.sendMessage({
           type: 'SHOW_NOTIFICATION',
           title: 'Security Alert',
@@ -577,6 +600,7 @@ export class ScreenshotProtector {
 
     if (document.getElementById('uid-watermark-overlay')) return;
 
+    console.log('[uid.one] Generating and injecting dynamic watermark overlay');
     const watermark = document.createElement('div');
     watermark.id = 'uid-watermark-overlay';
     watermark.style.cssText = `
@@ -611,7 +635,10 @@ export class ScreenshotProtector {
       watermark.appendChild(item);
     }
 
-    document.body.appendChild(watermark);
+    const container = document.body || document.documentElement;
+    if (container) {
+      container.appendChild(watermark);
+    }
   }
 
   private showWarningToast(message: string): void {
@@ -745,29 +772,32 @@ function init() {
     console.warn('[uid.one] Extension context invalidated. Please refresh the page.');
     return;
   }
+
+  console.log('[uid.one] Content script initialized on:', window.location.href);
   
-  injectAll();
+  try {
+    injectAll();
+  } catch (err) {
+    console.error('[uid.one] injectAll failed:', err);
+  }
 
   // Initialize DLP, Origin verification, and Session capturer
-  try {
-    const fileInterceptor = new FileUploadInterceptor();
-    fileInterceptor.init();
+  const interceptors = [
+    { name: 'FileUploadInterceptor', run: () => new FileUploadInterceptor().init() },
+    { name: 'ClipboardInterceptor', run: () => new ClipboardInterceptor().init() },
+    { name: 'FormInterceptor', run: () => new FormInterceptor().init() },
+    { name: 'OriginVerifier', run: () => new OriginVerifier().init() },
+    { name: 'ScreenshotProtector', run: () => new ScreenshotProtector().init() },
+    { name: 'captureSessionToken', run: () => captureSessionToken() }
+  ];
 
-    const clipboardInterceptor = new ClipboardInterceptor();
-    clipboardInterceptor.init();
-
-    const formInterceptor = new FormInterceptor();
-    formInterceptor.init();
-
-    const originVerifier = new OriginVerifier();
-    originVerifier.init();
-
-    const screenshotProtector = new ScreenshotProtector();
-    screenshotProtector.init();
-
-    captureSessionToken();
-  } catch (err) {
-    console.error('[uid.one] Security interceptors initialization failed:', err);
+  for (const interceptor of interceptors) {
+    try {
+      interceptor.run();
+      console.log(`[uid.one] Subsystem ${interceptor.name} loaded successfully.`);
+    } catch (err) {
+      console.error(`[uid.one] Failed to initialize ${interceptor.name}:`, err);
+    }
   }
 
   const observer = new MutationObserver(() => {
