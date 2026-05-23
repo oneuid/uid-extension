@@ -435,6 +435,68 @@ export class FormInterceptor {
   }
 }
 
+// ================= SCREENSHOT & PRINT PROTECTION =================
+
+export class ScreenshotProtector {
+  init(): void {
+    // 1. Add print and blur style sheet to document head
+    const style = document.createElement('style');
+    style.textContent = `
+      @media print {
+        body {
+          display: none !important;
+        }
+        html {
+          display: none !important;
+        }
+      }
+      .uid-blur-active {
+        filter: blur(25px) !important;
+        transition: filter 0.1s ease-in-out !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 2. Intercept print shortcuts and PrintScreen key
+    document.addEventListener('keydown', (e) => {
+      const isPrintKey = e.key === 'PrintScreen';
+      const isPrintShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p';
+
+      if (isPrintKey || isPrintShortcut) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showWarningToast("Printing and screen capturing are disabled by UID.ONE.");
+      }
+    }, true);
+
+    // 3. Listen to window blur/focus events to prevent OS screenshots
+    window.addEventListener('blur', () => {
+      document.body.classList.add('uid-blur-active');
+    });
+
+    window.addEventListener('focus', () => {
+      document.body.classList.remove('uid-blur-active');
+    });
+
+    // 4. Listen to visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        document.body.classList.add('uid-blur-active');
+      } else {
+        document.body.classList.remove('uid-blur-active');
+      }
+    });
+  }
+
+  private showWarningToast(message: string): void {
+    chrome.runtime.sendMessage({
+      type: 'SHOW_NOTIFICATION',
+      title: 'Security Alert',
+      message: message,
+    });
+  }
+}
+
 // ================= ORIGIN VERIFICATION (Phishing Detection) =================
 
 export class OriginVerifier {
@@ -573,6 +635,9 @@ function init() {
 
     const originVerifier = new OriginVerifier();
     originVerifier.init();
+
+    const screenshotProtector = new ScreenshotProtector();
+    screenshotProtector.init();
 
     captureSessionToken();
   } catch (err) {
