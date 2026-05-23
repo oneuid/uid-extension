@@ -482,9 +482,14 @@ export class ScreenshotProtector {
           }
         }, 2000);
       } else if (isF12 || isInspectShortcut || isSourceShortcut) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.showWarningToast("Developer tools are disabled on secure pages.");
+        const hostname = window.location.hostname;
+        const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+        const hasPassword = document.querySelector('input[type="password"]') !== null;
+        if (isUidDomain || hasPassword) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.showWarningToast("Developer tools are disabled on secure pages.");
+        }
       }
     }, true);
 
@@ -533,6 +538,34 @@ export class ScreenshotProtector {
 
     // 5. Inject Dynamic Watermark
     this.injectWatermark();
+
+    // 6. Initialize Console DevTools detector
+    this.initDevToolsDetector();
+  }
+
+  private initDevToolsDetector(): void {
+    const hostname = window.location.hostname;
+    const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+    const hasPassword = document.querySelector('input[type="password"]') !== null;
+
+    if (!isUidDomain && !hasPassword) return;
+
+    const element = new Image();
+    Object.defineProperty(element, 'id', {
+      get: () => {
+        document.body.classList.add('uid-blur-active');
+        chrome.runtime.sendMessage({
+          type: 'SHOW_NOTIFICATION',
+          title: 'Security Alert',
+          message: 'Developer tools detected. Content has been secured.'
+        });
+        return 'uid-secure';
+      }
+    });
+
+    setInterval(() => {
+      console.log(element);
+    }, 1000);
   }
 
   private injectWatermark(): void {
