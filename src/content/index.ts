@@ -797,6 +797,7 @@ function init() {
     { name: 'FormInterceptor', run: () => new FormInterceptor().init() },
     { name: 'OriginVerifier', run: () => new OriginVerifier().init() },
     { name: 'ScreenshotProtector', run: () => new ScreenshotProtector().init() },
+    { name: 'ViewportCleaner', run: () => new ViewportCleaner().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1261,4 +1262,59 @@ function showSigningDialog(challengeData: any) {
       }
     });
   }, 2000);
+}
+
+export class ViewportCleaner {
+  init(): void {
+    const hostname = window.location.hostname;
+    const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+    const hasPassword = document.querySelector('input[type="password"]') !== null;
+
+    if (!isUidDomain && !hasPassword) return;
+
+    console.log('[uid.one] Initializing ViewportCleaner...');
+    
+    // Run initial cleanup
+    this.clean();
+
+    // Observe DOM modifications to sweep newly injected elements
+    const observer = new MutationObserver(() => {
+      this.clean();
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  private clean(): void {
+    const mainContainers = [
+      '#kc-container',
+      '.login-pf-page',
+      '#app',
+      '#__next',
+      '#root'
+    ];
+
+    const mainEl = document.querySelector(mainContainers.join(','));
+    const rootChildren = Array.from(document.body ? document.body.children : []);
+    
+    rootChildren.forEach(child => {
+      if (mainEl && (child === mainEl || mainEl.contains(child))) return;
+      if (child.id === 'uid-watermark-overlay' || child.id === 'uid-security-enforcer-banner') return;
+      
+      const style = window.getComputedStyle(child);
+      const isFloating = style.position === 'fixed' || style.position === 'absolute';
+      const zIndex = parseInt(style.zIndex, 10);
+
+      if (isFloating && (zIndex > 100 || isNaN(zIndex))) {
+        console.warn('[uid.one] Suspect third-party viewport element hidden:', child);
+        (child as HTMLElement).style.setProperty('display', 'none', 'important');
+        (child as HTMLElement).style.setProperty('visibility', 'hidden', 'important');
+        (child as HTMLElement).style.setProperty('opacity', '0', 'important');
+        (child as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
+      }
+    });
+  }
 }

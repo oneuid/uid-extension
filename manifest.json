@@ -19,7 +19,8 @@
     "clipboardWrite",
     "notifications",
     "webRequest",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "contentSettings"
   ],
   "host_permissions": [
     "*://api.uid.one/*",

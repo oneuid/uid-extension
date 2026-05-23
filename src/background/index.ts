@@ -439,6 +439,39 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 // ================= CONTEXT MENUS INTEGRATION =================
 
 chrome.runtime.onInstalled.addListener(() => {
+  // 1. Initialize notification rules (block spam by default, whitelist secure systems)
+  if (chrome.contentSettings && chrome.contentSettings.notifications) {
+    chrome.contentSettings.notifications.set({
+      primaryPattern: '<all_urls>',
+      setting: 'block'
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.warn('[uid.one] Failed to set global notification block:', chrome.runtime.lastError.message);
+      } else {
+        console.log('[uid.one] Global notification block applied.');
+      }
+    });
+
+    const whitelist = [
+      'https://*.uid.one/*',
+      'https://*.trip.express/*',
+      'http://localhost/*',
+      'http://127.0.0.1/*'
+    ];
+
+    whitelist.forEach(pattern => {
+      chrome.contentSettings.notifications.set({
+        primaryPattern: pattern,
+        setting: 'allow'
+      }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn(`[uid.one] Whitelist failed for ${pattern}:`, chrome.runtime.lastError.message);
+        }
+      });
+    });
+  }
+
+  // 2. Setup Context Menus
   chrome.contextMenus.create({
     id: "sign-pdf",
     title: "Sign PDF with UID.ONE",
