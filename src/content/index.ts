@@ -946,7 +946,7 @@ function injectIcon(input: HTMLInputElement) {
 
         if (!reqRes?.success) return alert("Failed to initiate Pairing");
 
-        const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_id=uid_extension_client&client_name=Extension`;
+        const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_id=uid-extension-client&client_name=Extension`;
         const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
 
         const overlay = document.createElement('div');

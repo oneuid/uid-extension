@@ -1,7 +1,7 @@
 /// <reference types="chrome"/>
 
 const API_BASE = 'https://api.uid.one/v1/auth';
-const CLIENT_ID = 'uid_extension_client';
+const CLIENT_ID = 'uid-extension-client';
 
 // Memory store: token -> privateKey
 const pendingKeys = new Map<string, CryptoKey>();
