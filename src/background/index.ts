@@ -435,3 +435,33 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true;
   }
 });
+
+// ================= CONTEXT MENUS INTEGRATION =================
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "sign-pdf",
+    title: "Sign PDF with UID.ONE",
+    contexts: ["link"]
+  });
+  chrome.contextMenus.create({
+    id: "sign-text",
+    title: "Sign selected text",
+    contexts: ["selection"]
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (!tab?.id) return;
+  if (info.menuItemId === "sign-pdf" && info.linkUrl) {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "START_PDF_SIGNING",
+      url: info.linkUrl
+    });
+  } else if (info.menuItemId === "sign-text" && info.selectionText) {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "START_TEXT_SIGNING",
+      text: info.selectionText
+    });
+  }
+});

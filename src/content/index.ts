@@ -457,12 +457,16 @@ export class ScreenshotProtector {
     `;
     document.head.appendChild(style);
 
-    // 2. Intercept print shortcuts, PrintScreen key, and OS screenshot hotkeys
+    // 2. Intercept print shortcuts, PrintScreen key, OS screenshot hotkeys, and DevTools shortcuts
     document.addEventListener('keydown', (e) => {
       const isPrintKey = e.key === 'PrintScreen';
       const isPrintShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p';
       const isWinScreenshot = e.metaKey && e.shiftKey && e.key.toLowerCase() === 's'; // Win+Shift+S
       const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4'); // Cmd+Shift+3 or 4
+      
+      const isF12 = e.key === 'F12';
+      const isInspectShortcut = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'c' || e.key.toLowerCase() === 'j');
+      const isSourceShortcut = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u';
 
       if (isPrintKey || isPrintShortcut || isWinScreenshot || isMacScreenshot) {
         document.body.classList.add('uid-blur-active');
@@ -477,6 +481,24 @@ export class ScreenshotProtector {
             document.body.classList.remove('uid-blur-active');
           }
         }, 2000);
+      } else if (isF12 || isInspectShortcut || isSourceShortcut) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showWarningToast("Developer tools are disabled on secure pages.");
+      }
+    }, true);
+
+    // 2.5. Disable right click context menu on sensitive fields
+    document.addEventListener('contextmenu', (e) => {
+      const target = e.target as HTMLElement;
+      const hostname = window.location.hostname;
+      const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+      const isPasswordInput = target.closest('input[type="password"]');
+
+      if (isUidDomain || isPasswordInput) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showWarningToast("Context menu options are disabled on secure domains/inputs.");
       }
     }, true);
 
@@ -508,6 +530,55 @@ export class ScreenshotProtector {
         document.body.classList.remove('uid-blur-active');
       }
     });
+
+    // 5. Inject Dynamic Watermark
+    this.injectWatermark();
+  }
+
+  private injectWatermark(): void {
+    const hostname = window.location.hostname;
+    const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
+    const hasPassword = document.querySelector('input[type="password"]') !== null;
+
+    if (!isUidDomain && !hasPassword) return;
+
+    if (document.getElementById('uid-watermark-overlay')) return;
+
+    const watermark = document.createElement('div');
+    watermark.id = 'uid-watermark-overlay';
+    watermark.style.cssText = `
+      position: fixed;
+      inset: 0;
+      z-index: 2147483640;
+      pointer-events: none;
+      opacity: 0.03;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: space-around;
+      justify-content: space-around;
+      overflow: hidden;
+      user-select: none;
+    `;
+    
+    const userAgent = navigator.userAgent.includes("Mac") ? "macOS" : "Windows/Linux";
+    const text = `UID.ONE | SECURE SESSION | ${userAgent}`;
+    
+    for (let i = 0; i < 20; i++) {
+      const item = document.createElement('div');
+      item.style.cssText = `
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        transform: rotate(-25deg);
+        white-space: nowrap;
+        margin: 50px;
+        color: #000000;
+      `;
+      item.textContent = text;
+      watermark.appendChild(item);
+    }
+
+    document.body.appendChild(watermark);
   }
 
   private showWarningToast(message: string): void {
@@ -975,16 +1046,44 @@ if (document.readyState === 'loading') {
   init();
 }
 
-// -------- PDF DIGITAL SIGNING --------
+// -------- DIGITAL SIGNING --------
 
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   if (request.action === 'START_PDF_SIGNING') {
     handlePdfSigning(request.url).catch(console.error);
+  } else if (request.action === 'START_TEXT_SIGNING') {
+    handleTextSigning(request.text).catch(console.error);
   }
 });
 
 function showToast(msg: string, type: string) {
   console.log(`[uid.one - ${type}] ${msg}`);
+}
+
+async function handleTextSigning(text: string) {
+  showToast("Signing selected text...", "info");
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  chrome.runtime.sendMessage({
+    action: 'REQUEST_DIGITAL_SIGNATURE',
+    domain: window.location.hostname,
+    user_agent: navigator.userAgent,
+    identifier: "Text Signature",
+    metadata: {
+      text_hash: hashHex,
+      text_snippet: text.slice(0, 100)
+    }
+  }, (res) => {
+    if (res && res.success) {
+      showSigningDialog(res.data);
+    } else {
+      showToast("Failed to initiate signing: " + (res?.error || "Unknown error"), "error");
+    }
+  });
 }
 
 async function handlePdfSigning(pdfUrl: string) {
