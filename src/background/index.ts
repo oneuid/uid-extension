@@ -426,7 +426,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   else if (request.type === 'SHOW_NOTIFICATION') {
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'icon.png',
+      iconUrl: chrome.runtime.getURL('icon.png'),
       title: request.title,
       message: request.message,
       priority: 2
