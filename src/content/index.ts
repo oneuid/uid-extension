@@ -777,7 +777,7 @@ function init() {
 
   // Inject active flag meta tag for handshake verification
   const meta = document.createElement('meta');
-  meta.name = 'uid-extension-active';
+  meta.name = 'uid-extension-client-active';
   meta.content = 'true';
   const targetHead = document.head || document.documentElement;
   if (targetHead) {
