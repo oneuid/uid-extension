@@ -6,7 +6,7 @@ At UID.one, we take the security of our decentralized, sovereign identity platfo
 
 **Please do not report security vulnerabilities via public GitHub issues.** Instead, submit your findings to our dedicated security team:
 
-*   **Email:** [security@uid.one](mailto:security@uid.one)
+*   **Email:** [admin@uid.one](mailto:admin@uid.one)
 
 To help us triage and resolve the issue quickly, please include:
 1. A descriptive title and type of vulnerability (e.g., DOM-based DLP bypass, session hijacking, origin lockdown escape).
