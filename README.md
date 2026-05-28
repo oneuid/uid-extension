@@ -29,6 +29,31 @@ Inspects client-side actions to prevent inadvertent leaks of PII, credentials, o
 - **Clipboard Interceptor:** Intercepts `paste` and `copy` events. Unsafe clipboard pastes are stopped with confirmation modals, while sensitive copies trigger native browser warning notifications.
 - **Form Interceptor:** Scans outbound `<form>` submissions for compliance before payloads leave the browser context.
 
+### 4. Cookie Guard & Anti-Tracking
+Protects user privacy even when clicking "Accept All" on popular cookie consent banners:
+- Intercepts writes to `document.cookie` in the page context, suppressing registration of tracking/advertising cookies (e.g., `_ga`, `_gid`, `_fbp`, `_fbc`, `hj*`, `cluid`).
+- Detects and blocks cookies containing sensitive PII values (like raw email addresses, Credit Card numbers, JWTs, and API Keys).
+- Performs periodic sweeps (every 5 seconds) to clean up tracking cookies set via HTTP response headers.
+
+### 5. Dynamic EXIF & Metadata Stripper
+Automatically strips privacy-leaking metadata from images on the fly:
+- Intercepts image uploads (JPEG/JPG) via file inputs and drag-and-drop events.
+- Client-side strips GPS coordinates, camera model, and creation timestamp headers (`APP1` segment) before reconstruction and submission.
+
+### 6. Self-Destructing OTP / Input Cache Wiping
+Prevents sensitive inputs and code leakage in shared or compromised environments:
+- Detects OTP, 2FA codes, password, and credit card fields during standard or AJAX-based form submissions.
+- Automatically wipes values from inputs and clears browser autocomplete history 300ms after submission.
+- Wipes clipboard content immediately if it contains highly sensitive PII values.
+
+### 7. Global Privacy Control (GPC) & DNT Enforcer
+Asserts the user's sovereign right to privacy across all web interactions:
+- Injects standard privacy signals (`navigator.globalPrivacyControl = true` and `navigator.doNotTrack = '1'`) into the global window context of all web pages.
+
+### 8. Viewport Cleaner & Blocker Shield
+- **Notification Blocker:** Intercepts service worker registration and notification permissions to block annoying third-party push notifications.
+- **Viewport Cleaner:** Sweeps and hides suspicious floating elements, overlays, and potential keyloggers on secure pages to protect input fields.
+
 ---
 
 ## 🛠 Prerequisites
