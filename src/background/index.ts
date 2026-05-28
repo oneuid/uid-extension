@@ -332,6 +332,26 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
     return true;
   }
+  else if (request.type === 'INC_STAT') {
+    const key = request.key;
+    chrome.storage.local.get(key).then(res => {
+      const current = (res[key] || 0) as number;
+      chrome.storage.local.set({ [key]: current + 1 });
+    });
+    sendResponse({ success: true });
+    return true;
+  }
+  else if (request.type === 'GET_STATS') {
+    chrome.storage.local.get(['cookies_blocked', 'exif_stripped', 'otp_cleared', 'gpc_signals']).then(res => {
+      sendResponse({
+        cookies_blocked: res.cookies_blocked || 0,
+        exif_stripped: res.exif_stripped || 0,
+        otp_cleared: res.otp_cleared || 0,
+        gpc_signals: res.gpc_signals || 0,
+      });
+    });
+    return true;
+  }
   else if (request.type === 'SET_SESSION_TOKEN') {
     const token = request.token;
     activeSessionToken = token;

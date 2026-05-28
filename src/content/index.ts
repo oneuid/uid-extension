@@ -280,6 +280,9 @@ async function stripMetadata(file: File): Promise<File> {
       const cleanBuffer = stripExifFromJpeg(arrayBuffer);
       if (cleanBuffer.byteLength !== arrayBuffer.byteLength) {
         console.log(`[uid.one] CookieGuard / Privacy stripped EXIF metadata from: ${file.name}`);
+        try {
+          chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'exif_stripped' });
+        } catch (e) {}
         return new File([cleanBuffer], file.name, { type: file.type, lastModified: Date.now() });
       }
     } catch (e) {
@@ -293,25 +296,31 @@ export class FileUploadInterceptor {
   private observer: MutationObserver | null = null;
 
   init(): void {
-    this.scanFileInputs(document.querySelectorAll('input[type="file"]'));
-
-    this.observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        mutation.addedNodes.forEach(node => {
-          if (node instanceof Element) {
-            const inputs = node.querySelectorAll('input[type="file"]');
-            this.scanFileInputs(inputs);
-          }
-        });
+    chrome.storage.local.get('settings_exif_stripper').then(res => {
+      if (res.settings_exif_stripper === false) {
+        console.log('[uid.one] FileUploadInterceptor (EXIF Stripper) is disabled.');
+        return;
       }
-    });
+      this.scanFileInputs(document.querySelectorAll('input[type="file"]'));
 
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+      this.observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          mutation.addedNodes.forEach(node => {
+            if (node instanceof Element) {
+              const inputs = node.querySelectorAll('input[type="file"]');
+              this.scanFileInputs(inputs);
+            }
+          });
+        }
+      });
 
-    document.addEventListener('drop', this.handleDrop.bind(this), true);
+      this.observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+
+      document.addEventListener('drop', this.handleDrop.bind(this), true);
+    });
   }
 
   private scanFileInputs(inputs: NodeListOf<Element>): void {
@@ -567,40 +576,44 @@ export class ClipboardInterceptor {
 
 export class FormInterceptor {
   init(): void {
-    document.addEventListener('submit', this.handleSubmit.bind(this), true);
-    
-    // Catch AJAX/fetch submissions by listening to submit clicks
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      const btn = target.closest('button, input[type="submit"]');
-      if (!btn) return;
+    chrome.storage.local.get('settings_otp_shield').then(res => {
+      if (res.settings_otp_shield === false) return;
+
+      document.addEventListener('submit', this.handleSubmit.bind(this), true);
       
-      const isSubmitBtn = btn.getAttribute('type') === 'submit' || 
-                          /submit|login|verify|confirm|pay/i.test(btn.textContent || '') ||
-                          /submit|login|verify|confirm|pay/i.test((btn as HTMLInputElement).value || '');
-      
-      if (isSubmitBtn) {
-        const form = btn.closest('form');
-        if (form) {
-          this.wipeSensitiveInputs(form);
-        } else {
-          const container = btn.parentElement;
-          if (container) {
-            const sensitiveInputs = container.querySelectorAll<HTMLInputElement>(
-              'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
-            );
-            sensitiveInputs.forEach(input => {
-              setTimeout(() => {
-                if (input.value) {
-                  input.value = '';
-                  input.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-              }, 300);
-            });
+      // Catch AJAX/fetch submissions by listening to submit clicks
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const btn = target.closest('button, input[type="submit"]');
+        if (!btn) return;
+        
+        const isSubmitBtn = btn.getAttribute('type') === 'submit' || 
+                            /submit|login|verify|confirm|pay/i.test(btn.textContent || '') ||
+                            /submit|login|verify|confirm|pay/i.test((btn as HTMLInputElement).value || '');
+        
+        if (isSubmitBtn) {
+          const form = btn.closest('form');
+          if (form) {
+            this.wipeSensitiveInputs(form);
+          } else {
+            const container = btn.parentElement;
+            if (container) {
+              const sensitiveInputs = container.querySelectorAll<HTMLInputElement>(
+                'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
+              );
+              sensitiveInputs.forEach(input => {
+                setTimeout(() => {
+                  if (input.value) {
+                    input.value = '';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                  }
+                }, 300);
+              });
+            }
           }
         }
-      }
-    }, true);
+      }, true);
+    });
   }
 
   private async handleSubmit(e: SubmitEvent): Promise<void> {
@@ -650,6 +663,9 @@ export class FormInterceptor {
           input.value = '';
           input.dispatchEvent(new Event('input', { bubbles: true }));
           input.dispatchEvent(new Event('change', { bubbles: true }));
+          try {
+            chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'otp_cleared' });
+          } catch (e) {}
         }
       }, 300);
     });
@@ -660,6 +676,9 @@ export class FormInterceptor {
         if (result.riskLevel === 'critical' || result.riskLevel === 'high') {
           navigator.clipboard.writeText('').then(() => {
             console.log('[uid.one] CookieGuard / Privacy wiped sensitive content from clipboard cache.');
+            try {
+              chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'otp_cleared' });
+            } catch (e) {}
           });
         }
       }).catch(() => {});
@@ -1608,14 +1627,20 @@ export class CookieGuard {
     const isWhitelisted = this.isWhitelistedDomain(hostname);
     if (isWhitelisted) return;
 
-    console.log('[uid.one] Initializing CookieGuard...');
+    chrome.storage.local.get('settings_cookie_guard').then(res => {
+      if (res.settings_cookie_guard === false) {
+        console.log('[uid.one] CookieGuard is disabled by policy.');
+        return;
+      }
+      console.log('[uid.one] Initializing CookieGuard...');
 
-    // 1. Inject setter interceptor into the main world
-    this.injectMainWorldInterceptor();
+      // 1. Inject setter interceptor into the main world
+      this.injectMainWorldInterceptor();
 
-    // 2. Perform periodic sweeps to remove cookies written via server headers or prior to load
-    this.sweepCookies();
-    setInterval(() => this.sweepCookies(), 5000);
+      // 2. Perform periodic sweeps to remove cookies written via server headers or prior to load
+      this.sweepCookies();
+      setInterval(() => this.sweepCookies(), 5000);
+    });
   }
 
   private isWhitelistedDomain(hostname: string): boolean {
@@ -1728,6 +1753,9 @@ export class CookieGuard {
       if (isTracking) {
         console.log('[uid.one] CookieGuard sweeping tracking cookie:', name);
         this.deleteCookie(name);
+        try {
+          chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'cookies_blocked' });
+        } catch (e) {}
       }
     }
   }
