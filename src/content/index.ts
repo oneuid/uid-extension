@@ -476,12 +476,26 @@ export class FileUploadInterceptor {
 }
 
 export class ClipboardInterceptor {
+  private isDlpActive = true;
+
   init(): void {
+    chrome.storage.local.get('settings_otp_shield').then(res => {
+      this.isDlpActive = res.settings_otp_shield !== false;
+    });
+
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes.settings_otp_shield) {
+        this.isDlpActive = changes.settings_otp_shield.newValue !== false;
+      }
+    });
+
     document.addEventListener('paste', this.handlePaste.bind(this), true);
     document.addEventListener('copy', this.handleCopy.bind(this), true);
   }
 
   private async handlePaste(e: ClipboardEvent): Promise<void> {
+    if (!this.isDlpActive) return;
+
     const target = e.target as HTMLElement;
     if (target.getAttribute('data-uid-allowed') === 'true') {
       target.removeAttribute('data-uid-allowed');
@@ -516,6 +530,8 @@ export class ClipboardInterceptor {
   }
 
   private handleCopy(e: ClipboardEvent): void {
+    if (!this.isDlpActive) return;
+
     const text = window.getSelection()?.toString();
     if (!text) return;
 
@@ -527,13 +543,77 @@ export class ClipboardInterceptor {
 
     const piiTypes = ['emailBulk', 'phone', 'creditCard', 'apiKey', 'vnId', 'privateKey', 'jwt', 'bankAccount'];
 
+    // 1. Gather all matched ranges for piiTypes to merge overlapping ones
+    interface MatchRange {
+      start: number;
+      end: number;
+      type: string;
+    }
+
+    const ranges: MatchRange[] = [];
+
     for (const finding of result.findings) {
       if (piiTypes.includes(finding.type)) {
-        totalSensitiveCount += finding.count;
         detectedTypes.push(finding.type);
-        if (finding.count > maxSingleTypeCount) {
-          maxSingleTypeCount = finding.count;
+        
+        const pattern = SENSITIVE_PATTERNS[finding.type as keyof typeof SENSITIVE_PATTERNS];
+        if (pattern) {
+          pattern.lastIndex = 0;
+          let match;
+          if (pattern.global) {
+            while ((match = pattern.exec(text)) !== null) {
+              if (match[0]) {
+                ranges.push({
+                  start: match.index,
+                  end: match.index + match[0].length,
+                  type: finding.type
+                });
+              }
+            }
+          } else {
+            match = pattern.exec(text);
+            if (match && match[0]) {
+              ranges.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                type: finding.type
+              });
+            }
+          }
         }
+      }
+    }
+
+    // 2. Sort ranges by start index
+    ranges.sort((a, b) => a.start - b.start);
+
+    // 3. Merge overlapping ranges
+    const merged: MatchRange[] = [];
+    for (const r of ranges) {
+      if (merged.length === 0) {
+        merged.push(r);
+      } else {
+        const last = merged[merged.length - 1];
+        if (r.start < last.end) {
+          // Overlap! Extend the last range
+          last.end = Math.max(last.end, r.end);
+        } else {
+          merged.push(r);
+        }
+      }
+    }
+
+    // The true unique sensitive count is the number of merged distinct ranges
+    totalSensitiveCount = merged.length;
+
+    // Find the max count of a single type using the non-overlapping merged ranges
+    const typeCounts: Record<string, number> = {};
+    for (const r of merged) {
+      typeCounts[r.type] = (typeCounts[r.type] || 0) + 1;
+    }
+    for (const count of Object.values(typeCounts)) {
+      if (count > maxSingleTypeCount) {
+        maxSingleTypeCount = count;
       }
     }
 
