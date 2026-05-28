@@ -1587,7 +1587,7 @@ export class ViewportCleaner {
 
         // Only hide if the element is transparent/invisible (indicative of a clickjacking overlay)
         if (isTransparent) {
-          console.warn('[uid.one] Suspect third-party viewport element hidden:', child);
+          console.log('[uid.one] Suspect third-party viewport element hidden:', child);
           (child as HTMLElement).style.setProperty('display', 'none', 'important');
           (child as HTMLElement).style.setProperty('visibility', 'hidden', 'important');
           (child as HTMLElement).style.setProperty('opacity', '0', 'important');

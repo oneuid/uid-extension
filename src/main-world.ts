@@ -105,7 +105,7 @@
             }
 
             if (isTracking || hasSensitiveData) {
-              console.warn('[uid.one] CookieGuard blocked sensitive cookie registration: ' + name + (hasSensitiveData ? ' (contains sensitive value: ' + sensitiveType + ')' : ''));
+              console.log('[uid.one] CookieGuard blocked sensitive cookie registration: ' + name + (hasSensitiveData ? ' (contains sensitive value: ' + sensitiveType + ')' : ''));
               return; // Suppress cookie write
             }
           }
