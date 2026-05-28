@@ -997,6 +997,8 @@ export class OriginVerifier {
 
 // ================= SESSION CAPTURING =================
 
+let isListeningToSessionEvents = false;
+
 function captureSessionToken() {
   try {
     const token = localStorage.getItem('oneuid_access_token');
@@ -1005,6 +1007,23 @@ function captureSessionToken() {
     }
   } catch (e) {
     // ignore iframe/cross-origin localstorage security access restrictions
+  }
+
+  if (!isListeningToSessionEvents) {
+    try {
+      window.addEventListener('oneuid_session_login', (e: any) => {
+        const token = e.detail?.token;
+        if (token) {
+          chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
+        }
+      });
+      window.addEventListener('oneuid_session_logout', () => {
+        chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+      });
+      isListeningToSessionEvents = true;
+    } catch (e) {
+      // ignore
+    }
   }
 }
 
@@ -1208,8 +1227,8 @@ function injectIcon(input: HTMLInputElement) {
               <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
               </div>
-              <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">
-                Scan this code with the UID.ONE App to pair this browser.
+              <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px; line-height: 1.4;">
+                Scan this code with the UID.ONE App, or <a href="${qrUrl}" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 500; cursor: pointer;">approve on this browser</a>.
               </p>
             </div>
           </div>
