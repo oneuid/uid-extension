@@ -798,21 +798,7 @@ export class ScreenshotProtector {
       container.classList.add('uid-blur-active');
     }
 
-    // 3. Listen to window blur/focus events to prevent OS screenshots
-    window.addEventListener('blur', () => {
-      console.log('[uid.one] Window focus lost (blur event), applying blur filter');
-      const container = document.body || document.documentElement;
-      if (container) container.classList.add('uid-blur-active');
-    });
 
-    window.addEventListener('focus', () => {
-      console.log('[uid.one] Window focus regained (focus event)');
-      const container = document.body || document.documentElement;
-      if (container && isMouseInside()) {
-        console.log('[uid.one] Mouse is inside viewport, removing blur filter');
-        container.classList.remove('uid-blur-active');
-      }
-    });
 
     // 3.5. Listen to mouseleave/mouseenter to cover external utility selections
     document.addEventListener('mouseleave', () => {
