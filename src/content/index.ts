@@ -1431,12 +1431,6 @@ function injectIcon(input: HTMLInputElement) {
   shadowRoot.appendChild(icon);
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-
 // -------- DIGITAL SIGNING --------
 
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
@@ -1912,4 +1906,11 @@ export class GPCEnforcer {
       script.remove();
     }
   }
+}
+
+// Start the content script initialization after all classes are defined
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
