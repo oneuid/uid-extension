@@ -18,7 +18,7 @@ export const SENSITIVE_PATTERNS = {
   emailBulk: /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
 
   // Phone numbers
-  phone: /(\+84|0)[0-9]{9,10}/g,
+  phone: /(?:\+\d{1,4}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{2,6}\b|(?:\+\d{1,4}[\s.-]?)?\d{7,14}\b/g,
 
   // API Keys / Secrets (common patterns)
   apiKey: /\b(sk-|pk-|api_key=|secret=)[A-Za-z0-9]{20,}\b/gi,
@@ -1842,9 +1842,9 @@ export class TextDLPShield {
     // 1. Credit Cards: \b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b
     // 2. Vietnam Citizen ID / Passports: \b\d{9}(\d{3})?\b
     // 3. Emails: [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
-    // 4. Phone numbers (intl & local): (?:\+\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}
+    // 4. Phone numbers (intl & local): (?:\+\d{1,4}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{2,6}\b|(?:\+\d{1,4}[\s.-]?)?\d{7,14}\b
     // 5. JWT tokens: eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}
-    const regex = /(?:eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b|\b\d{9}(?:\d{3})?\b|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|\b(?:\+\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b)/g;
+    const regex = /(?:eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b|\b\d{9}(?:\d{3})?\b|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|(?:\+\d{1,4}[\s.-]?)?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{2,6}\b|(?:\+\d{1,4}[\s.-]?)?\d{7,14}\b)/g;
 
     const matches = [...text.matchAll(regex)];
     if (matches.length === 0) return;
