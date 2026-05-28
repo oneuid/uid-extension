@@ -222,6 +222,73 @@ export async function showDLPWarning(options: DLPWarningOptions): Promise<void> 
 
 // ================= DLP INTERCEPTORS =================
 
+function stripExifFromJpeg(arrayBuffer: ArrayBuffer): ArrayBuffer {
+  const dv = new DataView(arrayBuffer);
+  if (dv.byteLength < 4 || dv.getUint16(0) !== 0xFFD8) {
+    return arrayBuffer;
+  }
+
+  let offset = 2;
+  const length = dv.byteLength;
+  const newBuffers: ArrayBuffer[] = [];
+  let lastCopiedOffset = 0;
+
+  while (offset < length - 1) {
+    const marker = dv.getUint16(offset);
+    if (marker === 0xFFE1) {
+      const segmentLength = dv.getUint16(offset + 2);
+      if (offset > lastCopiedOffset) {
+        newBuffers.push(arrayBuffer.slice(lastCopiedOffset, offset));
+      }
+      lastCopiedOffset = offset + 2 + segmentLength;
+      offset = lastCopiedOffset;
+    } else if (marker >= 0xFFD0 && marker <= 0xFFD9) {
+      offset += 2;
+    } else {
+      const segmentLength = dv.getUint16(offset + 2);
+      offset += 2 + segmentLength;
+    }
+  }
+
+  if (lastCopiedOffset < length) {
+    newBuffers.push(arrayBuffer.slice(lastCopiedOffset, length));
+  }
+
+  if (newBuffers.length === 0) {
+    return arrayBuffer;
+  }
+
+  const totalLength = newBuffers.reduce((sum, buf) => sum + buf.byteLength, 0);
+  const result = new Uint8Array(totalLength);
+  let writeOffset = 0;
+  for (const buf of newBuffers) {
+    result.set(new Uint8Array(buf), writeOffset);
+    writeOffset += buf.byteLength;
+  }
+  
+  return result.buffer;
+}
+
+async function stripMetadata(file: File): Promise<File> {
+  const isJpeg = file.type === 'image/jpeg' || 
+                 file.name.toLowerCase().endsWith('.jpg') || 
+                 file.name.toLowerCase().endsWith('.jpeg');
+  
+  if (isJpeg) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const cleanBuffer = stripExifFromJpeg(arrayBuffer);
+      if (cleanBuffer.byteLength !== arrayBuffer.byteLength) {
+        console.log(`[uid.one] CookieGuard / Privacy stripped EXIF metadata from: ${file.name}`);
+        return new File([cleanBuffer], file.name, { type: file.type, lastModified: Date.now() });
+      }
+    } catch (e) {
+      console.warn('[uid.one] Failed to strip EXIF from image:', e);
+    }
+  }
+  return file;
+}
+
 export class FileUploadInterceptor {
   private observer: MutationObserver | null = null;
 
@@ -254,6 +321,10 @@ export class FileUploadInterceptor {
 
       input.addEventListener('change', async (e) => {
         const inputEl = e.target as HTMLInputElement;
+        if (inputEl.getAttribute('data-uid-metadata-cleaning') === 'true') {
+          return;
+        }
+
         if (inputEl.getAttribute('data-uid-allowed') === 'true') {
           inputEl.removeAttribute('data-uid-allowed');
           return;
@@ -262,7 +333,31 @@ export class FileUploadInterceptor {
         const files = inputEl.files;
         if (!files || files.length === 0) return;
 
-        await this.handleFiles(Array.from(files), inputEl);
+        inputEl.setAttribute('data-uid-metadata-cleaning', 'true');
+        try {
+          const cleanedFiles: File[] = [];
+          let modified = false;
+          for (let i = 0; i < files.length; i++) {
+            const originalFile = files[i];
+            const cleanFile = await stripMetadata(originalFile);
+            if (cleanFile !== originalFile) {
+              modified = true;
+            }
+            cleanedFiles.push(cleanFile);
+          }
+
+          if (modified) {
+            const dataTransfer = new DataTransfer();
+            cleanedFiles.forEach(f => dataTransfer.items.add(f));
+            inputEl.files = dataTransfer.files;
+            inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+          }
+        } finally {
+          inputEl.removeAttribute('data-uid-metadata-cleaning');
+        }
+
+        await this.handleFiles(Array.from(inputEl.files || []), inputEl);
       });
     });
   }
@@ -280,7 +375,7 @@ export class FileUploadInterceptor {
           result,
           onAllow: () => {
             input.setAttribute('data-uid-allowed', 'true');
-            // Re-trigger the selection (or alert the page framework if needed)
+            // Re-trigger selection/change
           },
         });
       }
@@ -320,16 +415,53 @@ export class FileUploadInterceptor {
 
   private async handleDrop(e: DragEvent): Promise<void> {
     if (!e.dataTransfer?.files?.length) return;
+    if (e.defaultPrevented) return;
+
+    const targetEl = e.target as HTMLElement;
+    if (e.dataTransfer.types.includes('Files') && targetEl.getAttribute('data-uid-dropped-clean') === 'true') {
+      targetEl.removeAttribute('data-uid-dropped-clean');
+      return;
+    }
+
     const files = Array.from(e.dataTransfer.files);
 
+    // DLP Block Check first
     for (const file of files) {
       const result = await this.scanFile(file);
       if (result.blocked) {
         e.preventDefault();
         e.stopPropagation();
         await showDLPWarning({ context: 'drag_drop', filename: file.name, result });
-        break;
+        return;
       }
+    }
+
+    // EXIF strip
+    let modified = false;
+    const cleanedFiles: File[] = [];
+    for (const file of files) {
+      const cleanFile = await stripMetadata(file);
+      if (cleanFile !== file) {
+        modified = true;
+      }
+      cleanedFiles.push(cleanFile);
+    }
+
+    if (modified) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      targetEl.setAttribute('data-uid-dropped-clean', 'true');
+
+      const dataTransfer = new DataTransfer();
+      cleanedFiles.forEach(f => dataTransfer.items.add(f));
+
+      const cleanDropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dataTransfer
+      });
+      targetEl.dispatchEvent(cleanDropEvent);
     }
   }
 }
@@ -436,15 +568,56 @@ export class ClipboardInterceptor {
 export class FormInterceptor {
   init(): void {
     document.addEventListener('submit', this.handleSubmit.bind(this), true);
+    
+    // Catch AJAX/fetch submissions by listening to submit clicks
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const btn = target.closest('button, input[type="submit"]');
+      if (!btn) return;
+      
+      const isSubmitBtn = btn.getAttribute('type') === 'submit' || 
+                          /submit|login|verify|confirm|pay/i.test(btn.textContent || '') ||
+                          /submit|login|verify|confirm|pay/i.test((btn as HTMLInputElement).value || '');
+      
+      if (isSubmitBtn) {
+        const form = btn.closest('form');
+        if (form) {
+          this.wipeSensitiveInputs(form);
+        } else {
+          const container = btn.parentElement;
+          if (container) {
+            const sensitiveInputs = container.querySelectorAll<HTMLInputElement>(
+              'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
+            );
+            sensitiveInputs.forEach(input => {
+              setTimeout(() => {
+                if (input.value) {
+                  input.value = '';
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }, 300);
+            });
+          }
+        }
+      }
+    }, true);
   }
 
   private async handleSubmit(e: SubmitEvent): Promise<void> {
     const form = e.target as HTMLFormElement;
 
-    if (form.getAttribute('data-uid-owned') || form.getAttribute('data-uid-allowed')) return;
+    if (form.getAttribute('data-uid-owned')) return;
+    
+    if (form.getAttribute('data-uid-allowed') === 'true') {
+      this.wipeSensitiveInputs(form);
+      return;
+    }
 
     const content = this.extractFormContent(form);
-    if (!content) return;
+    if (!content) {
+      this.wipeSensitiveInputs(form);
+      return;
+    }
 
     const result = scanContent(content);
 
@@ -460,6 +633,38 @@ export class FormInterceptor {
           form.requestSubmit();
         },
       });
+    } else {
+      this.wipeSensitiveInputs(form);
+    }
+  }
+
+  private wipeSensitiveInputs(form: HTMLFormElement): void {
+    const sensitiveInputs = form.querySelectorAll<HTMLInputElement>(
+      'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
+    );
+    
+    sensitiveInputs.forEach(input => {
+      setTimeout(() => {
+        if (input.value) {
+          console.log(`[uid.one] CookieGuard / Privacy wiped sensitive value from input: ${input.name || input.id}`);
+          input.value = '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }, 300);
+    });
+
+    try {
+      navigator.clipboard.readText().then(text => {
+        const result = scanContent(text);
+        if (result.riskLevel === 'critical' || result.riskLevel === 'high') {
+          navigator.clipboard.writeText('').then(() => {
+            console.log('[uid.one] CookieGuard / Privacy wiped sensitive content from clipboard cache.');
+          });
+        }
+      }).catch(() => {});
+    } catch (e) {
+      // Ignore
     }
   }
 
@@ -843,6 +1048,7 @@ function init() {
     { name: 'ViewportCleaner', run: () => new ViewportCleaner().init() },
     { name: 'NotificationBlocker', run: () => new NotificationBlocker().init() },
     { name: 'CookieGuard', run: () => new CookieGuard().init() },
+    { name: 'GPCEnforcer', run: () => new GPCEnforcer().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1570,6 +1776,57 @@ export class NotificationBlocker {
             }
             return originalSubscribe.apply(this, arguments);
           };
+        }
+      })();
+    `;
+    const target = document.head || document.documentElement;
+    if (target) {
+      target.appendChild(script);
+      script.remove();
+    }
+  }
+}
+
+export class GPCEnforcer {
+  init(): void {
+    const hostname = window.location.hostname;
+    const whitelist = [
+      'uid.one',
+      'trip.express',
+      'localhost',
+      '127.0.0.1'
+    ];
+    const isWhitelisted = whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+    if (isWhitelisted) return;
+
+    console.log('[uid.one] Injecting Global Privacy Control (GPC) & DNT...');
+
+    const script = document.createElement('script');
+    script.textContent = `
+      (function() {
+        try {
+          Object.defineProperty(navigator, 'globalPrivacyControl', {
+            value: true,
+            writable: false,
+            configurable: false
+          });
+        } catch (e) {
+          console.warn('[uid.one] Failed to define globalPrivacyControl on navigator:', e);
+        }
+
+        try {
+          Object.defineProperty(navigator, 'doNotTrack', {
+            value: '1',
+            writable: false,
+            configurable: false
+          });
+          Object.defineProperty(window, 'doNotTrack', {
+            value: '1',
+            writable: false,
+            configurable: false
+          });
+        } catch (e) {
+          console.warn('[uid.one] Failed to define doNotTrack properties:', e);
         }
       })();
     `;
