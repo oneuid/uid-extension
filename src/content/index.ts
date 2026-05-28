@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
 
 console.log('[uid.one] Content script loaded on', window.location.hostname);
 
@@ -1389,11 +1390,47 @@ function injectIcon(input: HTMLInputElement) {
 
 // -------- DIGITAL SIGNING --------
 
-chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'START_PDF_SIGNING') {
     handlePdfSigning(request.url).catch(console.error);
   } else if (request.action === 'START_TEXT_SIGNING') {
     handleTextSigning(request.text).catch(console.error);
+  } else if (request.action === 'GET_IMAGES') {
+    const images = Array.from(document.querySelectorAll('img'))
+      .filter(img => {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        return w > 32 && h > 32 && img.src && (img.src.startsWith('http') || img.src.startsWith('data:'));
+      })
+      .map((img, index) => ({
+        index,
+        src: img.src,
+        width: img.naturalWidth || img.width,
+        height: img.naturalHeight || img.height
+      }));
+    sendResponse({ images });
+    return true;
+  } else if (request.action === 'PROCESS_IMAGE') {
+    const src = request.src;
+    const imgEl = Array.from(document.querySelectorAll('img')).find(img => img.src === src);
+    if (!imgEl) {
+      sendResponse({ success: false, error: 'Image not found' });
+      return true;
+    }
+    processImage(imgEl, request.style, request.emoji)
+      .then(dataURL => {
+        if (dataURL) {
+          imgEl.src = dataURL;
+          sendResponse({ success: true, dataURL });
+        } else {
+          sendResponse({ success: false, error: 'No faces detected' });
+        }
+      })
+      .catch(err => {
+        console.error('[uid.one] Face pixelation error:', err);
+        sendResponse({ success: false, error: err.toString() });
+      });
+    return true;
   }
 });
 
@@ -1903,6 +1940,164 @@ export class TextDLPShield {
       // Ignore if React has already modified the DOM hierarchy
     }
   }
+}
+
+// -------- FACE PIXELATION & DETECTOR IMPLEMENTATION --------
+
+let _detector: any = null;
+
+async function getFaceDetector() {
+  if (_detector) return _detector;
+
+  const wasmUrl = chrome.runtime.getURL('wasm');
+  const modelUrl = chrome.runtime.getURL('models/blaze_face_short_range.tflite');
+
+  const vision = await FilesetResolver.forVisionTasks(wasmUrl);
+
+  _detector = await FaceDetector.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: modelUrl,
+      delegate: "GPU"
+    },
+    runningMode: "IMAGE",
+    minDetectionConfidence: 0.5
+  });
+
+  return _detector;
+}
+
+async function detectFaces(source: HTMLImageElement | HTMLCanvasElement) {
+  const detector = await getFaceDetector();
+  const MAX_SIZE = 1280;
+  let detectSource: HTMLImageElement | HTMLCanvasElement = source;
+
+  const srcW = (source as HTMLImageElement).naturalWidth || source.width;
+  const srcH = (source as HTMLImageElement).naturalHeight || source.height;
+
+  if (srcW > MAX_SIZE || srcH > MAX_SIZE) {
+    const scale = MAX_SIZE / Math.max(srcW, srcH);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(srcW * scale);
+    canvas.height = Math.round(srcH * scale);
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    }
+    detectSource = canvas;
+  }
+
+  const result = detector.detect(detectSource);
+  const scaleX = srcW / (detectSource.width || (detectSource as HTMLImageElement).naturalWidth);
+  const scaleY = srcH / (detectSource.height || (detectSource as HTMLImageElement).naturalHeight);
+
+  return result.detections.map((d: any) => ({
+    x: d.boundingBox.originX * scaleX,
+    y: d.boundingBox.originY * scaleY,
+    width: d.boundingBox.width * scaleX,
+    height: d.boundingBox.height * scaleY
+  }));
+}
+
+function pixelateRegion(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, blockSize: number = 8) {
+  x = Math.floor(x);
+  y = Math.floor(y);
+  width = Math.ceil(width);
+  height = Math.ceil(height);
+
+  const small = document.createElement('canvas');
+  small.width = Math.max(1, Math.round(width / blockSize));
+  small.height = Math.max(1, Math.round(height / blockSize));
+  const smallCtx = small.getContext('2d');
+  if (!smallCtx) return;
+
+  smallCtx.drawImage(
+    ctx.canvas,
+    x, y, width, height,
+    0, 0, small.width, small.height
+  );
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(
+    small,
+    0, 0, small.width, small.height,
+    x, y, width, height
+  );
+  ctx.imageSmoothingEnabled = true;
+}
+
+function drawEmojiOnFace(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, emoji: string = '😊') {
+  const fontSize = Math.min(width, height) * 0.85;
+  ctx.font = `${fontSize}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  ctx.fillStyle = '#f3f4f6';
+  ctx.beginPath();
+  ctx.arc(x + width / 2, y + height / 2, Math.min(width, height) / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillText(emoji, x + width / 2, y + height / 2);
+}
+
+async function loadImageAsDataURL(src: string): Promise<HTMLImageElement> {
+  try {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise<void>((res, rej) => {
+      img.onload = () => res();
+      img.onerror = (e) => rej(e);
+      img.src = src;
+    });
+    return img;
+  } catch (err) {
+    console.log('[uid.one] Simple load failed, fetching via background CORS bypass...', err);
+    const res = await chrome.runtime.sendMessage({
+      action: 'FETCH_IMAGE',
+      url: src
+    });
+    if (res.error) throw new Error(res.error);
+    const img = new Image();
+    await new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.src = res.dataURL;
+    });
+    return img;
+  }
+}
+
+async function processImage(imgElement: HTMLImageElement, style: string, emoji: string = '😊'): Promise<string | null> {
+  const cleanImg = await loadImageAsDataURL(imgElement.src);
+  const faces = await detectFaces(cleanImg);
+
+  if (faces.length === 0) return null;
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  canvas.width = cleanImg.naturalWidth || cleanImg.width;
+  canvas.height = cleanImg.naturalHeight || cleanImg.height;
+
+  ctx.drawImage(cleanImg, 0, 0, canvas.width, canvas.height);
+
+  const padding = 0.25;
+  faces.forEach((face: any) => {
+    const px = Math.max(0, face.x - face.width * padding);
+    const py = Math.max(0, face.y - face.height * padding);
+    const pw = Math.min(canvas.width - px, face.width * (1 + padding * 2));
+    const ph = Math.min(canvas.height - py, face.height * (1 + padding * 2));
+
+    if (style === 'emoji') {
+      drawEmojiOnFace(ctx, px, py, pw, ph, emoji);
+    } else {
+      let blockSize = 8;
+      if (style === 'pixel_fine') blockSize = 6;
+      else if (style === 'pixel_large') blockSize = 16;
+      pixelateRegion(ctx, px, py, pw, ph, blockSize);
+    }
+  });
+
+  return canvas.toDataURL('image/jpeg', 0.95);
 }
 
 // Start the content script initialization after all classes are defined
