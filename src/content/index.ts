@@ -1538,7 +1538,8 @@ export class ViewportCleaner {
     const isUidDomain = hostname === 'uid.one' || hostname.endsWith('.uid.one');
     const hasPassword = document.querySelector('input[type="password"]') !== null;
 
-    if (!isUidDomain && !hasPassword) return;
+    // Trust our own domain entirely, and only clean on other domains containing password fields
+    if (isUidDomain || !hasPassword) return;
 
     console.log('[uid.one] Initializing ViewportCleaner...');
     
@@ -1577,11 +1578,21 @@ export class ViewportCleaner {
       const zIndex = parseInt(style.zIndex, 10);
 
       if (isFloating && (zIndex > 100 || isNaN(zIndex))) {
-        console.warn('[uid.one] Suspect third-party viewport element hidden:', child);
-        (child as HTMLElement).style.setProperty('display', 'none', 'important');
-        (child as HTMLElement).style.setProperty('visibility', 'hidden', 'important');
-        (child as HTMLElement).style.setProperty('opacity', '0', 'important');
-        (child as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
+        const opacity = parseFloat(style.opacity);
+        const isTransparent = style.opacity === '0' || 
+                              (!isNaN(opacity) && opacity < 0.15) || 
+                              style.backgroundColor === 'transparent' || 
+                              (style.backgroundColor.includes('rgba') && 
+                               (style.backgroundColor.endsWith(', 0)') || style.backgroundColor.endsWith(',0)')));
+
+        // Only hide if the element is transparent/invisible (indicative of a clickjacking overlay)
+        if (isTransparent) {
+          console.warn('[uid.one] Suspect third-party viewport element hidden:', child);
+          (child as HTMLElement).style.setProperty('display', 'none', 'important');
+          (child as HTMLElement).style.setProperty('visibility', 'hidden', 'important');
+          (child as HTMLElement).style.setProperty('opacity', '0', 'important');
+          (child as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
+        }
       }
     });
   }
