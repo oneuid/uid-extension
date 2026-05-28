@@ -783,6 +783,21 @@ export class ScreenshotProtector {
       }
     }, true);
 
+    const isMouseInside = () => {
+      try {
+        return document.documentElement.matches(':hover');
+      } catch (e) {
+        return false;
+      }
+    };
+
+    // Initial check on load
+    const container = document.body || document.documentElement;
+    if (container && !isMouseInside()) {
+      console.log('[uid.one] Initial page load and mouse outside viewport, applying blur filter');
+      container.classList.add('uid-blur-active');
+    }
+
     // 3. Listen to window blur/focus events to prevent OS screenshots
     window.addEventListener('blur', () => {
       console.log('[uid.one] Window focus lost (blur event), applying blur filter');
@@ -791,9 +806,12 @@ export class ScreenshotProtector {
     });
 
     window.addEventListener('focus', () => {
-      console.log('[uid.one] Window focus regained (focus event), removing blur filter');
+      console.log('[uid.one] Window focus regained (focus event)');
       const container = document.body || document.documentElement;
-      if (container) container.classList.remove('uid-blur-active');
+      if (container && isMouseInside()) {
+        console.log('[uid.one] Mouse is inside viewport, removing blur filter');
+        container.classList.remove('uid-blur-active');
+      }
     });
 
     // 3.5. Listen to mouseleave/mouseenter to cover external utility selections
@@ -811,6 +829,14 @@ export class ScreenshotProtector {
       }
     });
 
+    // Catch missed mouseenter/focus transitions via mousemove
+    document.addEventListener('mousemove', () => {
+      const container = document.body || document.documentElement;
+      if (container && container.classList.contains('uid-blur-active') && document.hasFocus() && isMouseInside()) {
+        container.classList.remove('uid-blur-active');
+      }
+    });
+
     // 4. Listen to visibility change
     document.addEventListener('visibilitychange', () => {
       const container = document.body || document.documentElement;
@@ -818,8 +844,11 @@ export class ScreenshotProtector {
         console.log('[uid.one] Visibility hidden, applying blur filter');
         if (container) container.classList.add('uid-blur-active');
       } else {
-        console.log('[uid.one] Visibility visible, removing blur filter');
-        if (container) container.classList.remove('uid-blur-active');
+        console.log('[uid.one] Visibility visible');
+        if (container && isMouseInside() && document.hasFocus()) {
+          console.log('[uid.one] Mouse is inside and page has focus, removing blur filter');
+          container.classList.remove('uid-blur-active');
+        }
       }
     });
 
