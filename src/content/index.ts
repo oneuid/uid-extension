@@ -723,6 +723,18 @@ export class ScreenshotProtector {
         filter: blur(25px) !important;
         transition: filter 0.1s ease-in-out !important;
       }
+      
+      /* Auto-blur sensitive inputs when not active to prevent screenshot leakage */
+      input[type="password"]:not(:focus):not(:hover),
+      input[name*="otp" i]:not(:focus):not(:hover),
+      input[name*="code" i]:not(:focus):not(:hover),
+      input[autocomplete*="one-time-code" i]:not(:focus):not(:hover),
+      input[name*="card" i]:not(:focus):not(:hover),
+      input[name*="cvv" i]:not(:focus):not(:hover),
+      input[name*="cvc" i]:not(:focus):not(:hover) {
+        filter: blur(5px) !important;
+        transition: filter 0.15s ease-in-out !important;
+      }
     `;
     const targetHead = document.head || document.documentElement;
     if (targetHead) {
