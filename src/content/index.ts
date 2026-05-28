@@ -795,46 +795,6 @@ export class ScreenshotProtector {
       }
     }, true);
 
-    const isMouseInside = () => {
-      try {
-        return document.documentElement.matches(':hover');
-      } catch (e) {
-        return false;
-      }
-    };
-
-    // Initial check on load
-    const container = document.body || document.documentElement;
-    if (container && !isMouseInside()) {
-      console.log('[uid.one] Initial page load and mouse outside viewport, applying blur filter');
-      container.classList.add('uid-blur-active');
-    }
-
-
-
-    // 3.5. Listen to mouseleave/mouseenter to cover external utility selections
-    document.addEventListener('mouseleave', () => {
-      console.log('[uid.one] Mouse left the viewport (mouseleave event), applying blur filter');
-      const container = document.body || document.documentElement;
-      if (container) container.classList.add('uid-blur-active');
-    });
-
-    document.addEventListener('mouseenter', () => {
-      if (document.hasFocus()) {
-        console.log('[uid.one] Mouse returned and focus active (mouseenter event), removing blur filter');
-        const container = document.body || document.documentElement;
-        if (container) container.classList.remove('uid-blur-active');
-      }
-    });
-
-    // Catch missed mouseenter/focus transitions via mousemove
-    document.addEventListener('mousemove', () => {
-      const container = document.body || document.documentElement;
-      if (container && container.classList.contains('uid-blur-active') && document.hasFocus() && isMouseInside()) {
-        container.classList.remove('uid-blur-active');
-      }
-    });
-
     // 4. Listen to visibility change
     document.addEventListener('visibilitychange', () => {
       const container = document.body || document.documentElement;
@@ -842,11 +802,8 @@ export class ScreenshotProtector {
         console.log('[uid.one] Visibility hidden, applying blur filter');
         if (container) container.classList.add('uid-blur-active');
       } else {
-        console.log('[uid.one] Visibility visible');
-        if (container && isMouseInside() && document.hasFocus()) {
-          console.log('[uid.one] Mouse is inside and page has focus, removing blur filter');
-          container.classList.remove('uid-blur-active');
-        }
+        console.log('[uid.one] Visibility visible, removing blur filter');
+        if (container) container.classList.remove('uid-blur-active');
       }
     });
 
@@ -1744,14 +1701,18 @@ export class TextDLPShield {
       const style = document.createElement('style');
       style.textContent = `
         .uid-text-blurred {
-          filter: blur(4.5px) !important;
-          background: rgba(0, 0, 0, 0.05);
+          filter: none !important;
+          background: transparent;
           border-radius: 3px;
           padding: 0 2px;
           display: inline-block;
-          transition: filter 0.15s ease-in-out !important;
+          transition: filter 0.15s ease-in-out, background 0.15s ease-in-out !important;
         }
-        .uid-text-blurred:hover {
+        .uid-presentation-active .uid-text-blurred {
+          filter: blur(4.5px) !important;
+          background: rgba(0, 0, 0, 0.05);
+        }
+        .uid-presentation-active .uid-text-blurred:hover {
           filter: none !important;
           background: transparent;
         }
@@ -1761,6 +1722,21 @@ export class TextDLPShield {
         targetHead.appendChild(style);
       }
 
+      // Listen for Alt+Shift+P to toggle Presentation Mode
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+          e.preventDefault();
+          e.stopPropagation();
+          const isActive = document.documentElement.classList.toggle('uid-presentation-active');
+          this.showToast(
+            isActive 
+              ? 'Presentation Mode Enabled (Sensitive data hidden)' 
+              : 'Presentation Mode Disabled (Sensitive data visible)', 
+            isActive
+          );
+        }
+      }, true);
+
       // Perform initial scan asynchronously to prevent blocking the main thread
       setTimeout(() => {
         this.scanNode(document.body || document.documentElement);
@@ -1768,9 +1744,11 @@ export class TextDLPShield {
 
       // Observe DOM changes to scan new elements in real-time
       this.observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          for (const node of mutation.addedNodes) {
-            this.scanNode(node);
+        for (let i = 0; i < mutations.length; i++) {
+          const mutation = mutations[i];
+          const addedNodes = mutation.addedNodes;
+          for (let j = 0; j < addedNodes.length; j++) {
+            this.scanNode(addedNodes[j]);
           }
         }
       });
@@ -1779,6 +1757,53 @@ export class TextDLPShield {
         subtree: true
       });
     });
+  }
+
+  private showToast(message: string, isActive: boolean): void {
+    const existing = document.getElementById('uid-presentation-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'uid-presentation-toast';
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: ${isActive ? '#0f172a' : '#334155'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      z-index: 2147483647;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    `;
+
+    const iconSvg = isActive 
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8H4v-8"/><circle cx="12" cy="12" r="3"/></svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8H4v-8"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
+
+    toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+    });
+
+    setTimeout(() => {
+      toast.style.transform = 'translateY(100px)';
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   private scanNode(node: Node): void {

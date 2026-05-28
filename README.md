@@ -1,7 +1,7 @@
 # UID Link (Browser Extension)
 
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
+[![License: Proprietary Source-Available](https://img.shields.io/badge/License-Source--Available-red.svg?style=flat-square)](LICENSE)
 
 **UID Link** is a high-performance cross-browser extension designed for the **UID.ONE** Sovereign Identity Ecosystem. It acts as the browser-layer security agent, enforcing Zero-Trust policies, context-aware DLP (Data Loss Prevention), and real-time cryptographic session binding directly on the client side.
 
@@ -25,6 +25,7 @@ Actively checks visited domains to detect spoofing, typosquatting, and phishing 
 
 ### 3. Browser-Layer Data Loss Prevention (DLP)
 Inspects client-side actions to prevent inadvertent leaks of PII, credentials, or sensitive documents:
+- **Presentation Mode (Chế độ Trình chiếu/Chụp ảnh):** Toggle via `Alt+Shift+P` to dynamically blur and hide all sensitive plain-text patterns (such as phone numbers, emails, Vietnam Citizen IDs, credit card numbers) across web pages. This ensures screen shares and captures do not leak business details. Rê chuột (hover) để xem tạm thời.
 - **File Upload Interceptor:** Listens for `input[type="file"]` change events and drag & drop drops. Files are analyzed client-side, blocking unsafe files and displaying a warning overlay.
 - **Clipboard Interceptor:** Intercepts `paste` and `copy` events. Unsafe clipboard pastes are stopped with confirmation modals, while sensitive copies trigger native browser warning notifications.
 - **Form Interceptor:** Scans outbound `<form>` submissions for compliance before payloads leave the browser context.
@@ -53,6 +54,7 @@ Asserts the user's sovereign right to privacy across all web interactions:
 ### 8. Viewport Cleaner & Blocker Shield
 - **Notification Blocker:** Intercepts service worker registration and notification permissions to block annoying third-party push notifications.
 - **Viewport Cleaner:** Sweeps and hides suspicious floating elements, overlays, and potential keyloggers on secure pages to protect input fields.
+- **Tab Focus Blurring:** Automatically blurs the page viewport only when the tab is completely hidden or switched (`document.hidden`), preventing shoulder-surfing without interrupting side-by-side multitasking.
 
 ---
 
@@ -96,6 +98,9 @@ To verify Native Messaging features (such as secure hardware checks or OS integr
 
 ## 📄 License
 
-This project is licensed under the [Apache License 2.0](LICENSE). 
+This project is licensed under the [UID.ONE Source-Available License](LICENSE). 
 
-By open-sourcing our browser extension, we ensure complete transparency in how your web sessions and DLP policies are enforced. We welcome community audits and contributions.
+By making our source code visible, we ensure complete transparency in how your web sessions and DLP policies are enforced. Under this license:
+- You may audit and run the software locally for personal security verification.
+- Third-party commercial redistribution, publishing to extensions stores, and commercial forks are strictly prohibited.
+- Authorized B2B customers of UID.ONE are fully permitted to use the software in daily business operations.
