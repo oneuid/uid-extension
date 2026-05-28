@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:firefox": "tsc && TARGET=firefox vite build",
+    "zip:chrome": "cd dist/chrome && zip -r ../../uid-link-chrome.zip .",
+    "zip:firefox": "cd dist/firefox && zip -r ../../uid-link-firefox.zip .",
+    "build:publish": "npm run build && npm run build:firefox && npm run zip:chrome && npm run zip:firefox",
     "preview": "vite preview"
   },
   "devDependencies": {
