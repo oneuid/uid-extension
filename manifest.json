@@ -36,6 +36,13 @@
       "matches": ["<all_urls>"],
       "all_frames": true,
       "js": ["src/content/index.ts"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["src/main-world.ts"],
+      "world": "MAIN",
+      "run_at": "document_start"
     }
   ],
   "action": {

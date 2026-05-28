@@ -1651,12 +1651,10 @@ export class CookieGuard {
     chrome.storage.local.get('settings_cookie_guard').then(res => {
       if (res.settings_cookie_guard === false) {
         console.log('[uid.one] CookieGuard is disabled by policy.');
+        document.documentElement.dataset.uidCookieGuard = 'false';
         return;
       }
       console.log('[uid.one] Initializing CookieGuard...');
-
-      // 1. Inject setter interceptor into the main world
-      this.injectMainWorldInterceptor();
 
       // 2. Perform periodic sweeps to remove cookies written via server headers or prior to load
       this.sweepCookies();
@@ -1672,93 +1670,6 @@ export class CookieGuard {
       '127.0.0.1'
     ];
     return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
-  }
-
-  private injectMainWorldInterceptor(): void {
-    const script = document.createElement('script');
-    script.textContent = `
-      (function() {
-        const whitelist = [
-          'uid.one',
-          'trip.express',
-          'localhost',
-          '127.0.0.1'
-        ];
-        
-        function isWhitelisted() {
-          const hostname = window.location.hostname;
-          return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
-        }
-
-        if (isWhitelisted()) return;
-
-        const originalCookieDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
-                                         Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
-        
-        if (!originalCookieDescriptor || !originalCookieDescriptor.set) return;
-
-        const sensitiveCookiePatterns = [
-          /^_(ga|gid|gat|gac|gcl)/i,
-          /^_(fbp|fbc)/i,
-          /^_(uetsid|uetvid)/i,
-          /^(cluid|hj|pin_)/i,
-          /^_tt_enable_cookie/i,
-          /^__pt/i,
-          /cookieconsent/i,
-          /ad-/i,
-          /pixel/i,
-          /tracking/i
-        ];
-
-        // Regex patterns for sensitive data in values (JWT, Email, Credit Cards, API Keys)
-        const sensitiveValuePatterns = {
-          creditCard: /\\\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\\\\b/,
-          email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}/,
-          jwt: /eyJ[A-Za-z0-9_-]{10,}\\\\.[A-Za-z0-9_-]{10,}\\\\.[A-Za-z0-9_-]{10,}/,
-          apiKey: /\\\\b(sk-|pk-|api_key=|secret=)[A-Za-z0-9]{20,}\\\\b/i
-        };
-
-        Object.defineProperty(document, 'cookie', {
-          configurable: true,
-          enumerable: true,
-          get: function() {
-            return originalCookieDescriptor.get.call(document);
-          },
-          set: function(val) {
-            const parts = val.split(';');
-            const cookieKV = parts[0].trim();
-            const eqIdx = cookieKV.indexOf('=');
-            if (eqIdx !== -1) {
-              const name = cookieKV.substring(0, eqIdx).trim();
-              const value = decodeURIComponent(cookieKV.substring(eqIdx + 1));
-
-              const isTracking = sensitiveCookiePatterns.some(p => p.test(name));
-              
-              let hasSensitiveData = false;
-              let sensitiveType = '';
-              for (const [type, pattern] of Object.entries(sensitiveValuePatterns)) {
-                if (pattern.test(value)) {
-                  hasSensitiveData = true;
-                  sensitiveType = type;
-                  break;
-                }
-              }
-
-              if (isTracking || hasSensitiveData) {
-                console.warn('[uid.one] CookieGuard blocked sensitive cookie registration: ' + name + (hasSensitiveData ? ' (contains sensitive value: ' + sensitiveType + ')' : ''));
-                return; // Suppress cookie write
-              }
-            }
-            originalCookieDescriptor.set.call(document, val);
-          }
-        });
-      })();
-    `;
-    const target = document.head || document.documentElement;
-    if (target) {
-      target.appendChild(script);
-      script.remove();
-    }
   }
 
   private sweepCookies(): void {
@@ -1806,103 +1717,13 @@ export class CookieGuard {
 
 export class NotificationBlocker {
   init(): void {
-    // We inject a script into the main world to intercept notification and push request APIs
-    const script = document.createElement('script');
-    script.textContent = `
-      (function() {
-        const whitelist = [
-          'uid.one',
-          'trip.express',
-          'localhost',
-          '127.0.0.1'
-        ];
-        
-        function isWhitelisted() {
-          const hostname = window.location.hostname;
-          return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
-        }
-
-        // 1. Intercept Notification.requestPermission
-        if (window.Notification) {
-          const originalRequest = window.Notification.requestPermission;
-          window.Notification.requestPermission = function() {
-            if (!isWhitelisted()) {
-              console.log('[uid.one] Blocked third-party notification request permission prompt on:', window.location.hostname);
-              return Promise.resolve('denied');
-            }
-            return originalRequest.apply(this, arguments);
-          };
-        }
-
-        // 2. Intercept PushManager.subscribe (Service Worker Push Notifications)
-        if (window.PushManager && window.PushManager.prototype.subscribe) {
-          const originalSubscribe = window.PushManager.prototype.subscribe;
-          window.PushManager.prototype.subscribe = function() {
-            if (!isWhitelisted()) {
-              console.log('[uid.one] Blocked third-party push subscription on:', window.location.hostname);
-              return Promise.reject(new DOMException('Permission denied', 'NotAllowedError'));
-            }
-            return originalSubscribe.apply(this, arguments);
-          };
-        }
-      })();
-    `;
-    const target = document.head || document.documentElement;
-    if (target) {
-      target.appendChild(script);
-      script.remove();
-    }
+    console.log('[uid.one] NotificationBlocker registered in main world.');
   }
 }
 
 export class GPCEnforcer {
   init(): void {
-    const hostname = window.location.hostname;
-    const whitelist = [
-      'uid.one',
-      'trip.express',
-      'localhost',
-      '127.0.0.1'
-    ];
-    const isWhitelisted = whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
-    if (isWhitelisted) return;
-
-    console.log('[uid.one] Injecting Global Privacy Control (GPC) & DNT...');
-
-    const script = document.createElement('script');
-    script.textContent = `
-      (function() {
-        try {
-          Object.defineProperty(navigator, 'globalPrivacyControl', {
-            value: true,
-            writable: false,
-            configurable: false
-          });
-        } catch (e) {
-          console.warn('[uid.one] Failed to define globalPrivacyControl on navigator:', e);
-        }
-
-        try {
-          Object.defineProperty(navigator, 'doNotTrack', {
-            value: '1',
-            writable: false,
-            configurable: false
-          });
-          Object.defineProperty(window, 'doNotTrack', {
-            value: '1',
-            writable: false,
-            configurable: false
-          });
-        } catch (e) {
-          console.warn('[uid.one] Failed to define doNotTrack properties:', e);
-        }
-      })();
-    `;
-    const target = document.head || document.documentElement;
-    if (target) {
-      target.appendChild(script);
-      script.remove();
-    }
+    console.log('[uid.one] GPCEnforcer registered in main world.');
   }
 }
 
