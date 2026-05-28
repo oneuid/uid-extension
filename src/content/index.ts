@@ -842,6 +842,7 @@ function init() {
     { name: 'ScreenshotProtector', run: () => new ScreenshotProtector().init() },
     { name: 'ViewportCleaner', run: () => new ViewportCleaner().init() },
     { name: 'NotificationBlocker', run: () => new NotificationBlocker().init() },
+    { name: 'CookieGuard', run: () => new CookieGuard().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1360,6 +1361,172 @@ export class ViewportCleaner {
         (child as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
       }
     });
+  }
+}
+
+export class CookieGuard {
+  private readonly SENSITIVE_COOKIE_PATTERNS = [
+    /^_(ga|gid|gat|gac|gcl)/i,    // Google Analytics / Ads
+    /^_(fbp|fbc)/i,              // Facebook Pixel
+    /^_(uetsid|uetvid)/i,        // Bing Ads
+    /^(cluid|hj|pin_)/i,         // Clarity, Hotjar, Pinterest
+    /^_tt_enable_cookie/i,       // TikTok
+    /^__pt/i,                    // Adroll
+    /cookieconsent/i,            // Opt-in consent
+    /ad-/i,                      // Generic ad tokens
+    /pixel/i,
+    /tracking/i
+  ];
+
+  init(): void {
+    const hostname = window.location.hostname;
+    const isWhitelisted = this.isWhitelistedDomain(hostname);
+    if (isWhitelisted) return;
+
+    console.log('[uid.one] Initializing CookieGuard...');
+
+    // 1. Inject setter interceptor into the main world
+    this.injectMainWorldInterceptor();
+
+    // 2. Perform periodic sweeps to remove cookies written via server headers or prior to load
+    this.sweepCookies();
+    setInterval(() => this.sweepCookies(), 5000);
+  }
+
+  private isWhitelistedDomain(hostname: string): boolean {
+    const whitelist = [
+      'uid.one',
+      'trip.express',
+      'localhost',
+      '127.0.0.1'
+    ];
+    return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+  }
+
+  private injectMainWorldInterceptor(): void {
+    const script = document.createElement('script');
+    script.textContent = `
+      (function() {
+        const whitelist = [
+          'uid.one',
+          'trip.express',
+          'localhost',
+          '127.0.0.1'
+        ];
+        
+        function isWhitelisted() {
+          const hostname = window.location.hostname;
+          return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+        }
+
+        if (isWhitelisted()) return;
+
+        const originalCookieDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
+                                         Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
+        
+        if (!originalCookieDescriptor || !originalCookieDescriptor.set) return;
+
+        const sensitiveCookiePatterns = [
+          /^_(ga|gid|gat|gac|gcl)/i,
+          /^_(fbp|fbc)/i,
+          /^_(uetsid|uetvid)/i,
+          /^(cluid|hj|pin_)/i,
+          /^_tt_enable_cookie/i,
+          /^__pt/i,
+          /cookieconsent/i,
+          /ad-/i,
+          /pixel/i,
+          /tracking/i
+        ];
+
+        // Regex patterns for sensitive data in values (JWT, Email, Credit Cards, API Keys)
+        const sensitiveValuePatterns = {
+          creditCard: /\\\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\\\\b/,
+          email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}/,
+          jwt: /eyJ[A-Za-z0-9_-]{10,}\\\\.[A-Za-z0-9_-]{10,}\\\\.[A-Za-z0-9_-]{10,}/,
+          apiKey: /\\\\b(sk-|pk-|api_key=|secret=)[A-Za-z0-9]{20,}\\\\b/i
+        };
+
+        Object.defineProperty(document, 'cookie', {
+          configurable: true,
+          enumerable: true,
+          get: function() {
+            return originalCookieDescriptor.get.call(document);
+          },
+          set: function(val) {
+            const parts = val.split(';');
+            const cookieKV = parts[0].trim();
+            const eqIdx = cookieKV.indexOf('=');
+            if (eqIdx !== -1) {
+              const name = cookieKV.substring(0, eqIdx).trim();
+              const value = decodeURIComponent(cookieKV.substring(eqIdx + 1));
+
+              const isTracking = sensitiveCookiePatterns.some(p => p.test(name));
+              
+              let hasSensitiveData = false;
+              let sensitiveType = '';
+              for (const [type, pattern] of Object.entries(sensitiveValuePatterns)) {
+                if (pattern.test(value)) {
+                  hasSensitiveData = true;
+                  sensitiveType = type;
+                  break;
+                }
+              }
+
+              if (isTracking || hasSensitiveData) {
+                console.warn('[uid.one] CookieGuard blocked sensitive cookie registration: ' + name + (hasSensitiveData ? ' (contains sensitive value: ' + sensitiveType + ')' : ''));
+                return; // Suppress cookie write
+              }
+            }
+            originalCookieDescriptor.set.call(document, val);
+          }
+        });
+      })();
+    `;
+    const target = document.head || document.documentElement;
+    if (target) {
+      target.appendChild(script);
+      script.remove();
+    }
+  }
+
+  private sweepCookies(): void {
+    if (typeof document === 'undefined' || !document.cookie) return;
+    
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const eqIdx = cookie.indexOf('=');
+      if (eqIdx === -1) continue;
+      const name = cookie.substring(0, eqIdx).trim();
+
+      const isTracking = this.SENSITIVE_COOKIE_PATTERNS.some(p => p.test(name));
+      if (isTracking) {
+        console.log('[uid.one] CookieGuard sweeping tracking cookie:', name);
+        this.deleteCookie(name);
+      }
+    }
+  }
+
+  private deleteCookie(name: string): void {
+    const domains = [
+      '',
+      window.location.hostname,
+      '.' + window.location.hostname,
+      this.getCookieDomain()
+    ];
+    
+    for (const domain of domains) {
+      const domainAttr = domain ? `; domain=${domain}` : '';
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domainAttr}`;
+    }
+  }
+
+  private getCookieDomain(): string {
+    const parts = window.location.hostname.split('.');
+    if (parts.length >= 2) {
+      return '.' + parts.slice(-2).join('.');
+    }
+    return window.location.hostname;
   }
 }
 
