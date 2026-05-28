@@ -1742,20 +1742,42 @@ export class TextDLPShield {
         this.scanNode(document.body || document.documentElement);
       }, 100);
 
-      // Observe DOM changes to scan new elements in real-time
+      // Observe DOM changes (including characterData/text updates) in real-time
+      const target = document.body || document.documentElement;
       this.observer = new MutationObserver((mutations) => {
+        // Disconnect to avoid infinite loop when we modify text nodes
+        this.observer?.disconnect();
+
         for (let i = 0; i < mutations.length; i++) {
           const mutation = mutations[i];
-          const addedNodes = mutation.addedNodes;
-          for (let j = 0; j < addedNodes.length; j++) {
-            this.scanNode(addedNodes[j]);
+          if (mutation.type === 'childList') {
+            const addedNodes = mutation.addedNodes;
+            for (let j = 0; j < addedNodes.length; j++) {
+              this.scanNode(addedNodes[j]);
+            }
+          } else if (mutation.type === 'characterData') {
+            this.scanNode(mutation.target);
           }
         }
+
+        // Reconnect
+        this.observer?.observe(target, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
       });
-      this.observer.observe(document.body || document.documentElement, {
+      
+      this.observer.observe(target, {
         childList: true,
-        subtree: true
+        subtree: true,
+        characterData: true
       });
+
+      // Fallback periodic scan to override React virtual-DOM updates
+      setInterval(() => {
+        this.scanNode(document.body || document.documentElement);
+      }, 800);
     });
   }
 
@@ -1875,7 +1897,11 @@ export class TextDLPShield {
       fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
     }
 
-    parent.replaceChild(fragment, node);
+    try {
+      parent.replaceChild(fragment, node);
+    } catch (err) {
+      // Ignore if React has already modified the DOM hierarchy
+    }
   }
 }
 
