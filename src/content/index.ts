@@ -1114,6 +1114,7 @@ function init() {
     { name: 'NotificationBlocker', run: () => new NotificationBlocker().init() },
     { name: 'CookieGuard', run: () => new CookieGuard().init() },
     { name: 'GPCEnforcer', run: () => new GPCEnforcer().init() },
+    { name: 'TextDLPShield', run: () => new TextDLPShield().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1724,6 +1725,132 @@ export class NotificationBlocker {
 export class GPCEnforcer {
   init(): void {
     console.log('[uid.one] GPCEnforcer registered in main world.');
+  }
+}
+
+export class TextDLPShield {
+  private observer: MutationObserver | null = null;
+  private readonly SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'NOSCRIPT', 'TEXTAREA', 'INPUT', 'OPTION', 'HEAD', 'TITLE']);
+
+  init(): void {
+    chrome.storage.local.get('settings_otp_shield').then(res => {
+      if (res.settings_otp_shield === false) {
+        console.log('[uid.one] TextDLPShield is disabled.');
+        return;
+      }
+      console.log('[uid.one] Initializing TextDLPShield...');
+      
+      // Add custom styles for blurred text
+      const style = document.createElement('style');
+      style.textContent = `
+        .uid-text-blurred {
+          filter: blur(4.5px) !important;
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 3px;
+          padding: 0 2px;
+          display: inline-block;
+          transition: filter 0.15s ease-in-out !important;
+        }
+        .uid-text-blurred:hover {
+          filter: none !important;
+          background: transparent;
+        }
+      `;
+      const targetHead = document.head || document.documentElement;
+      if (targetHead) {
+        targetHead.appendChild(style);
+      }
+
+      // Perform initial scan asynchronously to prevent blocking the main thread
+      setTimeout(() => {
+        this.scanNode(document.body || document.documentElement);
+      }, 100);
+
+      // Observe DOM changes to scan new elements in real-time
+      this.observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            this.scanNode(node);
+          }
+        }
+      });
+      this.observer.observe(document.body || document.documentElement, {
+        childList: true,
+        subtree: true
+      });
+    });
+  }
+
+  private scanNode(node: Node): void {
+    if (!node) return;
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      if (this.SKIP_TAGS.has(el.tagName) || el.classList.contains('uid-passkey-wrapper')) {
+        return;
+      }
+      // Traverse child nodes
+      let child = el.firstChild;
+      while (child) {
+        const next = child.nextSibling;
+        this.scanNode(child);
+        child = next;
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      this.processTextNode(node as Text);
+    }
+  }
+
+  private processTextNode(node: Text): void {
+    const parent = node.parentNode;
+    if (!parent) return;
+
+    // Check if already blurred or contained inside a blurred node
+    if (parent instanceof Element && (parent.classList.contains('uid-text-blurred') || parent.closest('.uid-text-blurred'))) {
+      return;
+    }
+
+    const text = node.nodeValue || '';
+    if (!text.trim()) return;
+
+    // Combined regex for sensitive patterns:
+    // 1. Credit Cards: \b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b
+    // 2. Vietnam Citizen ID / Passports: \b\d{9}(\d{3})?\b
+    // 3. Emails: [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
+    // 4. Phone numbers (intl & local): (?:\+\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}
+    // 5. JWT tokens: eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}
+    const regex = /(?:eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13})\b|\b\d{9}(?:\d{3})?\b|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|\b(?:\+\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b)/g;
+
+    const matches = [...text.matchAll(regex)];
+    if (matches.length === 0) return;
+
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+
+    for (const match of matches) {
+      const matchIndex = match.index ?? 0;
+      const matchText = match[0];
+
+      // Append text preceding the match
+      if (matchIndex > lastIndex) {
+        fragment.appendChild(document.createTextNode(text.substring(lastIndex, matchIndex)));
+      }
+
+      // Create blurred span for the match
+      const span = document.createElement('span');
+      span.className = 'uid-text-blurred';
+      span.textContent = matchText;
+      fragment.appendChild(span);
+
+      lastIndex = matchIndex + matchText.length;
+    }
+
+    // Append remaining text
+    if (lastIndex < text.length) {
+      fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+    }
+
+    parent.replaceChild(fragment, node);
   }
 }
 
