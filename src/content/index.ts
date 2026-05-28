@@ -374,18 +374,61 @@ export class ClipboardInterceptor {
     }
   }
 
-  private async handleCopy(_e: ClipboardEvent): Promise<void> {
+  private handleCopy(e: ClipboardEvent): void {
     const text = window.getSelection()?.toString();
     if (!text) return;
 
     const result = scanContent(text);
 
-    if (result.riskLevel === 'high' || result.riskLevel === 'critical') {
-      chrome.runtime.sendMessage({
-        type: 'SHOW_NOTIFICATION',
-        title: 'Sensitive Data Copied',
-        message: 'You copied potentially sensitive data. Review before sending it.',
-      });
+    let totalSensitiveCount = 0;
+    let maxSingleTypeCount = 0;
+    const detectedTypes: string[] = [];
+
+    const piiTypes = ['emailBulk', 'phone', 'creditCard', 'apiKey', 'vnId', 'privateKey', 'jwt', 'bankAccount'];
+
+    for (const finding of result.findings) {
+      if (piiTypes.includes(finding.type)) {
+        totalSensitiveCount += finding.count;
+        detectedTypes.push(finding.type);
+        if (finding.count > maxSingleTypeCount) {
+          maxSingleTypeCount = finding.count;
+        }
+      }
+    }
+
+    if (totalSensitiveCount > 0) {
+      const isBulk = totalSensitiveCount >= 3 || maxSingleTypeCount >= 3;
+
+      if (isBulk) {
+        e.preventDefault();
+        if (e.clipboardData) {
+          e.clipboardData.setData('text/plain', '[SECURE DATA BLOCKED BY UID.ONE]');
+        }
+        
+        chrome.runtime.sendMessage({
+          type: 'SHOW_NOTIFICATION',
+          title: 'Security Alert',
+          message: 'Bulk copying of sensitive customer data (email/phone/credentials) is disabled.',
+        });
+
+        chrome.runtime.sendMessage({
+          type: 'AUDIT_COPY',
+          domain: window.location.hostname,
+          sensitive_type: detectedTypes.join(','),
+          sample: '[BULK COPY BLOCKED]',
+          count: totalSensitiveCount,
+          blocked: true
+        });
+      } else {
+        chrome.runtime.sendMessage({
+          type: 'AUDIT_COPY',
+          domain: window.location.hostname,
+          sensitive_type: detectedTypes.join(','),
+          sample: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
+          count: totalSensitiveCount,
+          blocked: false
+        });
+      }
     }
   }
 }

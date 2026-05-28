@@ -434,6 +434,38 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   }
+  else if (request.type === 'AUDIT_COPY') {
+    getActiveSessionToken().then(token => {
+      if (!token) {
+        console.warn('[uid.one] Audit failed: no active session token');
+        sendResponse({ success: false, error: 'No active session' });
+        return;
+      }
+      fetch('https://api.uid.one/v1/audit/copy/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          domain: request.domain,
+          sensitive_type: request.sensitive_type,
+          sample: request.sample,
+          count: request.count,
+          blocked: request.blocked
+        })
+      }).then(res => {
+        if (!res.ok) {
+          console.warn('[uid.one] Audit server returned status:', res.status);
+        }
+        sendResponse({ success: res.ok });
+      }).catch(err => {
+        console.error('[uid.one] Audit log network error:', err);
+        sendResponse({ success: false, error: err.toString() });
+      });
+    });
+    return true;
+  }
 });
 
 // ================= CONTEXT MENUS INTEGRATION =================
