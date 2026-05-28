@@ -65,24 +65,31 @@ Asserts the user's sovereign right to privacy across all web interactions:
 
 ---
 
-## 🚀 Getting Started
+## 🚀 How to Install / Hướng dẫn cài đặt
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+Choose one of the two simple methods below to install the extension / Chọn một trong hai cách dưới đây để cài đặt:
 
-### 2. Build the Extension
-```bash
-npm run build
-```
-This compiles TypeScript files and bundles static resources into the `dist/` directory.
+### Option 1: Install Prebuilt (Recommended & Simplest) / Cách 1: Cài đặt nhanh từ file Zip (Khuyên dùng)
+1. Download **`uid-link-chrome.zip`** (for Chrome, Edge, Brave) or **`uid-link-firefox.zip`** (for Firefox) from the root of this repository.
+2. Extract the downloaded zip file into a folder on your computer.
+3. Open your browser and navigate to `chrome://extensions/` (or `about:debugging` in Firefox).
+4. Turn on **"Developer mode"** (Chế độ nhà phát triển) in the top-right corner.
+5. Click **"Load unpacked"** (Tải tiện ích đã giải nén) and select the extracted folder.
 
-### 3. Load into Chromium Browsers (Chrome / Edge / Brave)
-1. Navigate to `chrome://extensions/` (or `edge://extensions/`).
-2. Toggle on **"Developer mode"** in the top right corner.
-3. Click the **"Load unpacked"** button.
-4. Select the compiled `dist/` folder in the root of the project.
+---
+
+### Option 2: Clone & Build from Source / Cách 2: Tự biên dịch từ mã nguồn
+1. Clone this repository to your computer:
+   ```bash
+   git clone https://github.com/oneuid/uid-extension.git
+   cd uid-extension
+   ```
+2. Install dependencies and compile:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Open `chrome://extensions/`, turn on **"Developer mode"**, click **"Load unpacked"** and select the compiled **`dist/chrome/`** folder.
 
 ---
 
