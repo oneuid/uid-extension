@@ -332,18 +332,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
     return true;
   }
-  else if (request.action === 'FETCH_IMAGE') {
-    fetch(request.url)
-      .then(r => r.blob())
-      .then(blob => new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      }))
-      .then(dataURL => sendResponse({ dataURL }))
-      .catch(err => sendResponse({ error: err.message }));
-    return true;
-  }
   else if (request.type === 'INC_STAT') {
     const key = request.key;
     chrome.storage.local.get(key).then(res => {

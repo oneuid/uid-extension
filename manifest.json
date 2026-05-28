@@ -19,8 +19,7 @@
     "clipboardWrite",
     "notifications",
     "webRequest",
-    "declarativeNetRequest",
-    "downloads"
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "*://api.uid.one/*",
@@ -55,15 +54,6 @@
       "128": "icon.png"
     }
   },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "wasm/*",
-        "models/*"
-      ],
-      "matches": ["<all_urls>"]
-    }
-  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "identity@uid.one",
