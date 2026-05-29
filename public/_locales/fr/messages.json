@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "Mettez à niveau de manière fluide l'authentification des sites existants avec une sécurité Passkey et WebAuthn d'entreprise." },
-  "iconTitle": { "message": "Se connecter avec Passkey (UID.one)" },
-  "errorVaultNotFound": { "message": "Erreur : Coffre-fort introuvable pour ce site." },
-  "errorDecryptionFailed": { "message": "Erreur : Échec du déchiffrement des identifiants." },
-  "errorNoUsernameProvided": { "message": "Veuillez d'abord saisir votre e-mail ou nom d'utilisateur pour utiliser votre Passkey." },
-  "pickerHeader": { "message": "Sélectionner un compte" },
-  "setupGuidance": { "message": "Première configuration : Veuillez saisir votre e-mail et mot de passe pour vous connecter normalement. Un coffre Passkey sécurisé sera créé automatiquement !" },
-  "vaultConnected": { "message": "Coffre-fort connecté" },
-  "waitingForLogin": { "message": "En attente de connexion" },
-  "vaultConnectedDesc": { "message": "Sécurité Zero-Trust active. Les clés de passkey et identifiants sont synchronisés en toute sécurité." },
-  "waitingForLoginDesc": { "message": "Connectez-vous à votre compte web <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. L'extension se synchronisera et s'associera automatiquement." },
-  "cookiesGuard": { "message": "Protection Cookies" },
-  "exifStripped": { "message": "EXIF Supprimé" },
-  "inputsWiped": { "message": "Champs Nettoyés" },
-  "engineControl": { "message": "Contrôle du Moteur" },
-  "activeDlpInterceptor": { "message": "Intercepteur DLP Activo" },
-  "activeDlpInterceptorDesc": { "message": "Analyse les téléchargements, les copies et les formulaires" },
-  "sovereignIdentityLayer": { "message": "Couche d'Identité Souveraine" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "Couche de sécurité et d'identité souveraine pour UID.one. Impose le Zero-Trust, la protection DLP, la liaison de session et l'anti-traçage SSD."
+  },
+  "iconTitle": {
+    "message": "Se connecter avec Passkey (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "Erreur : Coffre-fort introuvable pour ce site."
+  },
+  "errorDecryptionFailed": {
+    "message": "Erreur : Échec du déchiffrement des identifiants."
+  },
+  "errorNoUsernameProvided": {
+    "message": "Veuillez d'abord saisir votre e-mail ou nom d'utilisateur pour utiliser votre Passkey."
+  },
+  "pickerHeader": {
+    "message": "Sélectionner un compte"
+  },
+  "setupGuidance": {
+    "message": "Première configuration : Veuillez saisir votre e-mail et mot de passe pour vous connecter normalement. Un coffre Passkey sécurisé sera créé automatiquement !"
+  },
+  "vaultConnected": {
+    "message": "Coffre-fort connecté"
+  },
+  "waitingForLogin": {
+    "message": "En attente de connexion"
+  },
+  "vaultConnectedDesc": {
+    "message": "Sécurité Zero-Trust active. Les clés de passkey et identifiants sont synchronisés en toute sécurité."
+  },
+  "waitingForLoginDesc": {
+    "message": "Connectez-vous à votre compte web <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. L'extension se synchronisera et s'associera automatiquement."
+  },
+  "cookiesGuard": {
+    "message": "Protection Cookies"
+  },
+  "exifStripped": {
+    "message": "EXIF Supprimé"
+  },
+  "inputsWiped": {
+    "message": "Champs Nettoyés"
+  },
+  "engineControl": {
+    "message": "Contrôle du Moteur"
+  },
+  "activeDlpInterceptor": {
+    "message": "Intercepteur DLP Activo"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "Analyse les téléchargements, les copies et les formulaires"
+  },
+  "sovereignIdentityLayer": {
+    "message": "Couche d'Identité Souveraine"
+  }
 }

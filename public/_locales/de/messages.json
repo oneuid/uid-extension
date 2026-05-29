@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "Bringen Sie Legacy-Webseiten-Authentifizierung nahtlos auf Enterprise-Level mit Passkey- und WebAuthn-Sicherheit." },
-  "iconTitle": { "message": "Mit Passkey anmelden (UID.one)" },
-  "errorVaultNotFound": { "message": "Fehler: Tresor für diese Website nicht gefunden." },
-  "errorDecryptionFailed": { "message": "Fehler: Entschlüsselung der Anmeldedaten fehlgeschlagen." },
-  "errorNoUsernameProvided": { "message": "Bitte geben Sie zuerst Ihre E-Mail-Adresse oder Ihren Benutzernamen ein, um Ihren Passkey zu verwenden." },
-  "pickerHeader": { "message": "Konto auswählen" },
-  "setupGuidance": { "message": "Ersteinrichtung: Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich normal anzumelden. Ein sicherer Passkey-Tresor wird automatisch erstellt!" },
-  "vaultConnected": { "message": "Tresor verbunden" },
-  "waitingForLogin": { "message": "Warten auf Login" },
-  "vaultConnectedDesc": { "message": "Zero-Trust-Sicherheit aktiv. Passkeys und Anmeldedaten sind sicher mit dem Tresor synchronisiert." },
-  "waitingForLoginDesc": { "message": "Melden Sie sich in Ihrem <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> Webkonto an. Die Erweiterung synchronisiert und verbindet sich automatisch." },
-  "cookiesGuard": { "message": "Cookie-Schutz" },
-  "exifStripped": { "message": "EXIF gelöscht" },
-  "inputsWiped": { "message": "Felder gelöscht" },
-  "engineControl": { "message": "Engine-Steuerung" },
-  "activeDlpInterceptor": { "message": "Aktiver DLP-Interceptor" },
-  "activeDlpInterceptorDesc": { "message": "Analysiert Uploads, Kopien und Formularübermittlungen" },
-  "sovereignIdentityLayer": { "message": "Sovereign Identity Layer" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "Souveräne clientseitige Sicherheitsebene für UID.one. Setzt Zero-Trust, DLP-Schutz, Sitzungsbindung und SSD-Anti-Tracking durch."
+  },
+  "iconTitle": {
+    "message": "Mit Passkey anmelden (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "Fehler: Tresor für diese Website nicht gefunden."
+  },
+  "errorDecryptionFailed": {
+    "message": "Fehler: Entschlüsselung der Anmeldedaten fehlgeschlagen."
+  },
+  "errorNoUsernameProvided": {
+    "message": "Bitte geben Sie zuerst Ihre E-Mail-Adresse oder Ihren Benutzernamen ein, um Ihren Passkey zu verwenden."
+  },
+  "pickerHeader": {
+    "message": "Konto auswählen"
+  },
+  "setupGuidance": {
+    "message": "Ersteinrichtung: Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich normal anzumelden. Ein sicherer Passkey-Tresor wird automatisch erstellt!"
+  },
+  "vaultConnected": {
+    "message": "Tresor verbunden"
+  },
+  "waitingForLogin": {
+    "message": "Warten auf Login"
+  },
+  "vaultConnectedDesc": {
+    "message": "Zero-Trust-Sicherheit aktiv. Passkeys und Anmeldedaten sind sicher mit dem Tresor synchronisiert."
+  },
+  "waitingForLoginDesc": {
+    "message": "Melden Sie sich in Ihrem <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> Webkonto an. Die Erweiterung synchronisiert und verbindet sich automatisch."
+  },
+  "cookiesGuard": {
+    "message": "Cookie-Schutz"
+  },
+  "exifStripped": {
+    "message": "EXIF gelöscht"
+  },
+  "inputsWiped": {
+    "message": "Felder gelöscht"
+  },
+  "engineControl": {
+    "message": "Engine-Steuerung"
+  },
+  "activeDlpInterceptor": {
+    "message": "Aktiver DLP-Interceptor"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "Analysiert Uploads, Kopien und Formularübermittlungen"
+  },
+  "sovereignIdentityLayer": {
+    "message": "Sovereign Identity Layer"
+  }
 }

@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "Простая модернизация устаревшей аутентификации на веб-сайтах с помощью безопасности Passkey и WebAuthn корпоративного уровня." },
-  "iconTitle": { "message": "Войти с помощью Passkey (UID.one)" },
-  "errorVaultNotFound": { "message": "Ошибка: Сейф для этого веб-сайта не найден." },
-  "errorDecryptionFailed": { "message": "Ошибка: Не удалось расшифровать учетные данные." },
-  "errorNoUsernameProvided": { "message": "Пожалуйста, сначала введите ваш email или имя пользователя для использования Passkey." },
-  "pickerHeader": { "message": "Выберите аккаунт" },
-  "setupGuidance": { "message": "Первоначальная настройка: Пожалуйста, введите ваш email и пароль для обычного входа. Безопасный сейф Passkey будет создан автоматически!" },
-  "vaultConnected": { "message": "Сейф подключен" },
-  "waitingForLogin": { "message": "Ожидание входа" },
-  "vaultConnectedDesc": { "message": "Активна защита Zero-Trust. Ключи доступа и учетные данные надежно синхронизированы с сейфом." },
-  "waitingForLoginDesc": { "message": "Войдите в свою веб-учетную запись на <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. Расширение синхронизируется и подключится автоматически." },
-  "cookiesGuard": { "message": "Защита Cookie" },
-  "exifStripped": { "message": "EXIF Удален" },
-  "inputsWiped": { "message": "Поля Очищены" },
-  "engineControl": { "message": "Управление" },
-  "activeDlpInterceptor": { "message": "Активный перехватчик DLP" },
-  "activeDlpInterceptorDesc": { "message": "Анализ загрузок, копирований и отправки форм" },
-  "sovereignIdentityLayer": { "message": "Суверенный слой идентификации" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "Суверенный уровень безопасности на стороне клиента для UID.one. Обеспечивает Zero-Trust, защиту DLP, привязку сессий и защиту от отслеживания SSD."
+  },
+  "iconTitle": {
+    "message": "Войти с помощью Passkey (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "Ошибка: Сейф для этого веб-сайта не найден."
+  },
+  "errorDecryptionFailed": {
+    "message": "Ошибка: Не удалось расшифровать учетные данные."
+  },
+  "errorNoUsernameProvided": {
+    "message": "Пожалуйста, сначала введите ваш email или имя пользователя для использования Passkey."
+  },
+  "pickerHeader": {
+    "message": "Выберите аккаунт"
+  },
+  "setupGuidance": {
+    "message": "Первоначальная настройка: Пожалуйста, введите ваш email и пароль для обычного входа. Безопасный сейф Passkey будет создан автоматически!"
+  },
+  "vaultConnected": {
+    "message": "Сейф подключен"
+  },
+  "waitingForLogin": {
+    "message": "Ожидание входа"
+  },
+  "vaultConnectedDesc": {
+    "message": "Активна защита Zero-Trust. Ключи доступа и учетные данные надежно синхронизированы с сейфом."
+  },
+  "waitingForLoginDesc": {
+    "message": "Войдите в свою веб-учетную запись на <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. Расширение синхронизируется и подключится автоматически."
+  },
+  "cookiesGuard": {
+    "message": "Защита Cookie"
+  },
+  "exifStripped": {
+    "message": "EXIF Удален"
+  },
+  "inputsWiped": {
+    "message": "Поля Очищены"
+  },
+  "engineControl": {
+    "message": "Управление"
+  },
+  "activeDlpInterceptor": {
+    "message": "Активный перехватчик DLP"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "Анализ загрузок, копирований и отправки форм"
+  },
+  "sovereignIdentityLayer": {
+    "message": "Суверенный слой идентификации"
+  }
 }

@@ -1084,7 +1084,9 @@ let isListeningToSessionEvents = false;
 
 function captureSessionToken() {
   try {
-    const token = localStorage.getItem('oneuid_access_token');
+    // Firefox content scripts need to access the page's localStorage via wrappedJSObject
+    const targetWindow = (window as any).wrappedJSObject || window;
+    const token = targetWindow.localStorage.getItem('oneuid_access_token');
     if (token) {
       chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
     }
@@ -1095,7 +1097,9 @@ function captureSessionToken() {
   if (!isListeningToSessionEvents) {
     try {
       window.addEventListener('oneuid_session_login', (e: any) => {
-        const token = e.detail?.token;
+        // In Firefox, custom event details are wrapped, so we unwrap them if wrappedJSObject exists
+        const detail = e.detail && (e.detail as any).wrappedJSObject ? (e.detail as any).wrappedJSObject : e.detail;
+        const token = detail?.token;
         if (token) {
           chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
         }

@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "อัปเกรดการยืนยันตัวตนเว็บไซต์แบบเก่าอย่างราบรื่นด้วยความปลอดภัย Passkey และ WebAuthn ระดับองค์กร" },
-  "iconTitle": { "message": "เข้าสู่ระบบด้วย Passkey (UID.one)" },
-  "errorVaultNotFound": { "message": "ข้อผิดพลาด: ไม่พบห้องนิรภัยสำหรับเว็บไซต์นี้" },
-  "errorDecryptionFailed": { "message": "ข้อผิดพลาด: ถอดรหัสข้อมูลประจำตัวไม่สำเร็จ" },
-  "errorNoUsernameProvided": { "message": "โปรดกรอกอีเมลหรือชื่อผู้ใช้ของคุณก่อนเพื่อใช้ Passkey" },
-  "pickerHeader": { "message": "เลือกบัญชี" },
-  "setupGuidance": { "message": "การตั้งค่าครั้งแรก: โปรดกรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบตามปกติ ห้องนิรภัย Passkey ที่ปลอดภัยจะถูกสร้างขึ้นโดยอัตโนมัติ!" },
-  "vaultConnected": { "message": "เชื่อมต่อห้องนิรภัยแล้ว" },
-  "waitingForLogin": { "message": "กำลังรอการเข้าสู่ระบบ" },
-  "vaultConnectedDesc": { "message": "ความปลอดภัย Zero-Trust ทำงานอยู่ Passkey และข้อมูลประจำตัวได้รับการซิงค์อย่างปลอดภัยกับห้องนิรภัย" },
-  "waitingForLoginDesc": { "message": "ลงชื่อเข้าใช้บัญชีเว็บของคุณที่ <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> ส่วนขยายจะซิงค์และเชื่อมโยงโดยอัตโนมัติ" },
-  "cookiesGuard": { "message": "การป้องกันคุกกี้" },
-  "exifStripped": { "message": "ลบ EXIF แล้ว" },
-  "inputsWiped": { "message": "ล้างข้อมูลนำเข้า" },
-  "engineControl": { "message": "การควบคุมเครื่องยนต์" },
-  "activeDlpInterceptor": { "message": "ตัวดักจับ DLP ทำงานอยู่" },
-  "activeDlpInterceptorDesc": { "message": "วิเคราะห์การอัปโหลด การคัดลอก และการส่งฟอร์ม" },
-  "sovereignIdentityLayer": { "message": "ชั้นข้อมูลระบุตัวตนแบบอธิปไตย" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "ชั้นความปลอดภัยและข้อมูลระบุตัวตนแบบอธิปไตยสำหรับ UID.one บังคับใช้ Zero-Trust, การป้องกัน DLP และการป้องกันการติดตาม SSD"
+  },
+  "iconTitle": {
+    "message": "เข้าสู่ระบบด้วย Passkey (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "ข้อผิดพลาด: ไม่พบห้องนิรภัยสำหรับเว็บไซต์นี้"
+  },
+  "errorDecryptionFailed": {
+    "message": "ข้อผิดพลาด: ถอดรหัสข้อมูลประจำตัวไม่สำเร็จ"
+  },
+  "errorNoUsernameProvided": {
+    "message": "โปรดกรอกอีเมลหรือชื่อผู้ใช้ของคุณก่อนเพื่อใช้ Passkey"
+  },
+  "pickerHeader": {
+    "message": "เลือกบัญชี"
+  },
+  "setupGuidance": {
+    "message": "การตั้งค่าครั้งแรก: โปรดกรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบตามปกติ ห้องนิรภัย Passkey ที่ปลอดภัยจะถูกสร้างขึ้นโดยอัตโนมัติ!"
+  },
+  "vaultConnected": {
+    "message": "เชื่อมต่อห้องนิรภัยแล้ว"
+  },
+  "waitingForLogin": {
+    "message": "กำลังรอการเข้าสู่ระบบ"
+  },
+  "vaultConnectedDesc": {
+    "message": "ความปลอดภัย Zero-Trust ทำงานอยู่ Passkey และข้อมูลประจำตัวได้รับการซิงค์อย่างปลอดภัยกับห้องนิรภัย"
+  },
+  "waitingForLoginDesc": {
+    "message": "ลงชื่อเข้าใช้บัญชีเว็บของคุณที่ <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> ส่วนขยายจะซิงค์และเชื่อมโยงโดยอัตโนมัติ"
+  },
+  "cookiesGuard": {
+    "message": "การป้องกันคุกกี้"
+  },
+  "exifStripped": {
+    "message": "ลบ EXIF แล้ว"
+  },
+  "inputsWiped": {
+    "message": "ล้างข้อมูลนำเข้า"
+  },
+  "engineControl": {
+    "message": "การควบคุมเครื่องยนต์"
+  },
+  "activeDlpInterceptor": {
+    "message": "ตัวดักจับ DLP ทำงานอยู่"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "วิเคราะห์การอัปโหลด การคัดลอก และการส่งฟอร์ม"
+  },
+  "sovereignIdentityLayer": {
+    "message": "ชั้นข้อมูลระบุตัวตนแบบอธิปไตย"
+  }
 }

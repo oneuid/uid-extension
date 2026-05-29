@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "使用企业级 Passkey 和 WebAuthn 安全无缝升级传统网站身份验证。" },
-  "iconTitle": { "message": "使用 Passkey 登录 (UID.one)" },
-  "errorVaultNotFound": { "message": "错误：找不到该网站的安全保险箱。" },
-  "errorDecryptionFailed": { "message": "错误：解密凭据失败。" },
-  "errorNoUsernameProvided": { "message": "请先输入您的电子邮件或用户名以使用 Passkey。" },
-  "pickerHeader": { "message": "选择账户" },
-  "setupGuidance": { "message": "首次设置：请输入您的邮箱和密码进行正常登录。系统将自动为您创建安全的 Passkey 保险箱！" },
-  "vaultConnected": { "message": "保险箱已连接" },
-  "waitingForLogin": { "message": "等待登录" },
-  "vaultConnectedDesc": { "message": "Zero-Trust 安全防御已激活。密钥与凭据已安全同步至保险箱。" },
-  "waitingForLoginDesc": { "message": "请登录您的 <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 网页账户。浏览器扩展程序将自动进行同步与配对。" },
-  "cookiesGuard": { "message": "Cookie 防护" },
-  "exifStripped": { "message": "清除 EXIF" },
-  "inputsWiped": { "message": "擦除输入" },
-  "engineControl": { "message": "引擎控制" },
-  "activeDlpInterceptor": { "message": "启用 DLP 拦截器" },
-  "activeDlpInterceptorDesc": { "message": "分析上传、复制和表单提交行为" },
-  "sovereignIdentityLayer": { "message": "主权身份安全层" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "UID.one 的主权客户端安全与身份层。执行零信任 (Zero-Trust)、数据防泄漏 (DLP) 保护、会话绑定和 SSD 反跟踪。"
+  },
+  "iconTitle": {
+    "message": "使用 Passkey 登录 (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "错误：找不到该网站的安全保险箱。"
+  },
+  "errorDecryptionFailed": {
+    "message": "错误：解密凭据失败。"
+  },
+  "errorNoUsernameProvided": {
+    "message": "请先输入您的电子邮件或用户名以使用 Passkey。"
+  },
+  "pickerHeader": {
+    "message": "选择账户"
+  },
+  "setupGuidance": {
+    "message": "首次设置：请输入您的邮箱和密码进行正常登录。系统将自动为您创建安全的 Passkey 保险箱！"
+  },
+  "vaultConnected": {
+    "message": "保险箱已连接"
+  },
+  "waitingForLogin": {
+    "message": "等待登录"
+  },
+  "vaultConnectedDesc": {
+    "message": "Zero-Trust 安全防御已激活。密钥与凭据已安全同步至保险箱。"
+  },
+  "waitingForLoginDesc": {
+    "message": "请登录您的 <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 网页账户。浏览器扩展程序将自动进行同步与配对。"
+  },
+  "cookiesGuard": {
+    "message": "Cookie 防护"
+  },
+  "exifStripped": {
+    "message": "清除 EXIF"
+  },
+  "inputsWiped": {
+    "message": "擦除输入"
+  },
+  "engineControl": {
+    "message": "引擎控制"
+  },
+  "activeDlpInterceptor": {
+    "message": "启用 DLP 拦截器"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "分析上传、复制和表单提交行为"
+  },
+  "sovereignIdentityLayer": {
+    "message": "主权身份安全层"
+  }
 }

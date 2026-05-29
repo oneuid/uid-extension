@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "レガシーなウェブサイト認証を、エンタープライズレベルのPasskeyおよびWebAuthnセキュリティへシームレスにアップグレードします。" },
-  "iconTitle": { "message": "Passkeyでログイン (UID.one)" },
-  "errorVaultNotFound": { "message": "エラー: このウェブサイトの保管庫（ボルト）が見つかりません。" },
-  "errorDecryptionFailed": { "message": "エラー: 認証情報の復号に失敗しました。" },
-  "errorNoUsernameProvided": { "message": "Passkeyを使用するには、まずメールアドレスまたはユーザー名を入力してください。" },
-  "pickerHeader": { "message": "アカウントの選択" },
-  "setupGuidance": { "message": "初回設定: 通常通りメールアドレスとパスワードを入力してログインしてください。安全なPasskey保管庫が自動的に作成されます！" },
-  "vaultConnected": { "message": "保管庫に接続完了" },
-  "waitingForLogin": { "message": "ログイン待ち" },
-  "vaultConnectedDesc": { "message": "Zero-Trustセキュリティが有効です。Passkeyと認証情報は保管庫と安全に同期されています。" },
-  "waitingForLoginDesc": { "message": "<strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> ウェブアカウントにログインしてください。拡張機能が自動的に同期してペアリングされます。" },
-  "cookiesGuard": { "message": "クッキーガード" },
-  "exifStripped": { "message": "EXIF削除" },
-  "inputsWiped": { "message": "入力データ消去" },
-  "engineControl": { "message": "エンジン制御" },
-  "activeDlpInterceptor": { "message": "DLPインターセプター有効" },
-  "activeDlpInterceptorDesc": { "message": "アップロード、コピー、フォーム送信の分析" },
-  "sovereignIdentityLayer": { "message": "ソブリンアイデンティティレイヤー" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "UID.oneのための自立型クライアント側セキュリティ層。Zero-Trust、DLP保護、セッションバインド、およびSSD追跡防止を適用します。"
+  },
+  "iconTitle": {
+    "message": "Passkeyでログイン (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "エラー: このウェブサイトの保管庫（ボルト）が見つかりません。"
+  },
+  "errorDecryptionFailed": {
+    "message": "エラー: 認証情報の復号に失敗しました。"
+  },
+  "errorNoUsernameProvided": {
+    "message": "Passkeyを使用するには、まずメールアドレスまたはユーザー名を入力してください。"
+  },
+  "pickerHeader": {
+    "message": "アカウントの選択"
+  },
+  "setupGuidance": {
+    "message": "初回設定: 通常通りメールアドレスとパスワードを入力してログインしてください。安全なPasskey保管庫が自動的に作成されます！"
+  },
+  "vaultConnected": {
+    "message": "保管庫に接続完了"
+  },
+  "waitingForLogin": {
+    "message": "ログイン待ち"
+  },
+  "vaultConnectedDesc": {
+    "message": "Zero-Trustセキュリティが有効です。Passkeyと認証情報は保管庫と安全に同期されています。"
+  },
+  "waitingForLoginDesc": {
+    "message": "<strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> ウェブアカウントにログインしてください。拡張機能が自動的に同期してペアリングされます。"
+  },
+  "cookiesGuard": {
+    "message": "クッキーガード"
+  },
+  "exifStripped": {
+    "message": "EXIF削除"
+  },
+  "inputsWiped": {
+    "message": "入力データ消去"
+  },
+  "engineControl": {
+    "message": "エンジン制御"
+  },
+  "activeDlpInterceptor": {
+    "message": "DLPインターセプター有効"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "アップロード、コピー、フォーム送信の分析"
+  },
+  "sovereignIdentityLayer": {
+    "message": "ソブリンアイデンティティレイヤー"
+  }
 }

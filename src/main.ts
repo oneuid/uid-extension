@@ -18,7 +18,7 @@ function updateUI() {
             <span class="brand-dot"></span>
             UID Link
           </div>
-          <span style="font-size: 10px; font-weight: 500; color: var(--text-muted);">v1.2.0</span>
+          <span style="font-size: 10px; font-weight: 500; color: var(--text-muted);">v1.2.1</span>
         </div>
 
         <div class="tab-content" style="flex: 1; display: flex; flex-direction: column; gap: 12px;">

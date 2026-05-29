@@ -1,21 +1,59 @@
 {
-  "extensionName": { "message": "UID.one Passkey Wrapper" },
-  "extensionDesc": { "message": "Actualice sin problemas la autenticación de sitios web heredados con seguridad Passkey y WebAuthn de nivel empresarial." },
-  "iconTitle": { "message": "Iniciar sesión con Passkey (UID.one)" },
-  "errorVaultNotFound": { "message": "Error: Caja fuerte no encontrada para este sitio web." },
-  "errorDecryptionFailed": { "message": "Error: Fallo al descifrar las credenciales." },
-  "errorNoUsernameProvided": { "message": "Introduzca primero su correo electrónico o nombre de usuario para usar su Passkey." },
-  "pickerHeader": { "message": "Seleccionar cuenta" },
-  "setupGuidance": { "message": "Configuración inicial: Introduzca su correo y contraseña para iniciar sesión normalmente. ¡Se creará una caja fuerte Passkey automáticamente!" },
-  "vaultConnected": { "message": "Caja fuerte conectada" },
-  "waitingForLogin": { "message": "Esperando inicio de sesión" },
-  "vaultConnectedDesc": { "message": "Seguridad Zero-Trust activa. Passkeys y credenciales sincronizados de forma segura con la caja fuerte." },
-  "waitingForLoginDesc": { "message": "Inicie sesión en su cuenta web de <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. La extensión se sincronizará y vinculará automáticamente." },
-  "cookiesGuard": { "message": "Protección de Cookies" },
-  "exifStripped": { "message": "EXIF Eliminado" },
-  "inputsWiped": { "message": "Campos Limpiados" },
-  "engineControl": { "message": "Control del Motor" },
-  "activeDlpInterceptor": { "message": "Interceptor DLP Activo" },
-  "activeDlpInterceptorDesc": { "message": "Analiza subidas, copias y envíos de formularios" },
-  "sovereignIdentityLayer": { "message": "Capa de Identidad Soberana" }
+  "extensionName": {
+    "message": "UID Link - Security & Identity"
+  },
+  "extensionDesc": {
+    "message": "Capa de seguridad e identidad soberana para UID.one. Aplica Zero-Trust, protección DLP, vinculación de sesión y anti-rastreo SSD."
+  },
+  "iconTitle": {
+    "message": "Iniciar sesión con Passkey (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "Error: Caja fuerte no encontrada para este sitio web."
+  },
+  "errorDecryptionFailed": {
+    "message": "Error: Fallo al descifrar las credenciales."
+  },
+  "errorNoUsernameProvided": {
+    "message": "Introduzca primero su correo electrónico o nombre de usuario para usar su Passkey."
+  },
+  "pickerHeader": {
+    "message": "Seleccionar cuenta"
+  },
+  "setupGuidance": {
+    "message": "Configuración inicial: Introduzca su correo y contraseña para iniciar sesión normalmente. ¡Se creará una caja fuerte Passkey automáticamente!"
+  },
+  "vaultConnected": {
+    "message": "Caja fuerte conectada"
+  },
+  "waitingForLogin": {
+    "message": "Esperando inicio de sesión"
+  },
+  "vaultConnectedDesc": {
+    "message": "Seguridad Zero-Trust activa. Passkeys y credenciales sincronizados de forma segura con la caja fuerte."
+  },
+  "waitingForLoginDesc": {
+    "message": "Inicie sesión en su cuenta web de <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. La extensión se sincronizará y vinculará automáticamente."
+  },
+  "cookiesGuard": {
+    "message": "Protección de Cookies"
+  },
+  "exifStripped": {
+    "message": "EXIF Eliminado"
+  },
+  "inputsWiped": {
+    "message": "Campos Limpiados"
+  },
+  "engineControl": {
+    "message": "Control del Motor"
+  },
+  "activeDlpInterceptor": {
+    "message": "Interceptor DLP Activo"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "Analiza subidas, copias y envíos de formularios"
+  },
+  "sovereignIdentityLayer": {
+    "message": "Capa de Identidad Soberana"
+  }
 }
