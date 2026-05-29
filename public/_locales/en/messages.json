@@ -6,5 +6,16 @@
   "errorDecryptionFailed": { "message": "Error: Failed to decrypt credentials." },
   "errorNoUsernameProvided": { "message": "Please enter your email or username first to use your Passkey." },
   "pickerHeader": { "message": "Select Account" },
-  "setupGuidance": { "message": "First time setup: Please enter your email and password to log in normally. A secure Passkey vault will be created automatically!" }
+  "setupGuidance": { "message": "First time setup: Please enter your email and password to log in normally. A secure Passkey vault will be created automatically!" },
+  "vaultConnected": { "message": "Vault Connected" },
+  "waitingForLogin": { "message": "Waiting for Login" },
+  "vaultConnectedDesc": { "message": "Zero-Trust security active. Passkeys and credentials synced securely with vault." },
+  "waitingForLoginDesc": { "message": "Log in to your <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> web account. The extension will synchronize and pair automatically." },
+  "cookiesGuard": { "message": "Cookies Guard" },
+  "exifStripped": { "message": "EXIF Stripped" },
+  "inputsWiped": { "message": "Inputs Wiped" },
+  "engineControl": { "message": "Engine Control" },
+  "activeDlpInterceptor": { "message": "Active DLP Interceptor" },
+  "activeDlpInterceptorDesc": { "message": "Analyze uploads, copies, and form submissions" },
+  "sovereignIdentityLayer": { "message": "Sovereign Identity Layer" }
 }

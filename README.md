@@ -56,6 +56,16 @@ Asserts the user's sovereign right to privacy across all web interactions:
 - **Viewport Cleaner:** Sweeps and hides suspicious floating elements, overlays, and potential keyloggers on secure pages to protect input fields.
 - **Tab Focus Blurring:** Automatically blurs the page viewport only when the tab is completely hidden or switched (`document.hidden`), preventing shoulder-surfing without interrupting side-by-side multitasking.
 
+### 9. Frost Attack & SSD Side-Channel Shield
+Protects users from history tracking and app detection using disk-performance timing analysis:
+- Overrides the `StorageManager.prototype.getDirectory` API (Origin Private File System - OPFS) for non-whitelisted origins.
+- Blocks malicious pages from performing high-frequency silent write/read operations used to fingerprint SSD latency and profile browsing history.
+
+### 10. Multi-Language i18n Localization
+Fully localizes the extension user interface, error states, and popup statistics across 12 standard locales:
+- English, Vietnamese, Arabic, German, Spanish, French, Italian, Japanese, Korean, Russian, Thai, and Simplified Chinese.
+- Automatically synchronizes with the host browser language.
+
 ---
 
 ## 🛠 Prerequisites

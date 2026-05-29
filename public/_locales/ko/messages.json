@@ -1,0 +1,21 @@
+{
+  "extensionName": { "message": "UID.one Passkey Wrapper" },
+  "extensionDesc": { "message": "엔터프라이즈급 Passkey 및 WebAuthn 보안을 통해 기존 웹사이트 인증을 원활하게 업그레이드합니다." },
+  "iconTitle": { "message": "Passkey로 로그인 (UID.one)" },
+  "errorVaultNotFound": { "message": "오류: 이 웹사이트에 대한 보관함(금고)을 찾을 수 없습니다." },
+  "errorDecryptionFailed": { "message": "오류: 자격 증명 복호화에 실패했습니다." },
+  "errorNoUsernameProvided": { "message": "Passkey를 사용하려면 먼저 이메일 또는 사용자 이름을 입력하세요." },
+  "pickerHeader": { "message": "계정 선택" },
+  "setupGuidance": { "message": "최초 설정: 이메일과 비밀번호를 입력해 평소대로 로그인해 주세요. 안전한 Passkey 보관함이 자동으로 생성됩니다!" },
+  "vaultConnected": { "message": "보관함 연결됨" },
+  "waitingForLogin": { "message": "로그인 대기 중" },
+  "vaultConnectedDesc": { "message": "Zero-Trust 보안이 활성화되었습니다. Passkey와 자격 증명이 보관함과 안전하게 동기화되었습니다." },
+  "waitingForLoginDesc": { "message": "<strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 웹 계정에 로그인하세요. 확장 프로그램이 자동으로 동기화 및 페어링됩니다." },
+  "cookiesGuard": { "message": "쿠키 보호" },
+  "exifStripped": { "message": "EXIF 제거됨" },
+  "inputsWiped": { "message": "입력값 초기화" },
+  "engineControl": { "message": "엔진 제어" },
+  "activeDlpInterceptor": { "message": "활성 DLP 차단기" },
+  "activeDlpInterceptorDesc": { "message": "업로드, 복사, 폼 제출 분석" },
+  "sovereignIdentityLayer": { "message": "소버린 아이덴티티 레이어" }
+}

@@ -6,5 +6,16 @@
   "errorDecryptionFailed": { "message": "Lỗi: Không thể giải mã tài khoản." },
   "errorNoUsernameProvided": { "message": "Vui lòng gõ Tên đăng nhập / Email của bạn vào ô trước khi nhấn biểu tượng Passkey." },
   "pickerHeader": { "message": "Chọn Tài khoản" },
-  "setupGuidance": { "message": "Lần đầu tiên sử dụng: Vui lòng gõ Email và Mật khẩu rồi nhấn Đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!" }
+  "setupGuidance": { "message": "Lần đầu tiên sử dụng: Vui lòng gõ Email và Mật khẩu rồi nhấn Đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!" },
+  "vaultConnected": { "message": "Két sắt Đã kết nối" },
+  "waitingForLogin": { "message": "Chờ Đăng nhập" },
+  "vaultConnectedDesc": { "message": "Chế độ bảo mật Zero-Trust đang hoạt động. Passkeys và thông tin đăng nhập được đồng bộ an toàn." },
+  "waitingForLoginDesc": { "message": "Đăng nhập vào tài khoản <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> của bạn. Tiện ích sẽ tự động đồng bộ và kết nối." },
+  "cookiesGuard": { "message": "Chặn Cookie" },
+  "exifStripped": { "message": "Xóa EXIF Ảnh" },
+  "inputsWiped": { "message": "Xóa OTP / Form" },
+  "engineControl": { "message": "Bảng Điều khiển" },
+  "activeDlpInterceptor": { "message": "Trình chặn DLP Chủ động" },
+  "activeDlpInterceptorDesc": { "message": "Phân tích lượt tải lên, sao chép và gửi biểu mẫu" },
+  "sovereignIdentityLayer": { "message": "Lớp Bảo mật Định danh Chủ quyền" }
 }

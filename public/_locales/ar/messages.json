@@ -1,0 +1,21 @@
+{
+  "extensionName": { "message": "UID.one Passkey Wrapper" },
+  "extensionDesc": { "message": "قم بترقية مصادقة موقع الويب القديم بسلاسة باستخدام حماية Passkey و WebAuthn للمؤسسات." },
+  "iconTitle": { "message": "تسجيل الدخول باستخدام Passkey (UID.one)" },
+  "errorVaultNotFound": { "message": "خطأ: لم يتم العثور على الخزنة لهذا الموقع." },
+  "errorDecryptionFailed": { "message": "خطأ: فشل فك تشفير البيانات." },
+  "errorNoUsernameProvided": { "message": "يرجى إدخال البريد الإلكتروني أو اسم المستخدم أولاً لاستخدام Passkey." },
+  "pickerHeader": { "message": "اختر حسابًا" },
+  "setupGuidance": { "message": "الإعداد لأول مرة: يرجى إدخال البريد الإلكتروني وكلمة المرور لتسجيل الدخول بشكل طبيعي. سيتم إنشاء خزنة Passkey آمنة تلقائيًا!" },
+  "vaultConnected": { "message": "الخزنة متصلة" },
+  "waitingForLogin": { "message": "في انتظار تسجيل الدخول" },
+  "vaultConnectedDesc": { "message": "حماية Zero-Trust نشطة. تمت مزامنة مفاتيح المرور وبيانات الاعتماد بأمان مع الخزنة." },
+  "waitingForLoginDesc": { "message": "سجل الدخول إلى حساب الويب الخاص بك على <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. سيتم مزامنة وربط الامتداد تلقائيًا." },
+  "cookiesGuard": { "message": "حارس الكوكيز" },
+  "exifStripped": { "message": "إزالة EXIF" },
+  "inputsWiped": { "message": "مسح المدخلات" },
+  "engineControl": { "message": "التحكم في المحرك" },
+  "activeDlpInterceptor": { "message": "معترض DLP نشط" },
+  "activeDlpInterceptorDesc": { "message": "تحليل عمليات التحميل والنسخ وإرسال النماذج" },
+  "sovereignIdentityLayer": { "message": "طبقة الهوية السيادية" }
+}

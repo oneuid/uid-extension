@@ -139,4 +139,18 @@
   } catch (e) {
     console.warn('[uid.one] Failed to block PushManager.subscribe:', e);
   }
+
+  try {
+    if (window.StorageManager && StorageManager.prototype.getDirectory) {
+      StorageManager.prototype.getDirectory = function() {
+        console.log('[uid.one] Blocked OPFS (Origin Private File System) access to prevent Frost side-channel SSD tracking.');
+        return Promise.reject(new DOMException(
+          'OPFS access is disabled by UID Link to protect against Frost side-channel SSD attacks.', 
+          'SecurityError'
+        ));
+      };
+    }
+  } catch (e) {
+    console.warn('[uid.one] Failed to shield OPFS:', e);
+  }
 })();
