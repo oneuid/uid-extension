@@ -1,9 +1,9 @@
-# UID Link (Browser Extension)
+# UID Link - Security & Identity (Browser Extension)
 
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![License: Proprietary Source-Available](https://img.shields.io/badge/License-Source--Available-red.svg?style=flat-square)](LICENSE)
 
-**UID Link** is a high-performance cross-browser extension designed for the **UID.ONE** Sovereign Identity Ecosystem. It acts as the browser-layer security agent, enforcing Zero-Trust policies, context-aware DLP (Data Loss Prevention), and real-time cryptographic session binding directly on the client side.
+**UID Link - Security & Identity** is a high-performance cross-browser extension designed for the **UID.ONE** Sovereign Identity Ecosystem. It acts as the browser-layer security agent, enforcing Zero-Trust policies, context-aware DLP (Data Loss Prevention), and real-time cryptographic session binding directly on the client side.
 
 For detailed architectural specifications, please see the [UID 7-Layer Architecture](../uid-web/docs/uid-architecture-7-layers.md).
 
