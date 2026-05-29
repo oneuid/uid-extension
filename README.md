@@ -77,9 +77,14 @@ Fully localizes the extension user interface, error states, and popup statistics
 
 ## 🚀 How to Install
 
-Choose one of the two methods below to install the extension:
+### Option 1: Install from Official Stores (Recommended for Users)
+For automatic updates and the most secure installation, install the extension from the official stores:
+- **Chrome Web Store**: [Get UID Link for Chrome, Edge, Brave & Opera](https://chrome.google.com/webstore/detail/uid-link-security-identity/...) *(Link will be active post-publish)*
+- **Firefox Add-ons (AMO)**: [Get UID Link for Firefox](https://addons.mozilla.org/firefox/addon/uid-one-passkey-wrapper/)
 
-### Option 1: Install Prebuilt (Recommended & Simplest)
+---
+
+### Option 2: Install Prebuilt ZIP (Testing & Development)
 1. Download **`uid-link-chrome.zip`** (for Chrome, Edge, Brave) or **`uid-link-firefox.zip`** (for Firefox) from the root of this repository.
 2. Extract the downloaded zip file into a folder on your computer.
 3. Open your browser and navigate to `chrome://extensions/` (or `about:debugging` in Firefox).
@@ -88,7 +93,7 @@ Choose one of the two methods below to install the extension:
 
 ---
 
-### Option 2: Clone & Build from Source
+### Option 3: Clone & Build from Source
 1. Clone this repository to your computer:
    ```bash
    git clone https://github.com/oneuid/uid-extension.git
