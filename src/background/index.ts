@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-const API_BASE = 'https://api.uid.one/v1/auth';
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
 const CLIENT_ID = 'uid-extension-client';
 
 // Memory store: token -> privateKey
@@ -42,7 +42,7 @@ export class SessionBinding {
 
     // Register with backend server
     try {
-      await fetch('https://api.uid.one/v1/auth/session-binding/register/', {
+      await fetch(`${API_BASE}/session-binding/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -461,7 +461,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         sendResponse({ success: false, error: 'No active session' });
         return;
       }
-      fetch('https://api.uid.one/v1/audit/copy/', {
+      const auditUrl = `${API_BASE.replace('/auth', '/audit')}/copy/`;
+      fetch(auditUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
