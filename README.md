@@ -5,7 +5,7 @@
 
 **UID Link - Security & Identity** is a high-performance cross-browser extension designed for the **UID.ONE** Sovereign Identity Ecosystem. It acts as the browser-layer security agent, enforcing Zero-Trust policies, context-aware DLP (Data Loss Prevention), and real-time cryptographic session binding directly on the client side.
 
-For detailed architectural specifications, please see the [UID 7-Layer Architecture](../uid-web/docs/uid-architecture-7-layers.md).
+For detailed architectural specifications and ecosystem details, please visit the official website: [uid.one](https://uid.one).
 
 ---
 
