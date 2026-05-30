@@ -103,6 +103,33 @@ Choose one of the two methods below to install the extension:
 
 ---
 
+### Option 3: Package for Apple Safari (macOS/iOS)
+Since Apple Safari Web Extensions must be wrapped inside a native macOS/iOS app container, packaging requires Xcode command-line tools (available only on macOS):
+
+1. **Build the extension source**:
+   ```bash
+   npm install
+   npm run build
+   ```
+   This compiles the extension files into the standard Manifest V3 compliant `dist/chrome/` folder.
+
+2. **Convert to Safari Extension**:
+   On a macOS machine, run Apple's official conversion tool:
+   ```bash
+   xcrun safari-web-extension-converter dist/chrome --project-type macos
+   ```
+   *(Replace `--project-type macos` with `ios` if you want to build for iPhone/iPad).*
+
+3. **Run and Enable in Safari**:
+   - Open the generated project in Xcode.
+   - Select your signing team under Xcode settings.
+   - Build and run the project (this registers the extension with the system).
+   - Open **Safari** -> **Settings** -> **Advanced**, check **"Show features for web developers"** (or **"Show Develop menu in menu bar"** depending on macOS version).
+   - In Safari's menu bar, click **Develop** -> check **"Allow Unsigned Extensions"**.
+   - Go to **Safari** -> **Settings** -> **Extensions** and check the box next to **UID Link**.
+
+---
+
 ## 📂 Native Messaging Configuration
 
 To verify Native Messaging features (such as secure hardware checks or OS integration), ensure that the native messaging host manifest is installed inside the corresponding system directory depending on your OS.
