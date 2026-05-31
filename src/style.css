@@ -15,11 +15,10 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: transparent;
+  background-color: var(--bg-dark);
 }
 
 body {
-  padding: 4px;
   overflow: hidden;
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
@@ -37,10 +36,6 @@ body {
   background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 60%),
               radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.08), transparent 50%),
               var(--bg-dark);
-  border-radius: 16px;
-  border: 1px solid var(--card-border);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
 }
 
 /* Header */
