@@ -2105,6 +2105,23 @@ export class EmailSignatureGuard {
       targetHead.appendChild(style);
     }
 
+    // Intercept clicks on signature verification URLs to show modal inline
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a') as HTMLAnchorElement | null;
+      if (link && link.href && link.href.includes('/verify/#data=')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const dataUrl = new URL(link.href);
+        const hash = dataUrl.hash;
+        if (hash && hash.startsWith('#data=')) {
+          const encoded = hash.substring(6);
+          this.showVerificationDetailsModal(encoded);
+        }
+      }
+    });
+
     // Run scans
     this.scanEmails();
     
@@ -2116,6 +2133,142 @@ export class EmailSignatureGuard {
       childList: true,
       subtree: true
     });
+  }
+
+  private async showVerificationDetailsModal(encodedData: string): Promise<void> {
+    try {
+      const base64 = encodedData.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      
+      const signer = payload.signer;
+      const hash = payload.hash;
+      const email = signer.replace('did:uid:', '');
+
+      // Create modal elements
+      const overlay = document.createElement('div');
+      overlay.className = 'uid-sig-overlay';
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        font-family: system-ui, -apple-system, sans-serif;
+        color: #e4e4e7;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 500px;
+        padding: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      `;
+
+      modal.innerHTML = `
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="display: inline-flex; width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 16px; position: relative;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px 0; tracking: -0.025em;">Signature Authenticated</h3>
+          <span style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981;">Sovereign Verification System</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 20px;">
+          <div>
+            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Signer Identity (DID)</div>
+            <div style="font-size: 13px; font-weight: 600; color: #fff; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px; word-break: break-all;">${signer}</div>
+          </div>
+
+          <div>
+            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Content Integrity Hash (SHA-256)</div>
+            <div style="font-size: 12px; font-family: monospace; color: #a1a1aa; background: #000; border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px; word-break: break-all; user-select: all;">${hash}</div>
+          </div>
+
+          <div id="uid-modal-key-section">
+            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Active Public Key (RSA 2048-bit)</div>
+            <div style="font-size: 11px; color: #a1a1aa; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px;" id="uid-modal-toggle-key">
+              <span>Show Sovereign Public Key PEM</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="uid-modal-arrow" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <textarea readonly id="uid-modal-pubkey-text" style="display: none; width: 100%; height: 100px; background: #000; color: #52525b; font-family: monospace; font-size: 9px; border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 8px; margin-top: 8px; resize: none; box-sizing: border-box; outline: none;"></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top: 28px;">
+          <button id="uid-modal-close-btn" style="width: 100%; padding: 12px; border-radius: 12px; background: #27272a; border: 1px solid rgba(255, 255, 255, 0.04); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Close</button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      // Trigger animation
+      setTimeout(() => {
+        overlay.style.opacity = '1';
+        modal.style.transform = 'translateY(0)';
+      }, 50);
+
+      // Fetch key dynamically
+      chrome.runtime.sendMessage(
+        { type: 'GET_USER_PUBKEY', identifier: email },
+        (response) => {
+          if (response && response.success && response.publicKey) {
+            const textarea = modal.querySelector('#uid-modal-pubkey-text') as HTMLTextAreaElement;
+            if (textarea) textarea.value = response.publicKey;
+          }
+        }
+      );
+
+      // Bind toggle public key
+      let isKeyVisible = false;
+      const toggleBtn = modal.querySelector('#uid-modal-toggle-key');
+      const keyTextarea = modal.querySelector('#uid-modal-pubkey-text') as HTMLElement;
+      const arrowSvg = modal.querySelector('#uid-modal-arrow') as HTMLElement;
+      if (toggleBtn && keyTextarea) {
+        toggleBtn.addEventListener('click', () => {
+          isKeyVisible = !isKeyVisible;
+          keyTextarea.style.display = isKeyVisible ? 'block' : 'none';
+          arrowSvg.style.transform = isKeyVisible ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+      }
+
+      // Bind close events
+      const closeModal = () => {
+        overlay.style.opacity = '0';
+        modal.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          overlay.remove();
+        }, 300);
+      };
+
+      const closeBtn = modal.querySelector('#uid-modal-close-btn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+      }
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+      });
+    } catch (e) {
+      console.error('[uid.one] Failed to show verification modal:', e);
+    }
   }
 
   private scanEmails(): void {
@@ -2414,9 +2567,8 @@ export class EmailComposeSigner {
         user-select: none;
       `;
 
-      const signBtn = document.createElement('a');
+      const signBtn = document.createElement('span');
       signBtn.className = 'uid-sign-btn';
-      signBtn.href = '#';
       signBtn.setAttribute('contenteditable', 'false');
       signBtn.innerHTML = `
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:middle; margin-right: 4px;">
