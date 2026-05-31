@@ -1200,6 +1200,7 @@ function init() {
     { name: 'GPCEnforcer', run: () => new GPCEnforcer().init() },
     { name: 'TextDLPShield', run: () => new TextDLPShield().init() },
     { name: 'EmailSignatureGuard', run: () => new EmailSignatureGuard().init() },
+    { name: 'EmailComposeSigner', run: () => new EmailComposeSigner().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1517,6 +1518,11 @@ function injectIcon(input: HTMLInputElement) {
 
 // -------- DIGITAL SIGNING --------
 
+let lastRightClickedElement: HTMLElement | null = null;
+document.addEventListener('contextmenu', (e) => {
+  lastRightClickedElement = e.target as HTMLElement;
+});
+
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   if (request.action === 'START_PDF_SIGNING') {
     handlePdfSigning(request.url).catch(console.error);
@@ -1530,135 +1536,148 @@ function showToast(msg: string, type: string) {
 }
 
 async function handleTextSigning(text: string) {
-  showToast("Signing selected text...", "info");
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  chrome.runtime.sendMessage({
-    action: 'REQUEST_DIGITAL_SIGNATURE',
-    domain: window.location.hostname,
-    user_agent: navigator.userAgent,
-    identifier: "Text Signature",
-    metadata: {
-      text_hash: hashHex,
-      text_snippet: text.slice(0, 100)
+  const targetEl = lastRightClickedElement;
+  if (!targetEl) {
+    showToast("No target element to sign", "error");
+    return;
+  }
+
+  let textToSign = text;
+  if (!textToSign) {
+    textToSign = targetEl.innerText || (targetEl as HTMLInputElement).value || '';
+  }
+
+  if (textToSign.replace(/\s/g, '').length === 0) {
+    alert(chrome.i18n.getMessage("alertEnterContent") || "Please enter content before signing.");
+    return;
+  }
+
+  chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, (profileRes) => {
+    if (!profileRes || !profileRes.success) {
+      alert(chrome.i18n.getMessage("alertLinkFirst") || "Please link your UID.one account before performing digital signature.");
+      return;
     }
-  }, (res) => {
-    if (res && res.success) {
-      showSigningDialog(res.data);
-    } else {
-      showToast("Failed to initiate signing: " + (res?.error || "Unknown error"), "error");
-    }
+    const userEmail = profileRes.email;
+
+    showToast("Signing selected text...", "info");
+    const encoder = new TextEncoder();
+    const data = encoder.encode(textToSign);
+    crypto.subtle.digest('SHA-256', data).then(hashBuffer => {
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      chrome.runtime.sendMessage({
+        action: 'REQUEST_DIGITAL_SIGNATURE',
+        domain: window.location.hostname,
+        user_agent: navigator.userAgent,
+        identifier: "Text Signature",
+        metadata: {
+          text_hash: hashHex,
+          text_snippet: textToSign.slice(0, 100)
+        }
+      }, (res) => {
+        if (res && res.success) {
+          insertSignatureIntoElement(targetEl, res.signature, userEmail, hashHex);
+          showToast("Signature applied successfully!", "success");
+        } else {
+          showToast("Signing failed or was rejected: " + (res?.error || "Unknown error"), "error");
+        }
+      });
+    });
   });
 }
 
 async function handlePdfSigning(pdfUrl: string) {
-  showToast("Fetching PDF for signing...", "info");
-  const response = await fetch(pdfUrl);
-  const arrayBuffer = await response.arrayBuffer();
-  
-  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  chrome.runtime.sendMessage({
-    action: 'REQUEST_DIGITAL_SIGNATURE',
-    domain: window.location.hostname,
-    user_agent: navigator.userAgent,
-    identifier: "Digital Signature",
-    metadata: {
-      pdf_hash: hashHex,
-      document_url: pdfUrl
+  chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, async (profileRes) => {
+    if (!profileRes || !profileRes.success) {
+      alert(chrome.i18n.getMessage("alertLinkFirst") || "Please link your UID.one account before performing digital signature.");
+      return;
     }
-  }, (res) => {
-    if (res && res.success) {
-      showSigningDialog(res.data);
-    } else {
-      showToast("Failed to initiate signing: " + (res?.error || "Unknown error"), "error");
-    }
+
+    showToast("Fetching PDF for signing...", "info");
+    const response = await fetch(pdfUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    chrome.runtime.sendMessage({
+      action: 'REQUEST_DIGITAL_SIGNATURE',
+      domain: window.location.hostname,
+      user_agent: navigator.userAgent,
+      identifier: "Digital Signature",
+      metadata: {
+        pdf_hash: hashHex,
+        document_url: pdfUrl
+      }
+    }, (res) => {
+      if (res && res.success) {
+        showToast("PDF signed successfully!", "success");
+      } else {
+        showToast("PDF signing failed or was rejected: " + (res?.error || "Unknown error"), "error");
+      }
+    });
   });
 }
 
-function showSigningDialog(challengeData: any) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 9999999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = `
-    background-color: #fff;
-    padding: 32px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    color: #000;
-    font-family: system-ui, sans-serif;
-  `;
-
-  const title = document.createElement('h2');
-  title.innerText = 'UID.ONE Digital Signature';
-  title.style.margin = '0 0 16px 0';
-
-  const matchNum = document.createElement('div');
-  matchNum.style.cssText = `
-    font-size: 48px;
-    font-weight: bold;
-    letter-spacing: 8px;
-    margin: 24px 0;
-  `;
-  matchNum.innerText = challengeData.metadata?.match_number || '--';
-
-  const info = document.createElement('p');
-  info.innerText = 'Open the UID.ONE Mobile App and tap the matching number to sign this document.';
+function insertSignatureIntoElement(
+  targetEl: HTMLElement,
+  signature: string,
+  userEmail: string,
+  hashHex: string
+) {
+  const now = new Date();
+  const locale = chrome.i18n.getUILanguage() || 'en-US';
+  const formattedTime = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) + ' — ' + now.toLocaleDateString(locale);
   
-  const cancelBtn = document.createElement('button');
-  cancelBtn.innerText = 'Cancel';
-  cancelBtn.style.cssText = `
-    margin-top: 24px;
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    cursor: pointer;
-  `;
-  cancelBtn.onclick = () => document.body.removeChild(overlay);
+  const payload = {
+    sig: signature,
+    signer: `did:uid:${userEmail}`,
+    hash: hashHex
+  };
+  const payloadStr = JSON.stringify(payload);
+  const base64Str = btoa(payloadStr);
+  const encodedData = base64Str
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  const verifyUrl = `https://uid.one/verify/#data=${encodedData}`;
 
-  modal.appendChild(title);
-  modal.appendChild(info);
-  modal.appendChild(matchNum);
-  modal.appendChild(cancelBtn);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
+  const isContentEditable = targetEl.isContentEditable || targetEl.getAttribute('contenteditable') === 'true';
 
-  const pollInterval = setInterval(() => {
-    chrome.runtime.sendMessage({
-      action: 'POLL_STATUS',
-      token: challengeData.token
-    }, (res) => {
-      if (res && res.success && res.data.status === 'APPROVED') {
-        clearInterval(pollInterval);
-        document.body.removeChild(overlay);
-        showToast("Signature applied successfully!", "success");
-      } else if (res && res.success && (res.data.status === 'EXPIRED' || res.data.status === 'REJECTED')) {
-        clearInterval(pollInterval);
-        document.body.removeChild(overlay);
-        showToast(`Signing failed: ${res.data.status}`, "error");
-      }
-    });
-  }, 2000);
+  if (isContentEditable) {
+    const signatureBlockHtml = `
+      <br><br>
+      <div id="uid-one-signature" data-signer="did:uid:${userEmail}" data-sig="${signature}" style="display:none;"></div>
+      <div class="uid-email-signature-block" style="border-top: 1px dashed rgba(255, 255, 255, 0.15); margin-top: 16px; padding-top: 12px; font-family: system-ui, -apple-system, sans-serif; font-size: 13px; color: #94a3b8; background: #0b1329; padding: 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: left; max-width: 500px; display: block;" contenteditable="false">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 600; color: #38bdf8;">
+          <span style="font-size: 14px;">🔐</span> ${chrome.i18n.getMessage("signatureTitle") || "This email is digitally signed by UID.one"}
+        </div>
+        <div style="font-size: 11px; color: #64748b; line-height: 1.6;">
+          ${chrome.i18n.getMessage("signatureSigner") || "Signer"}: <strong>${userEmail}</strong><br>
+          ${chrome.i18n.getMessage("signatureTime") || "Signing Time"}: ${formattedTime}<br>
+          <a href="${verifyUrl}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: 600; display: inline-block; margin-top: 4px;">${chrome.i18n.getMessage("signatureVerify") || "Verify Identity →"}</a>
+        </div>
+      </div>
+      <br>
+    `;
+    
+    const existingSig = targetEl.querySelector('.uid-email-signature-block');
+    if (existingSig) {
+      existingSig.outerHTML = signatureBlockHtml;
+    } else {
+      targetEl.innerHTML += signatureBlockHtml;
+    }
+  } else if (targetEl instanceof HTMLInputElement || targetEl instanceof HTMLTextAreaElement) {
+    const plainTextSig = `\n\n[🔐 ${chrome.i18n.getMessage("signatureTitle") || "Digitally signed by UID.one"}]\n${chrome.i18n.getMessage("signatureSigner") || "Signer"}: ${userEmail}\n${chrome.i18n.getMessage("signatureTime") || "Time"}: ${formattedTime}\nVerify: ${verifyUrl}`;
+    targetEl.value += plainTextSig;
+  }
+
+  targetEl.dispatchEvent(new Event('input', { bubbles: true }));
+  targetEl.dispatchEvent(new Event('change', { bubbles: true }));
 }
+
 
 export class ViewportCleaner {
   init(): void {
@@ -2101,8 +2120,8 @@ export class EmailSignatureGuard {
 
   private scanEmails(): void {
     // Gmail email bodies typically have class "a3s"
-    // Outlook web bodies typically have class "rps_code" or similar
-    const emailContainers = document.querySelectorAll('.a3s, .rps_code, [role="main"]');
+    // Outlook web bodies typically have class "rps_code"
+    const emailContainers = document.querySelectorAll('.a3s, .rps_code');
     emailContainers.forEach(container => {
       if (container.querySelector('.uid-ai-triage-badge')) {
         // Already processed
@@ -2304,6 +2323,238 @@ export class EmailSignatureGuard {
       <span>⚠️ Cảnh báo: ${message}</span>
     `;
     container.insertBefore(warning, container.firstChild);
+  }
+}
+
+export class EmailComposeSigner {
+  init(): void {
+    console.log('[uid.one] Initializing EmailComposeSigner...');
+    
+    // Inject styles for generic Sign button
+    const style = document.createElement('style');
+    style.textContent = `
+      .uid-sign-btn {
+        display: inline-block !important;
+        margin-top: 12px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        color: #64748b !important;
+        background: transparent !important;
+        border: 1px dashed rgba(100, 116, 139, 0.4) !important;
+        border-radius: 4px !important;
+        text-decoration: none !important;
+        font-family: system-ui, -apple-system, sans-serif !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        transition: all 0.2s ease-in-out !important;
+      }
+      .uid-sign-btn:hover {
+        color: #38bdf8 !important;
+        border-color: rgba(56, 189, 248, 0.6) !important;
+        background: rgba(56, 189, 248, 0.05) !important;
+      }
+      @keyframes uid-spin {
+        to { transform: rotate(360deg); }
+      }
+      .uid-sign-btn .animate-spin {
+        animation: uid-spin 1s linear infinite !important;
+      }
+    `;
+    
+    const targetHead = document.head || document.documentElement;
+    if (targetHead) {
+      targetHead.appendChild(style);
+    }
+
+    // Set up global click listener for our sign buttons
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const signBtn = target.closest('.uid-sign-btn') as HTMLElement | null;
+      if (signBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Find the parent editor
+        const editor = signBtn.closest('div[role="textbox"][contenteditable="true"]') as HTMLElement;
+        if (editor) {
+          this.handleEmailSigning(editor, signBtn);
+        }
+      }
+    });
+
+    // Run first scan
+    this.scanCompose();
+
+    // Observe changes
+    const observer = new MutationObserver(() => {
+      this.scanCompose();
+    });
+    observer.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  private scanCompose(): void {
+    // Locate rich-text editors in compose area
+    const editors = document.querySelectorAll('div[role="textbox"][contenteditable="true"]');
+    editors.forEach(editor => {
+      // Check if it already has signature block or sign button wrapper
+      if (editor.querySelector('.uid-email-signature-block') || editor.querySelector('.uid-sign-wrapper')) {
+        return;
+      }
+
+      // Create sign button wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'uid-sign-wrapper';
+      wrapper.setAttribute('contenteditable', 'false');
+      wrapper.style.cssText = `
+        margin-top: 16px;
+        display: block;
+        user-select: none;
+      `;
+
+      const signBtn = document.createElement('a');
+      signBtn.className = 'uid-sign-btn';
+      signBtn.href = '#';
+      signBtn.setAttribute('contenteditable', 'false');
+      signBtn.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:middle; margin-right: 4px;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        ${chrome.i18n.getMessage("signButton") || "Sign UID"}
+      `;
+
+      wrapper.appendChild(signBtn);
+      editor.appendChild(wrapper);
+    });
+  }
+
+  private handleEmailSigning(editor: HTMLElement, button: HTMLElement): void {
+    chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, (profileRes) => {
+      if (!profileRes || !profileRes.success) {
+        alert(chrome.i18n.getMessage("alertLinkFirst") || "Please link your UID.one account before performing digital signature.");
+        return;
+      }
+      
+      const userEmail = profileRes.email;
+      
+      // Get current content (clone to avoid capturing the button itself)
+      const editorClone = editor.cloneNode(true) as HTMLElement;
+      const signWrapper = editorClone.querySelector('.uid-sign-wrapper');
+      if (signWrapper) {
+        signWrapper.remove();
+      }
+      const emailText = editorClone.innerText || editorClone.textContent || '';
+      
+      if (emailText.replace(/\s/g, '').length === 0) {
+        alert(chrome.i18n.getMessage("alertEnterContent") || "Please enter content before signing.");
+        return;
+      }
+
+      button.innerHTML = `
+        <svg class="animate-spin" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:middle; margin-right: 4px;">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.25" fill="none"></circle>
+          <path d="M12 2v4" stroke="currentColor" stroke-width="2.5"></path>
+        </svg>
+        ${chrome.i18n.getMessage("signingButton") || "Signing..."}
+      `;
+      button.style.pointerEvents = 'none';
+
+      const encoder = new TextEncoder();
+      const data = encoder.encode(emailText);
+      
+      window.crypto.subtle.digest('SHA-256', data).then(hashBuffer => {
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        chrome.runtime.sendMessage({
+          action: 'REQUEST_DIGITAL_SIGNATURE',
+          domain: window.location.hostname,
+          user_agent: navigator.userAgent,
+          identifier: "Email Signature",
+          metadata: {
+            email_hash: hashHex,
+            email_snippet: emailText.slice(0, 100)
+          }
+        }, (sigRes) => {
+          if (sigRes && sigRes.success) {
+            const signature = sigRes.signature;
+            const now = new Date();
+            const locale = chrome.i18n.getUILanguage() || 'en-US';
+            const formattedTime = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) + ' — ' + now.toLocaleDateString(locale);
+            
+            const payload = {
+              sig: signature,
+              signer: `did:uid:${userEmail}`,
+              hash: hashHex
+            };
+            const payloadStr = JSON.stringify(payload);
+            const base64Str = btoa(payloadStr);
+            const encodedData = base64Str
+              .replace(/\+/g, '-')
+              .replace(/\//g, '_')
+              .replace(/=+$/, '');
+            const verifyUrl = `https://uid.one/verify/#data=${encodedData}`;
+
+            const signatureBlockHtml = `
+              <br><br>
+              <div id="uid-one-signature" data-signer="did:uid:${userEmail}" data-sig="${signature}" style="display:none;"></div>
+              <div class="uid-email-signature-block" style="border-top: 1px dashed rgba(255, 255, 255, 0.15); margin-top: 16px; padding-top: 12px; font-family: system-ui, -apple-system, sans-serif; font-size: 13px; color: #94a3b8; background: #0b1329; padding: 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: left; max-width: 500px; display: block;" contenteditable="false">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 600; color: #38bdf8;">
+                  <span style="font-size: 14px;">🔐</span> ${chrome.i18n.getMessage("signatureTitle") || "This email is digitally signed by UID.one"}
+                </div>
+                <div style="font-size: 11px; color: #64748b; line-height: 1.6;">
+                  ${chrome.i18n.getMessage("signatureSigner") || "Signer"}: <strong>${userEmail}</strong><br>
+                  ${chrome.i18n.getMessage("signatureTime") || "Signing Time"}: ${formattedTime}<br>
+                  <a href="${verifyUrl}" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: 600; display: inline-block; margin-top: 4px;">${chrome.i18n.getMessage("signatureVerify") || "Verify Identity →"}</a>
+                </div>
+              </div>
+              <br>
+            `;
+
+            const existingSig = editor.querySelector('.uid-email-signature-block');
+            const existingWrapper = editor.querySelector('.uid-sign-wrapper');
+
+            if (existingSig) {
+              existingSig.outerHTML = signatureBlockHtml;
+            } else if (existingWrapper) {
+              existingWrapper.outerHTML = signatureBlockHtml;
+            } else {
+              editor.innerHTML += signatureBlockHtml;
+            }
+
+            editor.dispatchEvent(new Event('input', { bubbles: true }));
+            editor.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // Update button to Signed state
+            button.innerHTML = `
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:middle; margin-right: 4px; color: #10b981;">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              ${chrome.i18n.getMessage("signedButton") || "Signed"}
+            `;
+            button.style.pointerEvents = 'none';
+          } else {
+            this.resetButton(button);
+            alert((chrome.i18n.getMessage("alertRejected") || "Signing request was rejected or expired.") + (sigRes?.error ? " (" + sigRes.error + ")" : ""));
+          }
+        });
+      });
+    });
+  }
+
+  private resetButton(button: HTMLElement): void {
+    button.innerHTML = `
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:middle; margin-right: 4px;">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      ${chrome.i18n.getMessage("signButton") || "Sign UID"}
+    `;
+    button.style.pointerEvents = 'auto';
   }
 }
 

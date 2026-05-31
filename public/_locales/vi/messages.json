@@ -55,5 +55,59 @@
   },
   "sovereignIdentityLayer": {
     "message": "Lớp Bảo mật Định danh Chủ quyền"
+  },
+  "signButton": {
+    "message": "Ký UID"
+  },
+  "signedButton": {
+    "message": "Đã ký số"
+  },
+  "signingButton": {
+    "message": "Đang ký..."
+  },
+  "dialogTitle": {
+    "message": "XÁC THỰC CHỮ KÝ SỐ"
+  },
+  "dialogDesc": {
+    "message": "Vui lòng mở ứng dụng di động UID.one hoặc truy cập <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> để chọn số trùng khớp bên dưới."
+  },
+  "dialogCancel": {
+    "message": "Hủy yêu cầu"
+  },
+  "dialogApprove": {
+    "message": "Phê duyệt chữ ký"
+  },
+  "dialogApproving": {
+    "message": "Đang phê duyệt..."
+  },
+  "dialogSigner": {
+    "message": "Tài khoản ký"
+  },
+  "dialogDomain": {
+    "message": "Tên miền"
+  },
+  "signatureTitle": {
+    "message": "Email này được ký số bởi UID.one"
+  },
+  "signatureSigner": {
+    "message": "Người gửi"
+  },
+  "signatureTime": {
+    "message": "Thời gian ký"
+  },
+  "signatureVerify": {
+    "message": "Xác minh danh tính →"
+  },
+  "alertLinkFirst": {
+    "message": "Vui lòng liên kết tài khoản UID.one trước khi thực hiện ký số."
+  },
+  "alertEnterContent": {
+    "message": "Vui lòng nhập nội dung trước khi ký số."
+  },
+  "alertRejected": {
+    "message": "Yêu cầu ký số bị từ chối hoặc đã hết hạn."
+  },
+  "contextMenuTitle": {
+    "message": "Ký số văn bản với UID.one"
   }
 }

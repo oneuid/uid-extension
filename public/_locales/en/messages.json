@@ -55,5 +55,59 @@
   },
   "sovereignIdentityLayer": {
     "message": "Sovereign Identity Layer"
+  },
+  "signButton": {
+    "message": "Sign UID"
+  },
+  "signedButton": {
+    "message": "Signed"
+  },
+  "signingButton": {
+    "message": "Signing..."
+  },
+  "dialogTitle": {
+    "message": "DIGITAL SIGNATURE VERIFICATION"
+  },
+  "dialogDesc": {
+    "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> to select the matching number."
+  },
+  "dialogCancel": {
+    "message": "Cancel Request"
+  },
+  "dialogApprove": {
+    "message": "Approve Signature"
+  },
+  "dialogApproving": {
+    "message": "Approving..."
+  },
+  "dialogSigner": {
+    "message": "Signer"
+  },
+  "dialogDomain": {
+    "message": "Domain"
+  },
+  "signatureTitle": {
+    "message": "This email is digitally signed by UID.one"
+  },
+  "signatureSigner": {
+    "message": "Signer"
+  },
+  "signatureTime": {
+    "message": "Signing Time"
+  },
+  "signatureVerify": {
+    "message": "Verify Identity →"
+  },
+  "alertLinkFirst": {
+    "message": "Please link your UID.one account before performing digital signature."
+  },
+  "alertEnterContent": {
+    "message": "Please enter content before signing."
+  },
+  "alertRejected": {
+    "message": "Signing request was rejected or expired."
+  },
+  "contextMenuTitle": {
+    "message": "Sign text with UID.one"
   }
 }

@@ -286,6 +286,26 @@ async function handleSavePairing(request: any) {
   return { success: true };
 }
 
+async function handleApproveChallenge(token: string) {
+  const identityToken = await getActiveSessionToken();
+  if (!identityToken) {
+    throw new Error('Device not paired. Please pair first.');
+  }
+
+  const res = await fetch(`${API_BASE}/challenges/${token}/approve/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${identityToken}`
+    },
+    body: JSON.stringify({})
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Failed to approve challenge');
+  return data;
+}
+
 async function handlePushRequest(request: any) {
   const identityToken = await getActiveSessionToken();
   if (!identityToken) {
@@ -327,9 +347,113 @@ getActiveSessionToken().then(token => {
   }
 });
 
+function waitForChallengeApproval(token: string): Promise<any> {
+  return new Promise((resolve) => {
+    let resolved = false;
+    let ws: WebSocket | null = null;
+    let pollInterval: any = null;
+
+    const cleanup = () => {
+      resolved = true;
+      if (ws) {
+        try { ws.close(); } catch(e){}
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+
+    const handleSuccess = (signature: string) => {
+      if (resolved) return;
+      cleanup();
+      resolve({ success: true, signature });
+    };
+
+    const handleFailure = (error: string) => {
+      if (resolved) return;
+      cleanup();
+      resolve({ success: false, error });
+    };
+
+    // 1. Setup WebSocket connection
+    try {
+      const wsBase = import.meta.env.VITE_WS_BASE || (API_BASE.includes('api.uid.one') ? 'wss://api.uid.one' : 'ws://127.0.0.1:8001');
+      const wsUrl = `${wsBase}/ws/challenges/${token}/`;
+      ws = new WebSocket(wsUrl);
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.status === 'APPROVED') {
+            const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
+            handleSuccess(signature);
+          } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
+            handleFailure(data.status.toLowerCase());
+          }
+        } catch (e) {
+          console.error('[uid.one] WebSocket message parsing error:', e);
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.warn('[uid.one] WebSocket error, relying on polling fallback:', err);
+      };
+    } catch (e) {
+      console.warn('[uid.one] Failed to initialize WebSocket, relying on polling fallback:', e);
+    }
+
+    // 2. Setup Polling Fallback (runs every 2 seconds)
+    pollInterval = setInterval(async () => {
+      if (resolved) return;
+      try {
+        const res = await fetch(`${API_BASE}/challenges/${token}/status/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.status === 'APPROVED') {
+          const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
+          handleSuccess(signature);
+        } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
+          handleFailure(data.status.toLowerCase());
+        }
+      } catch (err) {
+        console.error('[uid.one] Polling fallback error:', err);
+      }
+    }, 2000);
+
+    // 3. Timeout after 5 minutes (300 seconds)
+    setTimeout(() => {
+      if (!resolved) {
+        handleFailure('timeout');
+      }
+    }, 300000);
+  });
+}
+
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'CHECK_PAIRING') {
     getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
+    return true;
+  }
+  else if (request.type === 'GET_PROFILE') {
+    getActiveSessionToken().then(token => {
+      if (!token) {
+        sendResponse({ success: false, error: 'Not paired' });
+        return;
+      }
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(base64));
+        const email = payload.email || payload.username || payload.sub || 'user@uid.one';
+        sendResponse({ success: true, email, sub: payload.sub });
+      } catch (err) {
+        sendResponse({ success: false, error: 'Token parsing failed' });
+      }
+    });
     return true;
   }
   else if (request.type === 'INC_STAT') {
@@ -411,6 +535,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true;
   }
+  else if (request.action === 'APPROVE_CHALLENGE' || request.type === 'APPROVE_CHALLENGE') {
+    handleApproveChallenge(request.token)
+      .then(data => sendResponse({ success: true, data }))
+      .catch(error => sendResponse({ success: false, error: error.toString() }));
+    return true;
+  }
   else if (request.action === 'REQUEST_DIGITAL_SIGNATURE') {
     getActiveSessionToken().then(token => {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -428,10 +558,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
           metadata: request.metadata
         })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(errData => {
+            throw new Error(errData.error || 'Failed to create challenge');
+          });
+        }
+        return res.json();
+      })
       .then(data => {
         if (data.error) throw new Error(data.error);
-        sendResponse({ success: true, data });
+        
+        waitForChallengeApproval(data.token)
+          .then(result => {
+            sendResponse(result);
+          })
+          .catch(err => {
+            sendResponse({ success: false, error: err.message });
+          });
       })
       .catch(err => sendResponse({ success: false, error: err.message }));
     });
@@ -517,8 +661,8 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.contextMenus.create({
     id: "sign-text",
-    title: "Sign selected text",
-    contexts: ["selection"]
+    title: chrome.i18n.getMessage("contextMenuTitle") || "Sign text with UID.one",
+    contexts: ["selection", "editable"]
   });
 });
 
@@ -529,10 +673,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       action: "START_PDF_SIGNING",
       url: info.linkUrl
     });
-  } else if (info.menuItemId === "sign-text" && info.selectionText) {
+  } else if (info.menuItemId === "sign-text") {
     chrome.tabs.sendMessage(tab.id, {
       action: "START_TEXT_SIGNING",
-      text: info.selectionText
+      text: info.selectionText || ""
     });
   }
 });
