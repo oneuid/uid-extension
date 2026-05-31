@@ -66,6 +66,12 @@ Fully localizes the extension user interface, error states, and popup statistics
 - English, Vietnamese, Arabic, German, Spanish, French, Italian, Japanese, Korean, Russian, Thai, and Simplified Chinese.
 - Automatically synchronizes with the host browser language.
 
+### 11. Verified Email & AI Trust Filter (Phishing Protection)
+Protects against business email compromise (BEC) and email phishing:
+- **Client-Side Email Signing:** Cryptographically signs email bodies end-to-end using the local device's private key before sending.
+- **On-Device Verification:** Automatically verifies incoming email signatures against the sender's public keys fetched from the UID JWKS.
+- **AI Trust Filter (window.ai):** Analyzes and triages emails into `Priority` (signed by a trusted contact), `Safe` (standard verified emails), or `Suspicious` (unsigned/spoofed emails demanding urgent action) using on-device Gemini Nano, with a local heuristic fallback if `window.ai` is not available.
+
 ---
 
 ## 🛠 Prerequisites

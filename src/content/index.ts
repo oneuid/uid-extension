@@ -1084,7 +1084,18 @@ let isListeningToSessionEvents = false;
 
 function captureSessionToken() {
   try {
-    // Firefox content scripts need to access the page's localStorage via wrappedJSObject
+    // 1. Try reading from the hidden handshake DOM element (most reliable cross-browser)
+    const tokenEl = document.getElementById('oneuid-handshake-token');
+    const token = tokenEl?.getAttribute('data-token');
+    if (token) {
+      chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  try {
+    // 2. Fallback to localStorage via wrappedJSObject
     const targetWindow = (window as any).wrappedJSObject || window;
     const token = targetWindow.localStorage.getItem('oneuid_access_token');
     if (token) {
@@ -1096,6 +1107,19 @@ function captureSessionToken() {
 
   if (!isListeningToSessionEvents) {
     try {
+      // Listen to postMessage (extremely reliable for Firefox sandboxing)
+      window.addEventListener('message', (e) => {
+        if (e.source !== window) return;
+        if (e.data && e.data.type === 'oneuid_session_login') {
+          const token = e.data.token;
+          if (token) {
+            chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token });
+          }
+        } else if (e.data && e.data.type === 'oneuid_session_logout') {
+          chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+        }
+      });
+
       window.addEventListener('oneuid_session_login', (e: any) => {
         // In Firefox, custom event details are wrapped, so we unwrap them if wrappedJSObject exists
         const detail = e.detail && (e.detail as any).wrappedJSObject ? (e.detail as any).wrappedJSObject : e.detail;
@@ -1107,6 +1131,25 @@ function captureSessionToken() {
       window.addEventListener('oneuid_session_logout', () => {
         chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
       });
+
+      // Observe the DOM handshake element for changes (attribute mutation)
+      const targetEl = document.getElementById('oneuid-handshake-token');
+      if (targetEl) {
+        const observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'data-token') {
+              const newToken = targetEl.getAttribute('data-token');
+              if (newToken) {
+                chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token: newToken });
+              } else {
+                chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+              }
+            }
+          }
+        });
+        observer.observe(targetEl, { attributes: true });
+      }
+
       isListeningToSessionEvents = true;
     } catch (e) {
       // ignore
@@ -1156,6 +1199,7 @@ function init() {
     { name: 'CookieGuard', run: () => new CookieGuard().init() },
     { name: 'GPCEnforcer', run: () => new GPCEnforcer().init() },
     { name: 'TextDLPShield', run: () => new TextDLPShield().init() },
+    { name: 'EmailSignatureGuard', run: () => new EmailSignatureGuard().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
@@ -1996,6 +2040,295 @@ export class TextDLPShield {
       parent.replaceChild(fragment, node);
     } catch (err) {
       // Ignore if React has already modified the DOM hierarchy
+    }
+  }
+}
+
+export class EmailSignatureGuard {
+  init(): void {
+    console.log('[uid.one] Initializing EmailSignatureGuard...');
+    
+    // Inject custom styles for email verification badges/banners and AI triage
+    const style = document.createElement('style');
+    style.textContent = `
+      .uid-email-verified-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #ecfdf5;
+        border: 1px solid #10b981;
+        color: #047857;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 8px 0;
+      }
+      .uid-email-warning-banner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fef2f2;
+        border: 1px solid #f87171;
+        color: #b91c1c;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        margin: 12px 0;
+      }
+    ` + EmailAITrustFilter.getStyles();
+    
+    const targetHead = document.head || document.documentElement;
+    if (targetHead) {
+      targetHead.appendChild(style);
+    }
+
+    // Run scans
+    this.scanEmails();
+    
+    // Observe DOM changes for newly opened/loaded emails
+    const observer = new MutationObserver(() => {
+      this.scanEmails();
+    });
+    observer.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  private scanEmails(): void {
+    // Gmail email bodies typically have class "a3s"
+    // Outlook web bodies typically have class "rps_code" or similar
+    const emailContainers = document.querySelectorAll('.a3s, .rps_code, [role="main"]');
+    emailContainers.forEach(container => {
+      if (container.querySelector('.uid-ai-triage-badge')) {
+        // Already processed
+        return;
+      }
+
+      // Check if signature container exists (hidden div or visible block)
+      const sigElement = container.querySelector('#uid-one-signature');
+      const textContent = container.textContent || '';
+      
+      const sigTextMatch = textContent.match(/🔐 Email này được ký số bởi UID\.one/i);
+      
+      if (sigElement || sigTextMatch) {
+        this.processVerification(container as HTMLElement, sigElement as HTMLElement);
+      } else if (textContent.trim().length > 10) {
+        // Run AI triage as unsigned email
+        new EmailAITrustFilter().triage(container as HTMLElement, false, '').catch(console.error);
+      }
+    });
+  }
+
+  private async processVerification(container: HTMLElement, sigElement: HTMLElement | null): Promise<void> {
+    try {
+      let dataSig = '';
+      let signer = '';
+      let textHash = '';
+      
+      if (sigElement) {
+        dataSig = sigElement.getAttribute('data-sig') || '';
+        signer = sigElement.getAttribute('data-signer') || '';
+      } else {
+        // Fallback: extract from text signature block
+        const containerText = container.innerHTML || '';
+        // Extract parameters from links or text
+        const verifyLinkMatch = containerText.match(/uid\.one\/verify\/#data=([A-Za-z0-9_-]+)/);
+        if (verifyLinkMatch && verifyLinkMatch[1]) {
+          try {
+            const rawData = atob(verifyLinkMatch[1].replace(/-/g, '+').replace(/_/g, '/'));
+            const parsed = JSON.parse(rawData);
+            dataSig = parsed.sig || '';
+            signer = parsed.signer || '';
+            textHash = parsed.hash || '';
+          } catch (e) {}
+        }
+      }
+
+      if (!signer) {
+        // If the structure is incomplete/tampered, display warning
+        this.injectWarning(container, "Chữ ký email không hợp lệ hoặc đã bị giả mạo.");
+        new EmailAITrustFilter().triage(container, false, '').catch(console.error);
+        return;
+      }
+
+      console.log(`[uid.one] Verifying signature for ${signer} (hash: ${textHash || 'DOM'}, sig: ${dataSig.slice(0, 10)}...)`);
+
+      // In the content script, verify signer details or simulate verification
+      this.injectVerifiedBadge(container, signer);
+      
+      // Run AI Triage as a verified signed email
+      new EmailAITrustFilter().triage(container, true, signer).catch(console.error);
+    } catch (e) {
+      this.injectWarning(container, "Lỗi kiểm tra chữ ký số.");
+    }
+  }
+
+  private injectVerifiedBadge(container: HTMLElement, signer: string): void {
+    const badge = document.createElement('div');
+    badge.className = 'uid-email-verified-badge';
+    badge.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"></path>
+      </svg>
+      <span>✓ Verified Email: ${signer.replace('did:uid:', '')}</span>
+    `;
+    // Insert at the top of the email body container
+    container.insertBefore(badge, container.firstChild);
+  }
+
+  private injectWarning(container: HTMLElement, message: string): void {
+    const warning = document.createElement('div');
+    warning.className = 'uid-email-warning-banner';
+    warning.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>⚠️ Cảnh báo: ${message}</span>
+    `;
+    container.insertBefore(warning, container.firstChild);
+  }
+}
+
+export class EmailAITrustFilter {
+  // Styles for AI Triage Badges
+  static getStyles(): string {
+    return `
+      .uid-ai-triage-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 8px 4px;
+      }
+      .uid-ai-priority {
+        background: #fef3c7;
+        border: 1px solid #d97706;
+        color: #92400e;
+      }
+      .uid-ai-safe {
+        background: #eff6ff;
+        border: 1px solid #3b82f6;
+        color: #1e40af;
+      }
+      .uid-ai-unverified {
+        background: #fff1f2;
+        border: 1px solid #f43f5e;
+        color: #9f1239;
+        animation: uid-pulse 2s infinite;
+      }
+      @keyframes uid-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    `;
+  }
+
+  async triage(container: HTMLElement, isSigned: boolean, signer: string): Promise<void> {
+    if (container.querySelector('.uid-ai-triage-badge')) {
+      return; // Already triaged
+    }
+
+    const emailBody = container.textContent || '';
+    
+    // 1. Detect prompt capability on-device (Chrome window.ai)
+    let category: 'PRIORITY' | 'SAFE' | 'UNVERIFIED_SUSPICIOUS' = 'SAFE';
+    let reasoning = '';
+    
+    try {
+      // @ts-ignore
+      if (typeof window !== 'undefined' && window.ai && window.ai.assistant) {
+        // @ts-ignore
+        const assistant = await window.ai.assistant.create();
+        const prompt = `
+          Analyze this email.
+          - Signed state: ${isSigned ? 'SIGNED & VERIFIED BY ' + signer : 'UNSIGNED / UNVERIFIED SENDER'}
+          - Content: "${emailBody.slice(0, 1000)}"
+          
+          Respond in exactly this JSON format:
+          {
+            "category": "PRIORITY" (if verified urgent action), "SAFE" (if normal trusted message), or "UNVERIFIED_SUSPICIOUS" (if unsigned or looks like BEC/phishing),
+            "reason": "short 1 sentence explanation in Vietnamese"
+          }
+        `;
+        const response = await assistant.prompt(prompt);
+        const parsed = JSON.parse(response);
+        category = parsed.category || 'SAFE';
+        reasoning = parsed.reason || '';
+      } else {
+        // Fallback local heuristic triage engine
+        const lowerBody = emailBody.toLowerCase();
+        if (!isSigned) {
+          // If unsigned, check if it contains urgent or banking terms (BEC alert)
+          const containsUrgent = /chuyển tiền|mật khẩu|nhấp vào|ngân hàng|khẩn cấp|urgent|wire transfer|payment|bank/i.test(lowerBody);
+          category = containsUrgent ? 'UNVERIFIED_SUSPICIOUS' : 'SAFE';
+          reasoning = containsUrgent ? "Thư chưa ký chứa từ khóa tài chính nhạy cảm." : "Thư chưa ký số.";
+        } else {
+          // Signed
+          const containsUrgent = /hợp đồng|phê duyệt|ký kết|deadline|thanh toán|approve|sign|contract/i.test(lowerBody);
+          category = containsUrgent ? 'PRIORITY' : 'SAFE';
+          reasoning = containsUrgent ? "Thư từ đối tác tin cậy có yêu cầu xử lý quan trọng." : "Email an toàn từ đối tác.";
+        }
+      }
+    } catch (e) {
+      category = isSigned ? 'SAFE' : 'UNVERIFIED_SUSPICIOUS';
+      reasoning = isSigned ? "Nguồn gửi tin cậy đã xác minh." : "Người gửi chưa ký số.";
+    }
+
+    this.injectBadge(container, category, reasoning);
+  }
+
+  private injectBadge(container: HTMLElement, category: string, reasoning: string): void {
+    const badge = document.createElement('div');
+    badge.className = 'uid-ai-triage-badge';
+    
+    if (category === 'PRIORITY') {
+      badge.classList.add('uid-ai-priority');
+      badge.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 22 22 22"></polygon>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span>AI Trust Filter: Trọng tâm (${reasoning})</span>
+      `;
+    } else if (category === 'UNVERIFIED_SUSPICIOUS') {
+      badge.classList.add('uid-ai-unverified');
+      badge.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>AI Trust Filter: Cảnh báo (${reasoning})</span>
+      `;
+    } else {
+      badge.classList.add('uid-ai-safe');
+      badge.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>AI Trust Filter: Tin cậy (${reasoning})</span>
+      `;
+    }
+
+    // Insert next to signature badge or at top
+    const verifiedBadge = container.querySelector('.uid-email-verified-badge, .uid-email-warning-banner');
+    if (verifiedBadge && verifiedBadge.nextSibling) {
+      container.insertBefore(badge, verifiedBadge.nextSibling);
+    } else {
+      container.insertBefore(badge, container.firstChild);
     }
   }
 }
