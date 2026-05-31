@@ -2158,11 +2158,122 @@ export class EmailSignatureGuard {
 
       console.log(`[uid.one] Verifying signature for ${signer} (hash: ${textHash || 'DOM'}, sig: ${dataSig.slice(0, 10)}...)`);
 
-      // In the content script, verify signer details or simulate verification
-      this.injectVerifiedBadge(container, signer);
-      
-      // Run AI Triage as a verified signed email
-      new EmailAITrustFilter().triage(container, true, signer).catch(console.error);
+      // 1. Fetch the user's registered public key dynamically
+      chrome.runtime.sendMessage(
+        { type: 'GET_USER_PUBKEY', identifier: signer.replace('did:uid:', '') },
+        async (response) => {
+          if (!response || !response.success || !response.publicKey) {
+            console.error(`[uid.one] Failed to load public key for: ${signer}`, response?.error);
+            this.injectWarning(container, `Không thể tải khóa công khai của người gửi: ${signer}`);
+            new EmailAITrustFilter().triage(container, false, '').catch(console.error);
+            return;
+          }
+
+          try {
+            const pubKeyPEM = response.publicKey;
+            
+            // 2. Extract clean email text and calculate SHA-256 hash
+            let emailText = '';
+            const sigEl = container.querySelector('#uid-one-signature');
+            if (sigEl) {
+              const clone = container.cloneNode(true) as HTMLElement;
+              const cloneSig = clone.querySelector('#uid-one-signature');
+              if (cloneSig) cloneSig.remove();
+              emailText = clone.textContent || '';
+            } else {
+              const text = container.textContent || '';
+              const parts = text.split(/🔐 (Email này được ký số bởi UID\.one|This email is digitally signed by UID\.one)/i);
+              emailText = parts[0] || '';
+            }
+            emailText = emailText.trim();
+
+            const encoder = new TextEncoder();
+            const dataBuffer = encoder.encode(emailText);
+            const calculatedHashBuffer = await window.crypto.subtle.digest("SHA-256", dataBuffer);
+            const calculatedHashArray = Array.from(new Uint8Array(calculatedHashBuffer));
+            const calculatedHashHex = calculatedHashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // 3. Import PEM public key into Web Crypto API format
+            const pemHeader = "-----BEGIN PUBLIC KEY-----";
+            const pemFooter = "-----END PUBLIC KEY-----";
+            let pemContents = pubKeyPEM.trim();
+            if (pemContents.startsWith(pemHeader)) {
+              pemContents = pemContents.substring(pemHeader.length);
+            }
+            if (pemContents.endsWith(pemFooter)) {
+              pemContents = pemContents.substring(0, pemContents.length - pemFooter.length);
+            }
+            pemContents = pemContents.replace(/\s/g, "");
+            
+            const binaryDerString = window.atob(pemContents);
+            const binaryLen = binaryDerString.length;
+            const bytes = new Uint8Array(binaryLen);
+            for (let i = 0; i < binaryLen; i++) {
+              bytes[i] = binaryDerString.charCodeAt(i);
+            }
+
+            const publicKey = await window.crypto.subtle.importKey(
+              "spki",
+              bytes.buffer,
+              {
+                name: "RSASSA-PKCS1-v1_5",
+                hash: { name: "SHA-256" }
+              },
+              false,
+              ["verify"]
+            );
+
+            // 4. Decode the signature
+            const sigBinary = window.atob(dataSig);
+            const sigLen = sigBinary.length;
+            const sigBytes = new Uint8Array(sigLen);
+            for (let i = 0; i < sigLen; i++) {
+              sigBytes[i] = sigBinary.charCodeAt(i);
+            }
+
+            // 5. Verify the signature against different hash/content variants for client compatibility
+            let isValid = await window.crypto.subtle.verify(
+              "RSASSA-PKCS1-v1_5",
+              publicKey,
+              sigBytes,
+              dataBuffer
+            );
+
+            if (!isValid) {
+              const hashHexBuffer = encoder.encode(calculatedHashHex);
+              isValid = await window.crypto.subtle.verify(
+                "RSASSA-PKCS1-v1_5",
+                publicKey,
+                sigBytes,
+                hashHexBuffer
+              );
+            }
+
+            if (!isValid) {
+              isValid = await window.crypto.subtle.verify(
+                "RSASSA-PKCS1-v1_5",
+                publicKey,
+                sigBytes,
+                calculatedHashBuffer
+              );
+            }
+
+            if (isValid) {
+              console.log(`[uid.one] Cryptographic signature VERIFIED successfully for ${signer}`);
+              this.injectVerifiedBadge(container, signer);
+              new EmailAITrustFilter().triage(container, true, signer).catch(console.error);
+            } else {
+              console.warn(`[uid.one] Cryptographic signature VERIFICATION FAILED for ${signer}`);
+              this.injectWarning(container, "Chữ ký số không khớp với nội dung email (Nội dung đã bị thay đổi).");
+              new EmailAITrustFilter().triage(container, false, '').catch(console.error);
+            }
+          } catch (err: any) {
+            console.error(`[uid.one] Cryptographic verification error:`, err);
+            this.injectWarning(container, `Lỗi kỹ thuật khi xác minh chữ ký: ${err.message}`);
+            new EmailAITrustFilter().triage(container, false, '').catch(console.error);
+          }
+        }
+      );
     } catch (e) {
       this.injectWarning(container, "Lỗi kiểm tra chữ ký số.");
     }

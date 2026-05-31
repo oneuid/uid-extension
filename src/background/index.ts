@@ -341,6 +341,23 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   }
+  else if (request.type === 'GET_USER_PUBKEY') {
+    const identifier = request.identifier;
+    fetch(`${API_BASE}/users/${identifier}/pubkey/`)
+      .then(res => {
+        if (!res.ok) throw new Error('User public key not found');
+        return res.json();
+      })
+      .then(data => {
+        if (data.status === 'success' && data.public_key) {
+          sendResponse({ success: true, publicKey: data.public_key });
+        } else {
+          sendResponse({ success: false, error: data.message || 'Key lookup failed' });
+        }
+      })
+      .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
   else if (request.type === 'GET_STATS') {
     chrome.storage.local.get(['cookies_blocked', 'exif_stripped', 'otp_cleared', 'gpc_signals']).then(res => {
       sendResponse({
