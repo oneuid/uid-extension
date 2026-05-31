@@ -409,7 +409,7 @@ function waitForChallengeApproval(token: string): Promise<any> {
         const res = await fetch(`${API_BASE}/challenges/${token}/status/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token, client_id: CLIENT_ID })
         });
         if (!res.ok) return;
         const data = await res.json();
