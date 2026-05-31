@@ -12,18 +12,23 @@
   --radius-md: 8px;
 }
 
-html, body {
+html {
+  background: transparent;
   margin: 0;
   padding: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: var(--bg-dark);
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--bg-dark);
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  border: 1px solid var(--card-border);
+  box-sizing: border-box;
 }
 
 #app {
