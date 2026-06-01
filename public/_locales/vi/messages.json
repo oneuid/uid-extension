@@ -109,5 +109,83 @@
   },
   "contextMenuTitle": {
     "message": "Ký số văn bản với UID.one"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Vui lòng nhập mã OTP 6 chữ số để xác thực chữ ký số:"
+  },
+  "otpCancel": {
+    "message": "Hủy"
+  },
+  "otpConfirm": {
+    "message": "Ký số"
+  },
+  "otpErrorLength": {
+    "message": "Mã OTP phải có đúng 6 chữ số."
+  },
+  "alertSessionExpired": {
+    "message": "Phiên làm việc đã hết hạn hoặc chưa được liên kết. Vui lòng đăng nhập lại trên trang UID.one và nhấn nút 'Liên kết Extension' để tiếp tục."
+  },
+  "errorVerification": {
+    "message": "Lỗi xác minh: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Chữ ký email không hợp lệ hoặc đã bị giả mạo."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Không thể tải khóa công khai của người gửi: $1"
+  },
+  "warningContentTampered": {
+    "message": "Chữ ký số không khớp với nội dung email (Nội dung đã bị thay đổi)."
+  },
+  "warningVerifyError": {
+    "message": "Lỗi kỹ thuật khi xác minh chữ ký: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Lỗi kiểm tra chữ ký số."
+  },
+  "warningLabel": {
+    "message": "Cảnh báo"
+  },
+  "alertVerifiedSender": {
+    "message": "Email này được ký số và xác minh bởi UID.one cho người gửi: $1"
+  },
+  "filterFocus": {
+    "message": "UID Trust Shield: Trọng tâm ($1)"
+  },
+  "filterWarning": {
+    "message": "UID Trust Shield: Cảnh báo ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "Thư chưa ký chứa từ khóa tài chính nhạy cảm."
+  },
+  "reasonUnsigned": {
+    "message": "Thư chưa ký số."
+  },
+  "reasonSignedImportant": {
+    "message": "Thư từ đối tác tin cậy có yêu cầu xử lý quan trọng."
+  },
+  "reasonSignedSafe": {
+    "message": "Email an toàn từ đối tác."
+  },
+  "reasonTrustedVerified": {
+    "message": "Nguồn gửi tin cậy đã xác minh."
+  },
+  "reasonNotSigned": {
+    "message": "Người gửi chưa ký số."
+  },
+  "filterSafe": {
+    "message": "AI Trust Filter: Tin cậy ($1)"
+  },
+  "verifiedSender": {
+    "message": "Người gửi đã xác minh"
+  },
+  "floatingTooltipSign": {
+    "message": "Ký số email này bằng UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "Email người gửi ($1) không khớp với danh tính UID ($2)"
   }
 }

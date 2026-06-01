@@ -109,5 +109,83 @@
   },
   "contextMenuTitle": {
     "message": "Sign text with UID.one"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Please enter the 6-digit OTP code to verify your digital signature:"
+  },
+  "otpCancel": {
+    "message": "Cancel"
+  },
+  "otpConfirm": {
+    "message": "Sign"
+  },
+  "otpErrorLength": {
+    "message": "The OTP code must be exactly 6 digits."
+  },
+  "alertSessionExpired": {
+    "message": "Session expired or not linked. Please log in to UID.one and click 'Link Extension' to continue."
+  },
+  "errorVerification": {
+    "message": "Verification error: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Invalid signature or email has been tampered with."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Failed to load sender's public key: $1"
+  },
+  "warningContentTampered": {
+    "message": "Digital signature does not match email content (Content has been modified)."
+  },
+  "warningVerifyError": {
+    "message": "Technical error verifying signature: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Digital signature verification failed."
+  },
+  "warningLabel": {
+    "message": "Warning"
+  },
+  "alertVerifiedSender": {
+    "message": "This email is digitally signed and verified by UID.one for sender: $1"
+  },
+  "filterFocus": {
+    "message": "UID Trust Shield: Priority ($1)"
+  },
+  "filterWarning": {
+    "message": "UID Trust Shield: Warning ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "Unsigned email contains sensitive financial keywords."
+  },
+  "reasonUnsigned": {
+    "message": "Email is not signed."
+  },
+  "reasonSignedImportant": {
+    "message": "Email from trusted partner contains important action request."
+  },
+  "reasonSignedSafe": {
+    "message": "Safe email from partner."
+  },
+  "reasonTrustedVerified": {
+    "message": "Trusted source has been verified."
+  },
+  "reasonNotSigned": {
+    "message": "Sender is unsigned."
+  },
+  "filterSafe": {
+    "message": "AI Trust Filter: Trusted ($1)"
+  },
+  "verifiedSender": {
+    "message": "Verified Sender"
+  },
+  "floatingTooltipSign": {
+    "message": "Sign this email with UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "Sender email ($1) does not match UID identity ($2)"
   }
 }

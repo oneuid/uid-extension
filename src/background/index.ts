@@ -1,6 +1,12 @@
 /// <reference types="chrome"/>
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
+const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
+
+async function getApiBase(): Promise<string> {
+  const res = await chrome.storage.local.get(['oneuid_api_base']);
+  return res.oneuid_api_base || DEFAULT_API_BASE;
+}
+
 const CLIENT_ID = 'uid-extension-client';
 
 // Memory store: token -> privateKey
@@ -42,8 +48,10 @@ export class SessionBinding {
 
     // Register with backend server
     try {
-      await fetch(`${API_BASE}/session-binding/register/`, {
+      const apiBase = await getApiBase();
+      await fetch(`${apiBase}/session-binding/register/`, {
         method: 'POST',
+        credentials: 'omit',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionToken}`
@@ -68,12 +76,13 @@ export class SessionBinding {
   }
 
   private async getDeviceFingerprint(): Promise<string> {
+    const hasScreen = typeof screen !== 'undefined';
     const components = [
       navigator.userAgent,
       navigator.language,
-      screen.colorDepth?.toString() || '24',
-      screen.width?.toString() || '1920',
-      screen.height?.toString() || '1080',
+      hasScreen ? screen.colorDepth?.toString() || '24' : '24',
+      hasScreen ? screen.width?.toString() || '1920' : '1920',
+      hasScreen ? screen.height?.toString() || '1080' : '1080',
       Intl.DateTimeFormat().resolvedOptions().timeZone,
       navigator.hardwareConcurrency?.toString() || '8',
     ];
@@ -125,25 +134,11 @@ async function getActiveSessionToken(): Promise<string | null> {
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
-    // We cannot use await directly inside onBeforeSendHeaders if blocking is expected to run synchronously.
-    // However, in Manifest V3, blocking requests require rules in declarativeNetRequest or we can run synchronously if the value is cached.
-    // Let's resolve the cached session token sync-like or run the check:
-    // To inject headers dynamically, we can use declarativeNetRequest or blocking webRequest in chrome.
-    // Since webRequestBlocking is in permissions, we can block or modify headers.
-    // In order to perform async storage lookup inside synchronous webRequest handler, we can keep the session token in RAM (activeSessionToken).
     if (activeSessionToken) {
       const binding = new SessionBinding();
-      // Since screen/navigator fingerprinting doesn't change, we can cache the final binding header value in memory.
-      // Let's retrieve from local storage and update memory cache.
-      
-      // Let's compute binding header value
-      // Note: we can compute it asynchronously but update header dynamically.
-      // A cleaner way in MV3 is using chrome.declarativeNetRequest to inject headers, but since we need session token binding,
-      // let's do synchronous injection using a memory-cached binding header.
       const cachedHeaderKey = `cached_binding_header_${activeSessionToken.slice(-16)}`;
       chrome.storage.local.get(cachedHeaderKey).then(res => {
         if (res[cachedHeaderKey]) {
-          // Already cached in storage
           return;
         }
         binding.getBindingHeader(activeSessionToken!).then(headerValue => {
@@ -152,10 +147,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
           }
         });
       });
-
-      // Synchronously retrieve from memory if we loaded it, or wait for next.
-      // To ensure it is injected, we check if we have it in storage.
-      // As a fallback, we can read/cache it.
     }
     return { requestHeaders: details.requestHeaders };
   },
@@ -163,8 +154,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   ["requestHeaders", "extraHeaders"]
 );
 
-// We can also inject the header asynchronously using declarativeNetRequest dynamic rules!
-// This is the modern, highly recommended MV3 way which is extremely reliable.
 async function updateDeclarativeRules(token: string) {
   const binding = new SessionBinding();
   const headerValue = await binding.getBindingHeader(token);
@@ -175,7 +164,7 @@ async function updateDeclarativeRules(token: string) {
     id: ruleId,
     priority: 1,
     action: {
-      type: "modifyRequestHeader",
+      type: "modifyHeaders",
       requestHeaders: [
         {
           header: "X-UID-Session-Binding",
@@ -218,8 +207,10 @@ async function handleStartOOB(request: any) {
   const spkiBuffer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
   const publicKeyBase64 = bufferToBase64(spkiBuffer);
 
-  const res = await fetch(`${API_BASE}/challenges/request/`, {
+  const apiBase = await getApiBase();
+  const res = await fetch(`${apiBase}/challenges/request/`, {
     method: 'POST',
+    credentials: 'omit',
     headers: { 
       'Content-Type': 'application/json'
     },
@@ -243,8 +234,10 @@ async function handleStartOOB(request: any) {
 }
 
 async function handlePollStatus(request: any) {
-  const res = await fetch(`${API_BASE}/challenges/${request.token}/status/`, {
+  const apiBase = await getApiBase();
+  const res = await fetch(`${apiBase}/challenges/${request.token}/status/`, {
     method: 'POST',
+    credentials: 'omit',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ client_id: CLIENT_ID })
   });
@@ -292,8 +285,10 @@ async function handleApproveChallenge(token: string) {
     throw new Error('Device not paired. Please pair first.');
   }
 
-  const res = await fetch(`${API_BASE}/challenges/${token}/approve/`, {
+  const apiBase = await getApiBase();
+  const res = await fetch(`${apiBase}/challenges/${token}/approve/`, {
     method: 'POST',
+    credentials: 'omit',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${identityToken}`
@@ -319,8 +314,10 @@ async function handlePushRequest(request: any) {
   const spkiBuffer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
   const publicKeyBase64 = bufferToBase64(spkiBuffer);
 
-  const res = await fetch(`${API_BASE}/challenges/request/`, {
+  const apiBase = await getApiBase();
+  const res = await fetch(`${apiBase}/challenges/request/`, {
     method: 'POST',
+    credentials: 'omit',
     headers: { 
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${identityToken}`
@@ -339,13 +336,26 @@ async function handlePushRequest(request: any) {
   return data;
 }
 
-// Initialize active token on start
-getActiveSessionToken().then(token => {
-  if (token) {
-    activeSessionToken = token;
-    updateDeclarativeRules(token);
+// Initialize active token on start with retry to handle Chrome SW registration races
+async function initializeActiveTokenWithRetry(retries = 5, delay = 200): Promise<void> {
+  try {
+    const token = await getActiveSessionToken();
+    if (token) {
+      activeSessionToken = token;
+      await updateDeclarativeRules(token);
+    }
+  } catch (err: any) {
+    const errMsg = err.message || '';
+    if (retries > 0 && (errMsg.includes('No SW') || errMsg.includes('context invalidated') || errMsg.includes('invalidated'))) {
+      console.warn(`[uid.one] Startup initialization failed (${errMsg}), retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return initializeActiveTokenWithRetry(retries - 1, delay * 1.5);
+    }
+    console.error('[uid.one] Failed to initialize active token on startup:', err);
   }
-});
+}
+
+initializeActiveTokenWithRetry();
 
 function waitForChallengeApproval(token: string): Promise<any> {
   return new Promise((resolve) => {
@@ -376,38 +386,42 @@ function waitForChallengeApproval(token: string): Promise<any> {
     };
 
     // 1. Setup WebSocket connection
-    try {
-      const wsBase = import.meta.env.VITE_WS_BASE || (API_BASE.includes('api.uid.one') ? 'wss://api.uid.one' : 'ws://127.0.0.1:8001');
-      const wsUrl = `${wsBase}/ws/challenges/${token}/`;
-      ws = new WebSocket(wsUrl);
+    getApiBase().then(apiBase => {
+      try {
+        const wsBase = import.meta.env.VITE_WS_BASE || (apiBase.includes('api.uid.one') ? 'wss://api.uid.one' : 'ws://127.0.0.1:8001');
+        const wsUrl = `${wsBase}/ws/challenges/${token}/`;
+        ws = new WebSocket(wsUrl);
 
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.status === 'APPROVED') {
-            const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
-            handleSuccess(signature);
-          } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
-            handleFailure(data.status.toLowerCase());
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.status === 'APPROVED') {
+              const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
+              handleSuccess(signature);
+            } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
+              handleFailure(data.status.toLowerCase());
+            }
+          } catch (e) {
+            console.error('[uid.one] WebSocket message parsing error:', e);
           }
-        } catch (e) {
-          console.error('[uid.one] WebSocket message parsing error:', e);
-        }
-      };
+        };
 
-      ws.onerror = (err) => {
-        console.warn('[uid.one] WebSocket error, relying on polling fallback:', err);
-      };
-    } catch (e) {
-      console.warn('[uid.one] Failed to initialize WebSocket, relying on polling fallback:', e);
-    }
+        ws.onerror = (err) => {
+          console.warn('[uid.one] WebSocket error, relying on polling fallback:', err);
+        };
+      } catch (e) {
+        console.warn('[uid.one] Failed to initialize WebSocket, relying on polling fallback:', e);
+      }
+    });
 
     // 2. Setup Polling Fallback (runs every 2 seconds)
     pollInterval = setInterval(async () => {
       if (resolved) return;
       try {
-        const res = await fetch(`${API_BASE}/challenges/${token}/status/`, {
+        const apiBase = await getApiBase();
+        const res = await fetch(`${apiBase}/challenges/${token}/status/`, {
           method: 'POST',
+          credentials: 'omit',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, client_id: CLIENT_ID })
         });
@@ -434,27 +448,108 @@ function waitForChallengeApproval(token: string): Promise<any> {
 }
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.type === 'CHECK_PAIRING') {
+  if (request.type === 'HEARTBEAT') {
+    sendResponse({ success: true });
+    return true;
+  }
+  else if (request.type === 'CHECK_PAIRING') {
     getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
     return true;
   }
   else if (request.type === 'GET_PROFILE') {
-    getActiveSessionToken().then(token => {
-      if (!token) {
+    chrome.storage.local.get(['oneuid_access_token', 'identity_token']).then(async (stored) => {
+      const access = stored.oneuid_access_token as string | undefined;
+      const identity = stored.identity_token as string | undefined;
+      
+      console.log('[uid.one] GET_PROFILE stored keys:', Object.keys(stored));
+      
+      let jwtToken: string | null = null;
+      if (access && access.split('.').length >= 2) {
+        jwtToken = access;
+      } else if (identity && identity.split('.').length >= 2) {
+        jwtToken = identity;
+      }
+      
+      if (jwtToken) {
+        try {
+          const parts = jwtToken.split('.');
+          const base64Url = parts[1];
+          let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          while (base64.length % 4) {
+            base64 += '=';
+          }
+          const decoded = atob(base64);
+          const payload = JSON.parse(decoded);
+          
+          const exp = payload.exp;
+          const now = Math.floor(Date.now() / 1000);
+          if (exp && now >= exp) {
+            console.warn('[uid.one] GET_PROFILE JWT token is expired.');
+            chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+            sendResponse({ success: false, error: 'Session expired' });
+            return;
+          }
+          
+          const email = payload.email || payload.username || payload.sub || 'user@uid.one';
+          console.log('[uid.one] GET_PROFILE JWT success:', email);
+          sendResponse({ success: true, email, sub: payload.sub });
+          return;
+        } catch (err: any) {
+          console.error('[uid.one] GET_PROFILE JWT parsing failed, falling back to API:', err.message);
+        }
+      }
+      
+      const opaqueToken = access || identity;
+      if (!opaqueToken) {
+        console.warn('[uid.one] GET_PROFILE failed: No active token found in storage.');
         sendResponse({ success: false, error: 'Not paired' });
         return;
       }
+      
       try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(atob(base64));
-        const email = payload.email || payload.username || payload.sub || 'user@uid.one';
-        sendResponse({ success: true, email, sub: payload.sub });
-      } catch (err) {
-        sendResponse({ success: false, error: 'Token parsing failed' });
+        console.log('[uid.one] Fetching profile from backend using token...');
+        const apiBase = await getApiBase();
+        const res = await fetch(`${apiBase}/me/`, {
+          method: 'GET',
+          credentials: 'omit',
+          headers: {
+            'Authorization': `Bearer ${opaqueToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+          }
+          throw new Error(`API returned status ${res.status}: ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        const email = data.email || data.username || 'user@uid.one';
+        console.log('[uid.one] GET_PROFILE API success:', email);
+        sendResponse({ success: true, email, sub: data.uuid || data.id || data.sub });
+      } catch (err: any) {
+        console.error('[uid.one] GET_PROFILE API fetch failed:', err.message);
+        sendResponse({ success: false, error: `Failed to retrieve profile: ${err.message}` });
       }
     });
     return true;
+  }
+  else if (request.type === 'SET_CONTEXT_MENU_ENABLED') {
+    const isEnabled = request.enabled !== false;
+    chrome.contextMenus.update("sign-text", { enabled: isEnabled }, () => {
+      if (chrome.runtime.lastError) {
+        // Ignore error if menu item not registered yet
+      }
+    });
+    chrome.contextMenus.update("sign-pdf", { enabled: isEnabled }, () => {
+      if (chrome.runtime.lastError) {
+        // Ignore error if menu item not registered yet
+      }
+    });
+    sendResponse({ success: true });
+    return false;
   }
   else if (request.type === 'INC_STAT') {
     const key = request.key;
@@ -467,19 +562,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
   else if (request.type === 'GET_USER_PUBKEY') {
     const identifier = request.identifier;
-    fetch(`${API_BASE}/users/${identifier}/pubkey/`)
-      .then(res => {
+    getApiBase().then(async (apiBase) => {
+      try {
+        let res = await fetch(`${apiBase}/users/${identifier}/pubkey/`, { credentials: 'omit' });
+        if (!res.ok && apiBase !== 'https://api.uid.one/v1/auth') {
+          console.log(`[uid.one] Key not found on ${apiBase}, trying production backend...`);
+          res = await fetch(`https://api.uid.one/v1/auth/users/${identifier}/pubkey/`, { credentials: 'omit' });
+        }
         if (!res.ok) throw new Error('User public key not found');
-        return res.json();
-      })
-      .then(data => {
+        const data = await res.json();
         if (data.status === 'success' && data.public_key) {
           sendResponse({ success: true, publicKey: data.public_key });
         } else {
           sendResponse({ success: false, error: data.message || 'Key lookup failed' });
         }
-      })
-      .catch(err => sendResponse({ success: false, error: err.message }));
+      } catch (err: any) {
+        sendResponse({ success: false, error: err.message });
+      }
+    });
     return true;
   }
   else if (request.type === 'GET_STATS') {
@@ -495,8 +595,22 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
   else if (request.type === 'SET_SESSION_TOKEN') {
     const token = request.token;
+    const origin = request.origin || '';
+    
+    let resolvedApiBase = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
+    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('http://') || origin.includes(':3000')) {
+      resolvedApiBase = 'http://127.0.0.1:8001/v1/auth';
+    } else if (origin.includes('uid.one')) {
+      resolvedApiBase = 'https://api.uid.one/v1/auth';
+    }
+    
     activeSessionToken = token;
-    chrome.storage.local.set({ 'oneuid_access_token': token }).then(() => {
+    
+    chrome.storage.local.set({ 
+      'oneuid_access_token': token,
+      'identity_token': token,
+      'oneuid_api_base': resolvedApiBase
+    }).then(() => {
       const binding = new SessionBinding();
       binding.bindSession(token)
         .then(() => updateDeclarativeRules(token))
@@ -542,32 +656,51 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true;
   }
   else if (request.action === 'REQUEST_DIGITAL_SIGNATURE') {
-    getActiveSessionToken().then(token => {
+    Promise.all([getActiveSessionToken(), getApiBase()]).then(([token, apiBase]) => {
+      console.log('[uid.one] REQUEST_DIGITAL_SIGNATURE sending to:', `${apiBase}/challenges/request/`);
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      fetch(`${API_BASE}/challenges/request/`, {
+      fetch(`${apiBase}/challenges/request/`, {
         method: 'POST',
+        credentials: 'omit',
         headers,
         body: JSON.stringify({
           method: 'DIGITAL_SIGNATURE',
           domain: request.domain,
           user_agent: request.user_agent,
           identifier: request.identifier,
-          metadata: request.metadata
+          metadata: request.metadata,
+          otp_code: request.otp_code
         })
       })
       .then(res => {
         if (!res.ok) {
-          return res.json().then(errData => {
-            throw new Error(errData.error || 'Failed to create challenge');
+          if (res.status === 401 || res.status === 403) {
+            chrome.storage.local.remove(['oneuid_access_token', 'identity_token']);
+            throw new Error(chrome.i18n.getMessage("alertSessionExpired") || 'Session expired or not linked. Please log in to UID.one and click "Link Extension" to continue.');
+          }
+          return res.text().then(text => {
+            let message = '';
+            try {
+              const errData = JSON.parse(text);
+              message = errData.error || errData.detail || JSON.stringify(errData);
+            } catch (e) {
+              message = text || `HTTP Error ${res.status}: ${res.statusText}`;
+            }
+            throw new Error(message);
           });
         }
         return res.json();
       })
       .then(data => {
         if (data.error) throw new Error(data.error);
+        
+        if (data.signature) {
+          sendResponse({ success: true, signature: data.signature, signer: data.signer });
+          return;
+        }
         
         waitForChallengeApproval(data.token)
           .then(result => {
@@ -616,15 +749,16 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true;
   }
   else if (request.type === 'AUDIT_COPY') {
-    getActiveSessionToken().then(token => {
+    Promise.all([getActiveSessionToken(), getApiBase()]).then(([token, apiBase]) => {
       if (!token) {
         console.warn('[uid.one] Audit failed: no active session token');
         sendResponse({ success: false, error: 'No active session' });
         return;
       }
-      const auditUrl = `${API_BASE.replace('/auth', '/audit')}/copy/`;
+      const auditUrl = `${apiBase.replace('/auth', '/audit')}/copy/`;
       fetch(auditUrl, {
         method: 'POST',
+        credentials: 'omit',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -653,7 +787,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 // ================= CONTEXT MENUS INTEGRATION =================
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Setup Context Menus
   chrome.contextMenus.create({
     id: "sign-pdf",
     title: "Sign PDF with UID.ONE",
@@ -672,11 +805,25 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.sendMessage(tab.id, {
       action: "START_PDF_SIGNING",
       url: info.linkUrl
+    }).catch(err => {
+      console.warn('[uid.one] Could not send START_PDF_SIGNING message to tab (receiving end might not exist yet):', err);
     });
   } else if (info.menuItemId === "sign-text") {
     chrome.tabs.sendMessage(tab.id, {
       action: "START_TEXT_SIGNING",
       text: info.selectionText || ""
+    }).catch(err => {
+      console.warn('[uid.one] Could not send START_TEXT_SIGNING message to tab (receiving end might not exist yet):', err);
     });
   }
 });
+
+chrome.tabs.onActivated.addListener(() => {
+  chrome.contextMenus.update("sign-text", { enabled: true }, () => {
+    if (chrome.runtime.lastError) {}
+  });
+  chrome.contextMenus.update("sign-pdf", { enabled: true }, () => {
+    if (chrome.runtime.lastError) {}
+  });
+});
+
