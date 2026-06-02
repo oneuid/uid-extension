@@ -605,20 +605,22 @@ if (btnDetectCerts) {
       }
       
       const data = await res.json();
-      localCertificates = (data.certificates || []).map((c: any) => {
-        if (c.certData) {
-          const parsed = getFriendlyCertName(c.certData);
-          if (parsed) {
-            return {
-              ...c,
-              subject: parsed.subject,
-              issuer: parsed.issuer,
-              validTo: parsed.validTo
-            };
+      localCertificates = (data.certificates || [])
+        .filter((c: any) => c.id !== 'agent_identity_key')
+        .map((c: any) => {
+          if (c.certData) {
+            const parsed = getFriendlyCertName(c.certData);
+            if (parsed) {
+              return {
+                ...c,
+                subject: parsed.subject,
+                issuer: parsed.issuer,
+                validTo: parsed.validTo
+              };
+            }
           }
-        }
-        return c;
-      });
+          return c;
+        });
       
       agentStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerAgentRunning") || 'Running';
       agentStatusBadge.style.background = 'rgba(16, 185, 129, 0.1)';
