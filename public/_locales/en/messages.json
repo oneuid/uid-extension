@@ -254,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "Upload Certificate File (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "CA Client App:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Checking..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Offline"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "Running"
+  },
   "pdfSignerLabelUsbStatus": {
-    "message": "USB Token Status:"
+    "message": "USB Token:"
   },
   "pdfSignerUsbChecking": {
     "message": "Checking..."
+  },
+  "pdfSignerUsbUnknown": {
+    "message": "Unknown"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Not Found"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Detected"
   },
   "pdfSignerUsbNoDetect": {
     "message": "No USB token detected. Plug in your USB and click detect."
   },
   "pdfSignerButtonDetect": {
-    "message": "Detect USB Token"
+    "message": "Detect USB CA App"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "CA client application is not running or not installed on this computer."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "CA client app is active, but no USB token or smart card is found. Please insert your USB Token."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Connected. USB Token certificates are ready."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Querying local CA signing application..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "Select Certificate:"

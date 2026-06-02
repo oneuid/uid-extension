@@ -254,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "Tải lên tệp chứng thư (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "Phần mềm ký số:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Đang quét..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Chưa bật"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "Đang hoạt động"
+  },
   "pdfSignerLabelUsbStatus": {
-    "message": "Trạng thái USB Token:"
+    "message": "USB Token:"
   },
   "pdfSignerUsbChecking": {
-    "message": "Đang kiểm tra..."
+    "message": "Đang quét..."
+  },
+  "pdfSignerUsbUnknown": {
+    "message": "Không rõ"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Không tìm thấy"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Đã nhận dạng"
   },
   "pdfSignerUsbNoDetect": {
-    "message": "Chưa phát hiện thấy USB Token. Vui lòng cắm USB và nhấn quét."
+    "message": "Không phát hiện USB Token. Vui lòng cắm USB và nhấn quét thiết bị."
   },
   "pdfSignerButtonDetect": {
-    "message": "Quét USB Token"
+    "message": "Quét Thiết Bị CA"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "Chương trình ký số chưa được bật hoặc chưa cài đặt trên máy tính."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "Đã kết nối chương trình ký số, nhưng không tìm thấy USB Token. Vui lòng cắm thiết bị."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Đã kết nối. Chứng thư số trong USB Token sẵn sàng."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Đang kết nối tới chương trình ký số cục bộ..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "Chọn Chứng Thư Số:"

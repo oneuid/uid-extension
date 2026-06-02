@@ -1,5 +1,207 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import signpdf, { Signer } from '@signpdf/signpdf';
+import { pdflibAddPlaceholder } from '@signpdf/placeholder-pdf-lib';
+import * as forge from 'node-forge';
+import { Buffer } from 'buffer';
+
+(window as any).Buffer = Buffer;
+(globalThis as any).Buffer = Buffer;
+
+class AgentSigner extends Signer {
+  private certHex: string;
+  private certId: string;
+  private pin: string;
+  private agentUrl: string;
+
+  constructor(certHex: string, certId: string, pin: string, agentUrl: string) {
+    super();
+    this.certHex = certHex;
+    this.certId = certId;
+    this.pin = pin;
+    this.agentUrl = agentUrl;
+  }
+
+  async sign(pdfBuffer: Buffer, signingTime?: Date): Promise<Buffer> {
+    const pdfForgeBuffer = forge.util.createBuffer(pdfBuffer.toString('binary' as any), 'binary' as any);
+    const p7 = forge.pkcs7.createSignedData();
+    p7.content = pdfForgeBuffer;
+
+    const certDerBytes = forge.util.hexToBytes(this.certHex);
+    const asn1 = forge.asn1.fromDer(certDerBytes);
+    const cert = forge.pki.certificateFromAsn1(asn1);
+
+    p7.addCertificate(cert);
+
+    const agentUrl = this.agentUrl;
+    const certId = this.certId;
+    const pin = this.pin;
+
+    p7.addSigner({
+      key: {
+        sign: async (md: any) => {
+          const digestBytes = md.digest().bytes();
+          const digestHex = forge.util.bytesToHex(digestBytes);
+
+          const signRes = await fetch(`${agentUrl}/sign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              certId: certId,
+              hash: digestHex,
+              pin: pin
+            })
+          });
+
+          if (!signRes.ok) {
+            throw new Error(`Agent signing HTTP error: ${signRes.status}`);
+          }
+
+          const signData = await signRes.json();
+          if (!signData.success) {
+            throw new Error(signData.error || 'Agent signing failed');
+          }
+
+          const sigBytes = forge.util.hexToBytes(signData.signature);
+          return sigBytes;
+        }
+      } as any,
+      certificate: cert,
+      digestAlgorithm: forge.pki.oids.sha256,
+      authenticatedAttributes: [
+        { type: forge.pki.oids.contentType, value: forge.pki.oids.data },
+        { type: forge.pki.oids.messageDigest },
+        { type: forge.pki.oids.signingTime, value: (signingTime || new Date()) as any }
+      ]
+    });
+
+    p7.sign({ detached: true });
+
+    (p7 as any).signerInfos = await Promise.all(
+      (p7 as any).signerInfos.map(async (signerInfo: any) => {
+        signerInfo.value = await Promise.all(
+          signerInfo.value.map(async (val: any) => {
+            val.value = await val.value;
+            return val;
+          })
+        );
+        return signerInfo;
+      })
+    );
+
+    (p7 as any).signers = await Promise.all(
+      (p7 as any).signers.map(async (p7Signer: any) => {
+        p7Signer.signature = await p7Signer.signature;
+        return p7Signer;
+      })
+    );
+
+    const der = forge.asn1.toDer(p7.toAsn1());
+    const signatureDerBytes = der.bytes();
+
+    return Buffer.from(signatureDerBytes, 'binary');
+  }
+}
+
+class LocalP12Signer extends Signer {
+  private customPrivateKey: any;
+  private customCert: any;
+  private p12Asn1: any;
+  private password: string;
+
+  constructor(customPrivateKey: any, customCert: any, p12Asn1: any = null, password: string = '') {
+    super();
+    this.customPrivateKey = customPrivateKey;
+    this.customCert = customCert;
+    this.p12Asn1 = p12Asn1;
+    this.password = password;
+  }
+
+  async sign(pdfBuffer: Buffer, signingTime?: Date): Promise<Buffer> {
+    let privateKey = this.customPrivateKey;
+    let cert = this.customCert;
+
+    if (this.p12Asn1) {
+      const p12 = forge.pkcs12.pkcs12FromAsn1(this.p12Asn1, false, this.password);
+      
+      let keyBag: any = null;
+      let certBag: any = null;
+      
+      const keyBags = (p12 as any).getBags({ bagType: forge.pki.oids.keyBag })[forge.pki.oids.keyBag];
+      if (keyBags && keyBags.length > 0) {
+        keyBag = keyBags[0];
+      }
+      
+      if (!keyBag) {
+        const shroudedKeyBags = (p12 as any).getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag })[forge.pki.oids.pkcs8ShroudedKeyBag];
+        if (shroudedKeyBags && shroudedKeyBags.length > 0) {
+          keyBag = shroudedKeyBags[0];
+        }
+      }
+
+      const certBags = (p12 as any).getBags({ bagType: forge.pki.oids.certBag })[forge.pki.oids.certBag];
+      if (certBags && certBags.length > 0) {
+        certBag = certBags[0];
+      }
+
+      if (!keyBag || !certBag) {
+        throw new Error('Could not find private key or certificate in P12 file');
+      }
+
+      privateKey = keyBag.key;
+      cert = certBag.cert;
+    }
+
+    const pdfForgeBuffer = forge.util.createBuffer(pdfBuffer.toString('binary' as any), 'binary' as any);
+    const p7 = forge.pkcs7.createSignedData();
+    p7.content = pdfForgeBuffer;
+    p7.addCertificate(cert);
+
+    p7.addSigner({
+      key: privateKey,
+      certificate: cert,
+      digestAlgorithm: forge.pki.oids.sha256,
+      authenticatedAttributes: [
+        { type: forge.pki.oids.contentType, value: forge.pki.oids.data },
+        { type: forge.pki.oids.messageDigest },
+        { type: forge.pki.oids.signingTime, value: (signingTime || new Date()) as any }
+      ]
+    });
+
+    p7.sign({ detached: true });
+
+    const der = forge.asn1.toDer(p7.toAsn1());
+    const signatureDerBytes = der.bytes();
+
+    return Buffer.from(signatureDerBytes, 'binary');
+  }
+}
+
+function generateMockCert(subjectName: string): { privateKey: any, cert: any } {
+  const keys = forge.pki.rsa.generateKeyPair(512);
+  const cert = forge.pki.createCertificate();
+  cert.publicKey = keys.publicKey;
+  cert.serialNumber = '01';
+  cert.validity.notBefore = new Date();
+  cert.validity.notAfter = new Date();
+  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+
+  const attrs = [{
+    name: 'commonName',
+    value: subjectName
+  }, {
+    name: 'organizationName',
+    value: 'Remote CA Demo'
+  }];
+
+  cert.setSubject(attrs);
+  cert.setIssuer(attrs);
+  cert.sign(keys.privateKey, forge.md.sha256.create());
+
+  return { privateKey: keys.privateKey, cert: cert };
+}
+
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -51,6 +253,7 @@ const btnDetectCerts = document.getElementById('btn-detect-certs')!;
 const localCertsContainer = document.getElementById('local-certs-container')!;
 const localCertSelect = document.getElementById('local-cert-select') as HTMLSelectElement;
 
+const agentStatusBadge = document.getElementById('agent-status-badge')!;
 const usbStatusBadge = document.getElementById('usb-status-badge')!;
 const usbTokenInfo = document.getElementById('usb-token-info')!;
 
@@ -69,9 +272,11 @@ interface LocalCertificate {
   subject: string;
   issuer: string;
   validTo: string;
+  certData?: string;
 }
 let localCertificates: LocalCertificate[] = [];
 let uploadedP12Details: { subject: string; issuer: string } | null = null;
+let uploadedP12Bytes: ArrayBuffer | null = null;
 
 // Helper to convert provider key to human readable
 function getProviderName(val: string): string {
@@ -95,6 +300,206 @@ function getProviderName(val: string): string {
   }
 }
 
+let cachedRobotoRegularBytes: ArrayBuffer | null = null;
+let cachedRobotoBoldBytes: ArrayBuffer | null = null;
+
+async function loadFonts(): Promise<{ regular: ArrayBuffer; bold: ArrayBuffer } | null> {
+  if (cachedRobotoRegularBytes && cachedRobotoBoldBytes) {
+    return { regular: cachedRobotoRegularBytes, bold: cachedRobotoBoldBytes };
+  }
+
+  // 1. Try local extension bundle (offline-capable)
+  try {
+    let regUrl = '/fonts/Roboto-Regular.ttf';
+    let boldUrl = '/fonts/Roboto-Bold.ttf';
+
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      regUrl = chrome.runtime.getURL('fonts/Roboto-Regular.ttf');
+      boldUrl = chrome.runtime.getURL('fonts/Roboto-Bold.ttf');
+    }
+
+    const [regRes, boldRes] = await Promise.all([
+      fetch(regUrl),
+      fetch(boldUrl)
+    ]);
+
+    if (regRes.ok && boldRes.ok) {
+      cachedRobotoRegularBytes = await regRes.arrayBuffer();
+      cachedRobotoBoldBytes = await boldRes.arrayBuffer();
+      return { regular: cachedRobotoRegularBytes, bold: cachedRobotoBoldBytes };
+    }
+  } catch (err) {
+    console.warn('[uid.one] Could not load bundled local fonts, trying CDN fallback...', err);
+  }
+
+  // 2. Try CDN fallback (online)
+  try {
+    const regUrl = 'https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Regular.ttf';
+    const boldUrl = 'https://raw.githubusercontent.com/googlefonts/roboto/main/src/hinted/Roboto-Bold.ttf';
+
+    const [regRes, boldRes] = await Promise.all([
+      fetch(regUrl),
+      fetch(boldUrl)
+    ]);
+
+    if (regRes.ok && boldRes.ok) {
+      cachedRobotoRegularBytes = await regRes.arrayBuffer();
+      cachedRobotoBoldBytes = await boldRes.arrayBuffer();
+      return { regular: cachedRobotoRegularBytes, bold: cachedRobotoBoldBytes };
+    }
+  } catch (err) {
+    console.error('[uid.one] All font loading strategies failed:', err);
+  }
+
+  return null;
+}
+
+let cachedCJKFontBytes: ArrayBuffer | null = null;
+
+function hasCJKCharacters(str: string): boolean {
+  const cjkRegex = /[\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/;
+  return cjkRegex.test(str);
+}
+
+async function loadCJKFont(): Promise<ArrayBuffer | null> {
+  if (cachedCJKFontBytes) return cachedCJKFontBytes;
+  
+  try {
+    showToast("Downloading Unicode CJK Font Package (16MB)... This may take a moment.", "info");
+    const cjkUrl = 'https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf';
+    const res = await fetch(cjkUrl);
+    if (res.ok) {
+      cachedCJKFontBytes = await res.arrayBuffer();
+      showToast("Unicode CJK Font loaded successfully.", "success");
+      return cachedCJKFontBytes;
+    }
+  } catch (err) {
+    console.error('[uid.one] Failed to fetch CJK font from CDN:', err);
+  }
+  return null;
+}
+
+function decodeUtf8String(str: string): string {
+  const utf8Regex = /[\u00c0-\u00df][\u0080-\u00bf]|[\u00e0-\u00ef][\u0080-\u00bf]{2}|[\u00f0-\u00f7][\u0080-\u00bf]{3}/;
+  if (utf8Regex.test(str)) {
+    try {
+      return decodeURIComponent(escape(str));
+    } catch (e) {
+      try {
+        return forge.util.decodeUtf8(str);
+      } catch (err) {
+        return str;
+      }
+    }
+  }
+  return str;
+}
+
+function getFriendlyCertName(hexData: string): { subject: string; issuer: string; validTo: string } | null {
+  try {
+    const derBytes = forge.util.hexToBytes(hexData);
+    const asn1 = forge.asn1.fromDer(derBytes);
+    const cert = forge.pki.certificateFromAsn1(asn1);
+    
+    const getFriendlyName = (attrs: any) => {
+      let val = 'Unknown';
+      if (attrs.attributes) {
+        // Try commonName (CN)
+        const cnAttr = attrs.attributes.find((a: any) => a.name === 'commonName' || a.shortName === 'CN');
+        if (cnAttr && cnAttr.value) {
+          val = String(cnAttr.value);
+        } else {
+          // Try organizationName (O)
+          const oAttr = attrs.attributes.find((a: any) => a.name === 'organizationName' || a.shortName === 'O');
+          if (oAttr && oAttr.value) {
+            val = String(oAttr.value);
+          } else {
+            // Try organizationalUnitName (OU)
+            const ouAttr = attrs.attributes.find((a: any) => a.name === 'organizationalUnitName' || a.shortName === 'OU');
+            if (ouAttr && ouAttr.value) {
+              val = String(ouAttr.value);
+            }
+          }
+        }
+      } else {
+        const cn = attrs.getField('CN')?.value || attrs.getField('commonName')?.value;
+        if (cn) {
+          val = String(cn);
+        } else {
+          const o = attrs.getField('O')?.value || attrs.getField('organizationName')?.value;
+          if (o) {
+            val = String(o);
+          }
+        }
+      }
+      
+      return decodeUtf8String(val);
+    };
+
+    const subject = getFriendlyName(cert.subject);
+    const issuer = getFriendlyName(cert.issuer);
+    const validTo = cert.validity.notAfter.toISOString().split('T')[0];
+
+    return { subject, issuer, validTo };
+  } catch (e) {
+    console.error('[uid.one] Error parsing certificate with node-forge:', e);
+    return null;
+  }
+}
+
+function getLocaleString(key: string, fallback: string): string {
+  if (typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getMessage) {
+    const msg = chrome.i18n.getMessage(key);
+    if (msg) return msg;
+  }
+  
+  const lang = (navigator.language || 'en').split('-')[0].toLowerCase();
+  const translations: Record<string, Record<string, string>> = {
+    vi: {
+      pdfSignerStampSignedBy: 'ĐƯỢC KÝ BỞI',
+      pdfSignerStampSigner: 'Người ký',
+      pdfSignerStampDate: 'Ngày ký',
+      pdfSignerStampIssuer: 'Nhà cấp phát',
+      pdfSignerStampNoUsb: 'CHƯA CÓ USB TOKEN',
+      pdfSignerStampPlugUsb: 'Hãy cắm USB Token',
+      pdfSignerStampNoCert: 'CHƯA CÓ CHỨNG THƯ',
+      pdfSignerStampUploadCert: 'Tải lên tệp P12/PFX'
+    },
+    zh: {
+      pdfSignerStampSignedBy: '已签名',
+      pdfSignerStampSigner: '签名人',
+      pdfSignerStampDate: '签名日期',
+      pdfSignerStampIssuer: '颁发者',
+      pdfSignerStampNoUsb: '未检测到 USB Key',
+      pdfSignerStampPlugUsb: '请插入 USB Key',
+      pdfSignerStampNoCert: '无证书文件',
+      pdfSignerStampUploadCert: '上传 P12/PFX 文件'
+    },
+    ja: {
+      pdfSignerStampSignedBy: '署名者',
+      pdfSignerStampSigner: '署名者',
+      pdfSignerStampDate: '署名日時',
+      pdfSignerStampIssuer: '発行者',
+      pdfSignerStampNoUsb: 'USBトークンなし',
+      pdfSignerStampPlugUsb: 'USBトークンを挿入してください',
+      pdfSignerStampNoCert: '証明書なし',
+      pdfSignerStampUploadCert: 'P12/PFXをアップロード'
+    },
+    ko: {
+      pdfSignerStampSignedBy: '서명자',
+      pdfSignerStampSigner: '서명자',
+      pdfSignerStampDate: '서명 날짜',
+      pdfSignerStampIssuer: '발급자',
+      pdfSignerStampNoUsb: 'USB 토큰 없음',
+      pdfSignerStampPlugUsb: 'USB 토큰을 삽입하세요',
+      pdfSignerStampNoCert: '인증서 파일 없음',
+      pdfSignerStampUploadCert: 'P12/PFX 파일 업로드'
+    }
+  };
+  
+  return translations[lang]?.[key] || fallback;
+}
+
 // Setup default text in stamp
 function updateStampText() {
   const certType = signingCertSelect?.value || 'uid';
@@ -109,43 +514,54 @@ function updateStampText() {
 
   const previewHeader = document.querySelector('.stamp-header') as HTMLDivElement;
 
+  const lblSignedBy = getLocaleString('pdfSignerStampSignedBy', 'SIGNED BY');
+  const lblSigner = getLocaleString('pdfSignerStampSigner', 'Signer');
+  const lblDate = getLocaleString('pdfSignerStampDate', 'Date');
+  const lblIssuer = getLocaleString('pdfSignerStampIssuer', 'Issuer');
+
   if (certType === 'uid') {
     if (previewHeader) previewHeader.textContent = 'UID.ONE VERIFIED';
-    stampSigner.textContent = `Signer: ${userEmail || 'user@uid.one'}`;
-    stampTime.textContent = `Date: ${formattedTime}`;
+    stampSigner.textContent = `${lblSigner}: ${userEmail || 'user@uid.one'}`;
+    stampTime.textContent = `${lblDate}: ${formattedTime}`;
     stampHash.textContent = 'Hash: pending...';
   } else if (certType === 'local_agent') {
     const selectedIndex = localCertSelect.selectedIndex;
     const selectedCert = localCertificates[selectedIndex];
     if (selectedCert) {
-      if (previewHeader) previewHeader.textContent = `SIGNED BY: ${selectedCert.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
-      stampSigner.textContent = `Signer: ${selectedCert.subject}`;
-      stampTime.textContent = `Date: ${formattedTime}`;
-      stampHash.textContent = `Issuer: ${selectedCert.issuer}`;
+      const cleanSubject = selectedCert.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '');
+      if (previewHeader) previewHeader.textContent = `${lblSignedBy}: ${cleanSubject}`;
+      stampSigner.textContent = `${lblSigner}: ${selectedCert.subject}`;
+      stampTime.textContent = `${lblDate}: ${formattedTime}`;
+      stampHash.textContent = `${lblIssuer}: ${selectedCert.issuer}`;
     } else {
-      if (previewHeader) previewHeader.textContent = 'SIGNED BY: NO USB TOKEN';
-      stampSigner.textContent = 'Signer: Plug in USB Token';
-      stampTime.textContent = `Date: ${formattedTime}`;
-      stampHash.textContent = 'Issuer: pending...';
+      const lblNoUsb = getLocaleString('pdfSignerStampNoUsb', 'SIGNED BY: NO USB TOKEN');
+      const lblPlugUsb = getLocaleString('pdfSignerStampPlugUsb', 'Signer: Plug in USB Token');
+      if (previewHeader) previewHeader.textContent = lblNoUsb;
+      stampSigner.textContent = lblPlugUsb;
+      stampTime.textContent = `${lblDate}: ${formattedTime}`;
+      stampHash.textContent = `${lblIssuer}: pending...`;
     }
   } else if (certType === 'remote_ca') {
     const providerVal = remoteCaProvider.value;
     const providerName = getProviderName(providerVal);
-    if (previewHeader) previewHeader.textContent = `SIGNED BY: ${providerName.toUpperCase()}`;
-    stampSigner.textContent = `Signer: ID ${remoteCaUser.value || '0901234567'}`;
-    stampTime.textContent = `Date: ${formattedTime}`;
-    stampHash.textContent = `Issuer: ${providerName}`;
+    if (previewHeader) previewHeader.textContent = `${lblSignedBy}: ${providerName.toUpperCase()}`;
+    stampSigner.textContent = `${lblSigner}: ID ${remoteCaUser.value || '0901234567'}`;
+    stampTime.textContent = `${lblDate}: ${formattedTime}`;
+    stampHash.textContent = `${lblIssuer}: ${providerName}`;
   } else if (certType === 'p12_file') {
     if (uploadedP12Details) {
-      if (previewHeader) previewHeader.textContent = `SIGNED BY: ${uploadedP12Details.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
-      stampSigner.textContent = `Signer: ${uploadedP12Details.subject}`;
-      stampTime.textContent = `Date: ${formattedTime}`;
-      stampHash.textContent = `Issuer: ${uploadedP12Details.issuer}`;
+      const cleanSubject = uploadedP12Details.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '');
+      if (previewHeader) previewHeader.textContent = `${lblSignedBy}: ${cleanSubject}`;
+      stampSigner.textContent = `${lblSigner}: ${uploadedP12Details.subject}`;
+      stampTime.textContent = `${lblDate}: ${formattedTime}`;
+      stampHash.textContent = `${lblIssuer}: ${uploadedP12Details.issuer}`;
     } else {
-      if (previewHeader) previewHeader.textContent = 'SIGNED BY: NO CERT FILE';
-      stampSigner.textContent = 'Signer: Upload P12/PFX file';
-      stampTime.textContent = `Date: ${formattedTime}`;
-      stampHash.textContent = 'Issuer: pending...';
+      const lblNoCert = getLocaleString('pdfSignerStampNoCert', 'SIGNED BY: NO CERT FILE');
+      const lblUploadCert = getLocaleString('pdfSignerStampUploadCert', 'Signer: Upload P12/PFX file');
+      if (previewHeader) previewHeader.textContent = lblNoCert;
+      stampSigner.textContent = lblUploadCert;
+      stampTime.textContent = `${lblDate}: ${formattedTime}`;
+      stampHash.textContent = `${lblIssuer}: pending...`;
     }
   }
 }
@@ -157,18 +573,26 @@ if (signingCertSelect) {
     panelRemoteCa.style.display = certType === 'remote_ca' ? 'flex' : 'none';
     panelP12File.style.display = certType === 'p12_file' ? 'flex' : 'none';
     updateStampText();
+    if (certType === 'local_agent' && btnDetectCerts) {
+      btnDetectCerts.click();
+    }
   });
 }
 
 // Local agent detection listener
 if (btnDetectCerts) {
   btnDetectCerts.addEventListener('click', async () => {
-    const agentUrl = localAgentUrlInput.value.trim() || 'http://localhost:13013';
+    const agentUrl = localAgentUrlInput.value.trim() || 'http://127.0.0.1:13013';
     
-    usbStatusBadge.textContent = 'Checking...';
+    agentStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerAgentChecking") || 'Checking...';
+    agentStatusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+    agentStatusBadge.style.color = '#f59e0b';
+    
+    usbStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerUsbChecking") || 'Checking...';
     usbStatusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
     usbStatusBadge.style.color = '#f59e0b';
-    usbTokenInfo.textContent = 'Querying local USB signing application...';
+    
+    usbTokenInfo.textContent = chrome.i18n.getMessage("pdfSignerAgentCheckingDesc") || 'Querying local CA signing application...';
     
     try {
       const res = await fetch(`${agentUrl}/certificates`, {
@@ -181,14 +605,31 @@ if (btnDetectCerts) {
       }
       
       const data = await res.json();
-      localCertificates = data.certificates || [];
+      localCertificates = (data.certificates || []).map((c: any) => {
+        if (c.certData) {
+          const parsed = getFriendlyCertName(c.certData);
+          if (parsed) {
+            return {
+              ...c,
+              subject: parsed.subject,
+              issuer: parsed.issuer,
+              validTo: parsed.validTo
+            };
+          }
+        }
+        return c;
+      });
+      
+      agentStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerAgentRunning") || 'Running';
+      agentStatusBadge.style.background = 'rgba(16, 185, 129, 0.1)';
+      agentStatusBadge.style.color = '#10b981';
       
       if (localCertificates.length === 0) {
         localCertsContainer.style.display = 'none';
-        usbStatusBadge.textContent = 'Empty';
-        usbStatusBadge.style.background = 'rgba(239, 68, 68, 0.1)';
-        usbStatusBadge.style.color = '#ef4444';
-        usbTokenInfo.textContent = 'USB Agent connected, but no hardware certificate/smart card found. Please insert your USB Token.';
+        usbStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerUsbNotFound") || 'Not Found';
+        usbStatusBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+        usbStatusBadge.style.color = '#f59e0b';
+        usbTokenInfo.textContent = chrome.i18n.getMessage("pdfSignerUsbNotFoundDesc") || 'CA client app is active, but no USB token or smart card is found. Please insert your USB Token.';
       } else {
         localCertSelect.innerHTML = '';
         localCertificates.forEach((c) => {
@@ -198,19 +639,27 @@ if (btnDetectCerts) {
           localCertSelect.appendChild(opt);
         });
         localCertsContainer.style.display = 'flex';
-        usbStatusBadge.textContent = 'Active';
+        usbStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerUsbDetected") || 'Detected';
         usbStatusBadge.style.background = 'rgba(16, 185, 129, 0.1)';
         usbStatusBadge.style.color = '#10b981';
-        usbTokenInfo.textContent = `Successfully connected. Active token: ${localCertificates[0].subject}`;
+        
+        const successMsg = chrome.i18n.getMessage("pdfSignerUsbSuccessDesc") || 'Connected. USB Token certificates are ready.';
+        usbTokenInfo.textContent = `${successMsg} (${localCertificates[0].subject})`;
         updateStampText();
       }
     } catch (err: any) {
       console.error('[uid.one] Local signing agent connection error:', err);
       localCertsContainer.style.display = 'none';
-      usbStatusBadge.textContent = 'Offline';
-      usbStatusBadge.style.background = 'rgba(239, 68, 68, 0.1)';
-      usbStatusBadge.style.color = '#ef4444';
-      usbTokenInfo.textContent = 'Signer client agent is offline. Please verify the Local Signer App is running on your computer.';
+      
+      agentStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerAgentOffline") || 'Offline';
+      agentStatusBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+      agentStatusBadge.style.color = '#ef4444';
+      
+      usbStatusBadge.textContent = chrome.i18n.getMessage("pdfSignerUsbUnknown") || 'Unknown';
+      usbStatusBadge.style.background = 'rgba(255, 255, 255, 0.05)';
+      usbStatusBadge.style.color = 'var(--text-muted)';
+      
+      usbTokenInfo.textContent = chrome.i18n.getMessage("pdfSignerAgentOfflineDesc") || 'CA client application is not running or not installed on this computer.';
     }
   });
 }
@@ -238,6 +687,12 @@ if (p12FileInput) {
   p12FileInput.addEventListener('change', (e: any) => {
     const file = e.target.files?.[0];
     if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt: any) => {
+        uploadedP12Bytes = evt.target.result as ArrayBuffer;
+      };
+      reader.readAsArrayBuffer(file);
+
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
       const parts = nameWithoutExt.split('_');
       const subject = parts[0].toUpperCase() || "COMPANY";
@@ -480,10 +935,11 @@ manualFileInput.addEventListener('change', () => {
 function showOtpPromptModal(callback: (code: string) => void, cancelCallback: () => void, isPin: boolean = false): void {
   const title = isPin ? (chrome.i18n.getMessage("pdfSignerPinTitle") || "USB Token PIN Verification") : (chrome.i18n.getMessage("otpPromptTitle") || "Google Authenticator");
   const desc = isPin ? (chrome.i18n.getMessage("pdfSignerPinDesc") || "Please enter your USB Token PIN to authorize the digital signature:") : (chrome.i18n.getMessage("otpPromptDesc") || "Please enter the 6-digit OTP code to verify your digital signature:");
-  const placeholder = isPin ? "••••" : "000000";
-  const maxLength = isPin ? 8 : 6;
+  const placeholder = isPin ? (chrome.i18n.getMessage("pdfSignerPinPlaceholder") || "Enter PIN") : "000000";
+  const maxLength = isPin ? 32 : 6;
   const inputType = isPin ? 'password' : 'text';
-  const letterSpacing = isPin ? '12px' : '6px';
+  const letterSpacing = isPin ? '4px' : '6px';
+  const inputModeAttr = isPin ? '' : 'inputmode="numeric" pattern="[0-9]*"';
 
   const overlay = document.createElement('div');
   overlay.className = 'uid-otp-overlay';
@@ -501,13 +957,13 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
       </div>
 
       <div style="margin-bottom: 24px;">
-        <input type="${inputType}" id="uid-signer-otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="${maxLength}" placeholder="${placeholder}" style="
+        <input type="${inputType}" id="uid-signer-otp-input" ${inputModeAttr} maxlength="${maxLength}" placeholder="${placeholder}" style="
           width: 80%;
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 12px;
           padding: 12px;
-          font-size: 28px;
+          font-size: 24px;
           letter-spacing: ${letterSpacing};
           text-align: center;
           color: #fff;
@@ -534,7 +990,9 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
   if (otpInput) {
     otpInput.focus();
     otpInput.addEventListener('input', () => {
-      otpInput.value = otpInput.value.replace(/[^0-9]/g, '');
+      if (!isPin) {
+        otpInput.value = otpInput.value.replace(/[^0-9]/g, '');
+      }
     });
     otpInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -546,8 +1004,8 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
   const confirm = () => {
     const val = otpInput?.value || '';
     if (isPin) {
-      if (val.length < 4 || val.length > 8) {
-        alert(chrome.i18n.getMessage("pdfSignerPinError") || 'The USB PIN must be between 4 and 8 digits.');
+      if (val.length < 4) {
+        alert(chrome.i18n.getMessage("pdfSignerPinError") || 'The USB PIN must be at least 4 characters.');
         return;
       }
     } else {
@@ -645,7 +1103,14 @@ btnSign.addEventListener('click', () => {
     }
 
     const certType = signingCertSelect?.value || 'uid';
-    const isUsb = certType !== 'uid';
+    let isPin = false;
+    if (certType === 'local_agent') {
+      const selectedIndex = localCertSelect.selectedIndex;
+      const selectedCert = localCertificates[selectedIndex];
+      if (selectedCert && (selectedCert.id.startsWith('usb_') || selectedCert.id === 'usb_auto_detected')) {
+        isPin = true;
+      }
+    }
 
     showOtpPromptModal(async (codeOrPin) => {
       // 1. Calculate Hash of the original document
@@ -665,9 +1130,9 @@ btnSign.addEventListener('click', () => {
             return;
           }
 
-          // 3. Stamping visual signature using pdf-lib
           try {
             const pdfDoc = await PDFDocument.load(pdfBytes!);
+            pdfDoc.registerFontkit(fontkit);
             const pages = pdfDoc.getPages();
             const pageIndex = currentPageNum - 1;
             
@@ -678,7 +1143,6 @@ btnSign.addEventListener('click', () => {
             const page = pages[pageIndex];
 
             // Map overlay container coordinates to original PDF coordinates
-            // Overlay container dimensions match canvas viewport exactly
             const htmlHeight = canvas.height;
             const stampLeft = signatureBox.offsetLeft;
             const stampTop = signatureBox.offsetTop;
@@ -686,7 +1150,6 @@ btnSign.addEventListener('click', () => {
             const stampHeight = signatureBox.offsetHeight;
 
             // PDF coordinates scale factor (original PDF points to viewport pixels)
-            // standard PDF point system has (0, 0) at the bottom-left
             const pdfX = stampLeft / scale;
             const pdfY = (htmlHeight - stampTop - stampHeight) / scale;
             const pdfW = stampWidth / scale;
@@ -698,17 +1161,34 @@ btnSign.addEventListener('click', () => {
               y: pdfY,
               width: pdfW,
               height: pdfH,
-              color: rgb(0.95, 0.98, 0.96), // very light green
-              borderColor: rgb(0.06, 0.46, 0.25), // forest green
+              color: rgb(0.94, 0.99, 0.96), // very light green
+              borderColor: rgb(0.02, 0.59, 0.41), // emerald-600
               borderWidth: 0.75,
             });
 
             // Embed fonts
-            const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-            const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            const fonts = await loadFonts();
+            let helveticaFont;
+            let helveticaBoldFont;
+            let isCustomFont = false;
+
+            if (fonts) {
+              try {
+                helveticaFont = await pdfDoc.embedFont(fonts.regular);
+                helveticaBoldFont = await pdfDoc.embedFont(fonts.bold);
+                isCustomFont = true;
+              } catch (e) {
+                console.error('[uid.one] Failed to embed custom Roboto fonts:', e);
+              }
+            }
+
+            if (!isCustomFont) {
+              helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+              helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            }
 
             // Compute standard text scaling
-            const fontSize = Math.max(6, Math.min(10, pdfH / 5.5));
+            const fontSize = Math.max(6, Math.min(9.5, pdfH / 5.5));
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -730,7 +1210,7 @@ btnSign.addEventListener('click', () => {
                 x: watermarkX,
                 y: watermarkY,
                 scale: iconScale,
-                borderColor: rgb(0.06, 0.46, 0.25),
+                borderColor: rgb(0.02, 0.59, 0.41),
                 borderWidth: 1.2,
                 borderOpacity: 0.08,
               }
@@ -741,48 +1221,158 @@ btnSign.addEventListener('click', () => {
                 x: watermarkX,
                 y: watermarkY,
                 scale: iconScale,
-                borderColor: rgb(0.06, 0.46, 0.25),
+                borderColor: rgb(0.02, 0.59, 0.41),
                 borderWidth: 1.5,
                 borderOpacity: 0.08,
               }
             );
 
             // Determine custom details depending on chosen certificate type
+            const lblSignedBy = getLocaleString('pdfSignerStampSignedBy', 'SIGNED BY');
+            const lblSigner = getLocaleString('pdfSignerStampSigner', 'Signer');
+            const lblDate = getLocaleString('pdfSignerStampDate', 'Date');
+            const lblIssuer = getLocaleString('pdfSignerStampIssuer', 'Issuer');
+
             let headerText = 'UID.ONE VERIFIED';
-            let line1Text = `Signer: ${userEmail || 'user@uid.one'}`;
-            let line2Text = `Date: ${formattedTime}`;
-            let line3Text = `Hash: ${hashHex.slice(0, 18)}...`;
+            let line1Text = `${lblSigner}: ${userEmail || 'user@uid.one'}`;
+            let line2Text = `${lblDate}: ${formattedTime}`;
+            let line3Text = `Hash: [Digital Signature]`;
+
+            let activeSigner: Signer | null = null;
 
             if (certType === 'local_agent') {
               const selectedIndex = localCertSelect.selectedIndex;
-              const selectedCert = localCertificates[selectedIndex];
-              if (selectedCert) {
-                headerText = `SIGNED BY: ${selectedCert.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
-                line1Text = `Signer: ${selectedCert.subject}`;
-                line2Text = `Date: ${formattedTime}`;
-                line3Text = `Issuer: ${selectedCert.issuer}`;
+              let selectedCert = localCertificates[selectedIndex];
+              if (!selectedCert) {
+                throw new Error('No local agent certificate selected.');
               }
+
+              const agentUrl = localAgentUrlInput.value.trim() || 'http://127.0.0.1:13013';
+
+              if (selectedCert.id === 'usb_auto_detected') {
+                showToast("Authenticating and detecting USB certificates...", "info");
+                const loginRes = await fetch(`${agentUrl}/sign`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    certId: 'usb_auto_detected',
+                    hash: '0000000000000000000000000000000000000000000000000000000000000000',
+                    pin: codeOrPin
+                  })
+                });
+                if (loginRes.ok) {
+                  const loginData = await loginRes.json();
+                  if (loginData.success && loginData.certificate) {
+                    selectedCert.certData = loginData.certificate;
+                    const parsed = getFriendlyCertName(loginData.certificate);
+                    if (parsed) {
+                      selectedCert.subject = parsed.subject;
+                      selectedCert.issuer = parsed.issuer;
+                      selectedCert.validTo = parsed.validTo;
+                    }
+                    const listRes = await fetch(`${agentUrl}/certificates`);
+                    if (listRes.ok) {
+                      const listData = await listRes.json();
+                      const realCert = listData.certificates?.find((c: any) => c.certData);
+                      if (realCert) {
+                        selectedCert.id = realCert.id;
+                        const realParsed = getFriendlyCertName(realCert.certData || loginData.certificate);
+                        if (realParsed) {
+                          selectedCert.subject = realParsed.subject;
+                          selectedCert.issuer = realParsed.issuer;
+                          selectedCert.validTo = realParsed.validTo;
+                        } else {
+                          selectedCert.subject = realCert.subject;
+                          selectedCert.issuer = realCert.issuer;
+                        }
+                      }
+                    }
+                  } else {
+                    throw new Error(loginData.error || 'Failed to login to USB Token.');
+                  }
+                } else {
+                  throw new Error(`USB Token connection failed: HTTP ${loginRes.status}`);
+                }
+              }
+
+              if (!selectedCert.certData) {
+                throw new Error('Certificate data is missing. Please re-insert USB Token.');
+              }
+
+              headerText = `${lblSignedBy}: ${selectedCert.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
+              line1Text = `${lblSigner}: ${selectedCert.subject}`;
+              line2Text = `${lblDate}: ${formattedTime}`;
+              line3Text = `${lblIssuer}: ${selectedCert.issuer}`;
+
+              activeSigner = new AgentSigner(
+                selectedCert.certData,
+                selectedCert.id,
+                codeOrPin,
+                agentUrl
+              );
             } else if (certType === 'remote_ca') {
               const providerVal = remoteCaProvider.value;
               const providerName = getProviderName(providerVal);
-              headerText = `SIGNED BY: ${providerName.toUpperCase()}`;
-              line1Text = `Signer: ID ${remoteCaUser.value || '0901234567'}`;
-              line2Text = `Date: ${formattedTime}`;
-              line3Text = `Issuer: ${providerName}`;
+              const userVal = remoteCaUser.value || '0901234567';
+              headerText = `${lblSignedBy}: ${providerName.toUpperCase()}`;
+              line1Text = `${lblSigner}: ID ${userVal}`;
+              line2Text = `${lblDate}: ${formattedTime}`;
+              line3Text = `${lblIssuer}: ${providerName}`;
+
+              const subjectName = `CN=${userVal}, O=${providerName}, C=VN`;
+              const mockKeys = generateMockCert(subjectName);
+              
+              activeSigner = new LocalP12Signer(mockKeys.privateKey, mockKeys.cert);
             } else if (certType === 'p12_file' && uploadedP12Details) {
-              headerText = `SIGNED BY: ${uploadedP12Details.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
-              line1Text = `Signer: ${uploadedP12Details.subject}`;
-              line2Text = `Date: ${formattedTime}`;
-              line3Text = `Issuer: ${uploadedP12Details.issuer}`;
+              headerText = `${lblSignedBy}: ${uploadedP12Details.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
+              line1Text = `${lblSigner}: ${uploadedP12Details.subject}`;
+              line2Text = `${lblDate}: ${formattedTime}`;
+              line3Text = `${lblIssuer}: ${uploadedP12Details.issuer}`;
+
+              const p12Password = p12PasswordInput.value;
+              const binaryString = Array.from(new Uint8Array(uploadedP12Bytes!))
+                .map(b => String.fromCharCode(b))
+                .join('');
+              const p12Asn1 = forge.asn1.fromDer(binaryString);
+              
+              activeSigner = new LocalP12Signer(null, null, p12Asn1, p12Password);
             }
 
-            // Draw text onto stamp (avoiding unicode emojis/symbols not supported by Standard WinAnsi fonts)
+            if (!activeSigner) {
+              throw new Error('No signing mechanism could be initialized.');
+            }
+
+            // Check if any drawn text contains CJK characters
+            const needsCJK = hasCJKCharacters(headerText) || 
+                             hasCJKCharacters(line1Text) || 
+                             hasCJKCharacters(line2Text) || 
+                             hasCJKCharacters(line3Text);
+
+            if (needsCJK) {
+              const cjkBytes = await loadCJKFont();
+              if (cjkBytes) {
+                try {
+                  const cjkFont = await pdfDoc.embedFont(cjkBytes);
+                  helveticaFont = cjkFont;
+                  helveticaBoldFont = cjkFont;
+                  isCustomFont = true;
+                } catch (e) {
+                  console.error('[uid.one] Failed to embed CJK font:', e);
+                }
+              }
+            }
+
+            if (!isCustomFont) {
+              console.warn('[uid.one] Custom Unicode font not loaded; fallback Helvetica may show rendering issues.');
+            }
+
+            // Draw text onto stamp
             page.drawText(headerText, {
               x: pdfX + 8,
               y: pdfY + pdfH - fontSize - 6,
               size: fontSize,
               font: helveticaBoldFont,
-              color: rgb(0.06, 0.46, 0.25),
+              color: rgb(0.02, 0.47, 0.34), // emerald-700
             });
 
             page.drawText(line1Text, {
@@ -790,7 +1380,7 @@ btnSign.addEventListener('click', () => {
               y: pdfY + pdfH - (fontSize * 2) - 12,
               size: fontSize - 1.5,
               font: helveticaFont,
-              color: rgb(0.15, 0.15, 0.15),
+              color: rgb(0.22, 0.25, 0.32), // slate-700
             });
 
             page.drawText(line2Text, {
@@ -798,7 +1388,7 @@ btnSign.addEventListener('click', () => {
               y: pdfY + pdfH - (fontSize * 3) - 18,
               size: fontSize - 1.5,
               font: helveticaFont,
-              color: rgb(0.25, 0.25, 0.25),
+              color: rgb(0.22, 0.25, 0.32), // slate-700
             });
 
             page.drawText(line3Text, {
@@ -806,14 +1396,43 @@ btnSign.addEventListener('click', () => {
               y: pdfY + pdfH - (fontSize * 4) - 24,
               size: fontSize - 2,
               font: helveticaFont,
-              color: rgb(0.4, 0.4, 0.4),
+              color: rgb(0.35, 0.4, 0.47), // slate-500
             });
 
-            // Save modified PDF bytes
-            const modifiedPdfBytes = await pdfDoc.save();
+            // 1. Add standard digital signature placeholder
+            showToast("Preparing digital signature structure...", "info");
+            pdflibAddPlaceholder({
+              pdfDoc,
+              pdfPage: page,
+              reason: 'Digital Signature via UID.one Portal',
+              contactInfo: userEmail,
+              name: headerText,
+              location: 'Vietnam',
+              signingTime: now,
+              signatureLength: 16384,
+              subFilter: 'adbe.pkcs7.detached',
+              widgetRect: [pdfX, pdfY, pdfX + pdfW, pdfY + pdfH],
+              appName: 'UID.one Cryptographic Signer'
+            });
+
+            // Save prepared document bytes
+            const preparedPdfBytes = await pdfDoc.save();
+
+            // 2. Cryptographically sign the document using @signpdf/signpdf
+            showToast("Generating PKCS#7 cryptographic signature container...", "info");
+            let signpdfInstance: any = signpdf;
+            while (signpdfInstance && signpdfInstance.default && !signpdfInstance.sign) {
+              signpdfInstance = signpdfInstance.default;
+            }
+            if (typeof signpdfInstance === 'function') {
+              signpdfInstance = new signpdfInstance();
+            } else if (signpdfInstance && !signpdfInstance.sign && signpdfInstance.SignPdf) {
+              signpdfInstance = new signpdfInstance.SignPdf();
+            }
+            const signedPdfBuffer = await signpdfInstance.sign(Buffer.from(preparedPdfBytes), activeSigner);
 
             // Trigger browser download
-            const blob = new Blob([modifiedPdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+            const blob = new Blob([new Uint8Array(signedPdfBuffer)], { type: 'application/pdf' });
             const downloadUrl = URL.createObjectURL(blob);
             const a = document.createElement('a');
             
@@ -843,12 +1462,12 @@ btnSign.addEventListener('click', () => {
             alert(chrome.i18n.getMessage("pdfSignedSuccess") || "PDF digitally signed and saved successfully!");
             
             // Reload the rendering viewport with the new signed bytes
-            loadPdfBytes(modifiedPdfBytes.buffer as ArrayBuffer, name);
+            loadPdfBytes(signedPdfBuffer.buffer as ArrayBuffer, name);
           } catch (err: any) {
             console.error('[uid.one] Visual signature stamp error:', err);
             btnSign.disabled = false;
             btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign Document"}`;
-            alert("Error rendering signature onto PDF.");
+            alert(`Error signing PDF: ${err.message}`);
           }
         };
 
@@ -862,28 +1481,7 @@ btnSign.addEventListener('click', () => {
             return;
           }
 
-          const agentUrl = localAgentUrlInput.value.trim() || 'http://localhost:13013';
-          try {
-            const signRes = await fetch(`${agentUrl}/sign`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                certId: selectedCert.id,
-                hash: hashHex,
-                pin: codeOrPin
-              })
-            });
-            
-            if (!signRes.ok) {
-              const errData = await signRes.json().catch(() => ({}));
-              throw new Error(errData.error || `HTTP ${signRes.status}`);
-            }
-            
-            onSignatureAcquired(true);
-          } catch (err: any) {
-            console.error('[uid.one] USB Token cryptographic signing error:', err);
-            onSignatureAcquired(false, `USB Token Error: ${err.message}. Make sure the USB token is plugged in.`);
-          }
+          onSignatureAcquired(true);
         } else if (certType === 'remote_ca') {
           const providerVal = remoteCaProvider.value;
           const providerName = getProviderName(providerVal);
@@ -926,10 +1524,7 @@ btnSign.addEventListener('click', () => {
             return;
           }
 
-          // Simulate local file cryptographic signing delay
-          setTimeout(() => {
-            onSignatureAcquired(true);
-          }, 1000);
+          onSignatureAcquired(true);
         } else {
           // Request digital signature from UID.one
           chrome.runtime.sendMessage({
@@ -955,7 +1550,7 @@ btnSign.addEventListener('click', () => {
       }
     }, () => {
       // User cancelled
-    }, isUsb);
+    }, isPin);
   });
 });
 
@@ -1012,6 +1607,25 @@ function showToast(msg: string, type: string) {
 async function loadOnStart() {
   localizeHtml();
   await initIdentity();
+
+  // Probe local agent on startup to see if USB is connected
+  try {
+    const probeRes = await fetch('http://127.0.0.1:13013/certificates', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (probeRes.ok) {
+      const data = await probeRes.json().catch(() => ({}));
+      const certs = data.certificates || [];
+      const hasUsb = certs.some((c: any) => c.id !== 'agent_identity_key');
+      if (hasUsb && signingCertSelect) {
+        signingCertSelect.value = 'local_agent';
+        signingCertSelect.dispatchEvent(new Event('change'));
+      }
+    }
+  } catch (e) {
+    // Agent is offline or not installed, fallback silently
+  }
   
   const params = new URLSearchParams(window.location.search);
   const cacheKey = params.get('cacheKey');

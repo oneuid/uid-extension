@@ -189,9 +189,8 @@
     /* Draggable Signature Stamp Box */
     .signature-stamp-box {
       position: absolute;
-      border: 1px solid #064e3b;
-      background: #f0fdf4; /* Light green background for high contrast */
-      color: #064e3b;
+      border: 1px solid #059669; /* emerald-600 */
+      background: #f0fdf4; /* Light green background */
       box-sizing: border-box;
       cursor: move;
       user-select: none;
@@ -214,7 +213,7 @@
       transform: translate(-50%, -50%);
       width: 55px;
       height: 55px;
-      color: #064e3b;
+      color: #059669;
       opacity: 0.08;
       pointer-events: none;
       z-index: 1;
@@ -223,12 +222,9 @@
     .stamp-header {
       position: relative;
       z-index: 2;
-      display: flex;
-      align-items: center;
-      gap: 4px;
       font-weight: 700;
       font-size: 9px;
-      color: #065f46;
+      color: #047857; /* emerald-700 */
       margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -237,9 +233,9 @@
     .stamp-text {
       position: relative;
       z-index: 2;
-      font-size: 8.5px;
-      color: #1f2937; /* Dark gray for high contrast */
-      line-height: 1.4;
+      font-size: 8px;
+      color: #374151; /* gray-700 */
+      line-height: 1.35;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -429,20 +425,24 @@
 
         <!-- Local Agent Config Panel -->
         <div id="panel-local-agent" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
-          <input type="hidden" id="local-agent-url" value="http://localhost:13013">
+          <input type="hidden" id="local-agent-url" value="http://127.0.0.1:13013">
           
-          <!-- USB Status Card -->
-          <div id="usb-status-card" style="border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 10px; background: rgba(255, 255, 255, 0.02); font-size: 11px; display: flex; flex-direction: column; gap: 4px;">
+          <!-- USB/Agent Status Card -->
+          <div id="usb-status-card" style="border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 12px; background: rgba(255, 255, 255, 0.02); font-size: 11px; display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelUsbStatus">USB Token Status:</span>
-              <span id="usb-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b;" data-i18n="pdfSignerUsbChecking">Checking...</span>
+              <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelAgentStatus">CA Client App:</span>
+              <span id="agent-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);" data-i18n="pdfSignerAgentOffline">Offline</span>
             </div>
-            <div id="usb-token-info" style="color: var(--text-muted); line-height: 1.4; margin-top: 4px;" data-i18n="pdfSignerUsbNoDetect">No USB token detected. Plug in your USB and click detect.</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelUsbStatus">USB Token:</span>
+              <span id="usb-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);" data-i18n="pdfSignerUsbUnknown">Unknown</span>
+            </div>
+            <div id="usb-token-info" style="color: var(--text-muted); line-height: 1.4; margin-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 6px;" data-i18n="pdfSignerUsbNoDetect">No USB token detected. Plug in your USB and click detect.</div>
           </div>
 
-          <button class="btn-nav" id="btn-detect-certs" style="width: 100%; padding: 6px; font-size: 11px; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; cursor: pointer; margin-top: 4px;">
+          <button class="btn-nav" id="btn-detect-certs" style="width: 100%; padding: 8px; font-size: 11px; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; cursor: pointer; margin-top: 4px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-            <span data-i18n="pdfSignerButtonDetect">Detect USB Token</span>
+            <span data-i18n="pdfSignerButtonDetect">Detect USB CA App</span>
           </button>
 
           <div id="local-certs-container" style="display: none; flex-direction: column; gap: 4px;">

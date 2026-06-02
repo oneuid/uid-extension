@@ -637,6 +637,16 @@ export class ClipboardInterceptor {
 }
 
 export class FormInterceptor {
+  private isWhitelistedDomain(hostname: string): boolean {
+    const whitelist = [
+      'uid.one',
+      'trip.express',
+      'localhost',
+      '127.0.0.1'
+    ];
+    return whitelist.some(domain => hostname === domain || hostname.endsWith('.' + domain));
+  }
+
   init(): void {
     chrome.storage.local.get('settings_otp_shield').then(res => {
       if (res.settings_otp_shield === false) return;
@@ -644,6 +654,7 @@ export class FormInterceptor {
       document.addEventListener('submit', this.handleSubmit.bind(this), true);
       
       document.addEventListener('click', (e) => {
+        if (!this.isWhitelistedDomain(window.location.hostname)) return;
         const target = e.target as HTMLElement;
         const btn = target.closest('button, input[type="submit"]');
         if (!btn) return;
@@ -713,6 +724,7 @@ export class FormInterceptor {
   }
 
   private wipeSensitiveInputs(form: HTMLFormElement): void {
+    if (!this.isWhitelistedDomain(window.location.hostname)) return;
     const sensitiveInputs = form.querySelectorAll<HTMLInputElement>(
       'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
     );
