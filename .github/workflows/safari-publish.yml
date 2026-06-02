@@ -32,7 +32,6 @@ jobs:
       - name: Convert to Safari Web Extension
         run: |
           xcrun safari-web-extension-converter dist/chrome \
-            --project-type universal \
             --no-open \
             --swift \
             --force \
