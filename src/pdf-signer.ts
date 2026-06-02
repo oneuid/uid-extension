@@ -399,47 +399,140 @@ function getFriendlyCertName(hexData: string): { subject: string; issuer: string
   try {
     const derBytes = forge.util.hexToBytes(hexData);
     const asn1 = forge.asn1.fromDer(derBytes);
-    const cert = forge.pki.certificateFromAsn1(asn1);
     
-    const getFriendlyName = (attrs: any) => {
-      let val = 'Unknown';
-      if (attrs.attributes) {
-        // Try commonName (CN)
-        const cnAttr = attrs.attributes.find((a: any) => a.name === 'commonName' || a.shortName === 'CN');
-        if (cnAttr && cnAttr.value) {
-          val = String(cnAttr.value);
-        } else {
-          // Try organizationName (O)
-          const oAttr = attrs.attributes.find((a: any) => a.name === 'organizationName' || a.shortName === 'O');
-          if (oAttr && oAttr.value) {
-            val = String(oAttr.value);
+    let subject = 'Unknown';
+    let issuer = 'Unknown';
+    let validTo = '2029-12-31';
+    
+    try {
+      const cert = forge.pki.certificateFromAsn1(asn1);
+      
+      const getFriendlyName = (attrs: any) => {
+        let val = 'Unknown';
+        if (attrs.attributes) {
+          // Try commonName (CN)
+          const cnAttr = attrs.attributes.find((a: any) => a.name === 'commonName' || a.shortName === 'CN');
+          if (cnAttr && cnAttr.value) {
+            val = String(cnAttr.value);
           } else {
-            // Try organizationalUnitName (OU)
-            const ouAttr = attrs.attributes.find((a: any) => a.name === 'organizationalUnitName' || a.shortName === 'OU');
-            if (ouAttr && ouAttr.value) {
-              val = String(ouAttr.value);
+            // Try organizationName (O)
+            const oAttr = attrs.attributes.find((a: any) => a.name === 'organizationName' || a.shortName === 'O');
+            if (oAttr && oAttr.value) {
+              val = String(oAttr.value);
+            } else {
+              // Try organizationalUnitName (OU)
+              const ouAttr = attrs.attributes.find((a: any) => a.name === 'organizationalUnitName' || a.shortName === 'OU');
+              if (ouAttr && ouAttr.value) {
+                val = String(ouAttr.value);
+              }
+            }
+          }
+        } else {
+          const cn = attrs.getField('CN')?.value || attrs.getField('commonName')?.value;
+          if (cn) {
+            val = String(cn);
+          } else {
+            const o = attrs.getField('O')?.value || attrs.getField('organizationName')?.value;
+            if (o) {
+              val = String(o);
             }
           }
         }
-      } else {
-        const cn = attrs.getField('CN')?.value || attrs.getField('commonName')?.value;
-        if (cn) {
-          val = String(cn);
-        } else {
-          const o = attrs.getField('O')?.value || attrs.getField('organizationName')?.value;
-          if (o) {
-            val = String(o);
+        
+        return decodeUtf8String(val);
+      };
+
+      subject = getFriendlyName(cert.subject);
+      issuer = getFriendlyName(cert.issuer);
+      validTo = cert.validity.notAfter.toISOString().split('T')[0];
+    } catch (certError) {
+      console.warn('[uid.one] node-forge failed to parse certificate semantic structure. Running ASN.1 fallback parser...', certError);
+      
+      const tbsCert = (asn1 as any).value?.[0] as any;
+      if (tbsCert && Array.isArray(tbsCert.value)) {
+        const findOid = (node: any, oidHex: string): string | null => {
+          if (!node) return null;
+          if (node.constructed && Array.isArray(node.value)) {
+            if (node.type === 0x10) { // SEQUENCE
+              if (node.value.length >= 2) {
+                const first = node.value[0];
+                const second = node.value[1];
+                if (first && first.type === 0x06) { // OID
+                  const hex = forge.util.bytesToHex(first.value);
+                  if (hex === oidHex) {
+                    if (second && second.value) {
+                      return decodeUtf8String(String(second.value));
+                    }
+                  }
+                }
+              }
+            }
+            for (const child of node.value) {
+              const found = findOid(child, oidHex);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        // Locate validity sequence to split issuer and subject
+        let validityIndex = -1;
+        for (let i = 0; i < tbsCert.value.length; i++) {
+          const child = tbsCert.value[i];
+          if (child && child.type === 0x10 && Array.isArray(child.value)) {
+            const firstTime = child.value[0];
+            if (firstTime && (firstTime.type === 0x17 || firstTime.type === 0x18)) {
+              validityIndex = i;
+              if (child.value[1] && child.value[1].value) {
+                const timeStr = String(child.value[1].value);
+                if (timeStr.length >= 6) {
+                  let yearPart = timeStr.substring(0, 2);
+                  let monthPart = timeStr.substring(2, 4);
+                  let dayPart = timeStr.substring(4, 6);
+                  if (timeStr.length >= 8 && !isNaN(Number(timeStr.substring(0, 4)))) {
+                    yearPart = timeStr.substring(0, 4);
+                    monthPart = timeStr.substring(4, 6);
+                    dayPart = timeStr.substring(6, 8);
+                    validTo = `${yearPart}-${monthPart}-${dayPart}`;
+                  } else {
+                    const fullYear = Number(yearPart) < 50 ? `20${yearPart}` : `19${yearPart}`;
+                    validTo = `${fullYear}-${monthPart}-${dayPart}`;
+                  }
+                }
+              }
+              break;
+            }
+          }
+        }
+
+        if (validityIndex !== -1) {
+          // Issuer is before validity
+          for (let i = 0; i < validityIndex; i++) {
+            const val = findOid(tbsCert.value[i], "550403");
+            if (val) { issuer = val; break; }
+          }
+          if (issuer === 'Unknown') {
+            for (let i = 0; i < validityIndex; i++) {
+              const val = findOid(tbsCert.value[i], "55040a");
+              if (val) { issuer = val; break; }
+            }
+          }
+          
+          // Subject is after validity
+          for (let i = validityIndex + 1; i < tbsCert.value.length; i++) {
+            const val = findOid(tbsCert.value[i], "550403");
+            if (val) { subject = val; break; }
+          }
+          if (subject === 'Unknown') {
+            for (let i = validityIndex + 1; i < tbsCert.value.length; i++) {
+              const val = findOid(tbsCert.value[i], "55040a");
+              if (val) { subject = val; break; }
+            }
           }
         }
       }
-      
-      return decodeUtf8String(val);
-    };
-
-    const subject = getFriendlyName(cert.subject);
-    const issuer = getFriendlyName(cert.issuer);
-    const validTo = cert.validity.notAfter.toISOString().split('T')[0];
-
+    }
+    
     return { subject, issuer, validTo };
   } catch (e) {
     console.error('[uid.one] Error parsing certificate with node-forge:', e);
