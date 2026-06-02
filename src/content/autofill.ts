@@ -254,7 +254,6 @@ function injectIcon(input: HTMLInputElement): void {
         return;
       }
 
-      const matchNumber = reqRes.data.match_number;
       const challengeId = reqRes.data.token;
 
       const overlay = document.createElement('div');
@@ -262,16 +261,19 @@ function injectIcon(input: HTMLInputElement): void {
         <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
           <div id="uid-match-container" style="background: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 300px;">
             <button id="close-match" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center;">Check your phone</h3>
-            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Enter the following number in the UID.ONE app to approve this login.</p>
-            <div style="font-size: 48px; font-weight: 800; letter-spacing: 8px; color: #0f172a; padding: 16px 32px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 8px;">
-              ${matchNumber}
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center;">Confirm Login</h3>
+            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 240px; line-height: 1.4;">Please approve the login request on your paired UID.one dashboard or app.</p>
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; color: #4f46e5; margin: 12px 0; box-shadow: 0 0 20px rgba(79, 70, 229, 0.25); animation: pulse 2s infinite;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
                <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
                <span style="font-size: 12px; color: #64748b;">Waiting for approval...</span>
             </div>
-            <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+            <style>
+              @keyframes spin { 100% { transform: rotate(360deg); } }
+              @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
+            </style>
           </div>
         </div>
       `;
