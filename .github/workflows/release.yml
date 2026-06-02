@@ -1,0 +1,125 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-extensions:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and Package Extensions
+        run: npm run build:publish
+
+      - name: Upload Chrome Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid-link-chrome
+          path: uid-link-chrome.zip
+
+      - name: Upload Edge Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid-link-edge
+          path: uid-link-edge.zip
+
+      - name: Upload Firefox Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid-link-firefox
+          path: uid-link-firefox.zip
+
+  build-safari:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Chrome distribution (basis for Safari conversion)
+        run: npm run build
+
+      - name: Convert to Safari Web Extension
+        run: |
+          xcrun safari-web-extension-converter dist/chrome \
+            --project-type universal \
+            --no-open \
+            --app-name "UID Link" \
+            --bundle-identifier "one.uid.link"
+
+      - name: Compress Safari Xcode Project
+        run: zip -r uid-link-safari-xcode.zip "UID Link/"
+
+      - name: Upload Safari Extension Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uid-link-safari
+          path: uid-link-safari-xcode.zip
+
+  create-release:
+    needs: [build-extensions, build-safari]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Chrome Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: uid-link-chrome
+
+      - name: Download Edge Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: uid-link-edge
+
+      - name: Download Firefox Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: uid-link-firefox
+
+      - name: Download Safari Extension
+        uses: actions/download-artifact@v4
+        with:
+          name: uid-link-safari
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: 'UID Link v${{ github.ref_name }}'
+          body: 'Pre-compiled browser extensions. Download the appropriate ZIP file and install it on your browser.'
+          draft: true
+          prerelease: false
+          files: |
+            uid-link-chrome.zip
+            uid-link-edge.zip
+            uid-link-firefox.zip
+            uid-link-safari-xcode.zip

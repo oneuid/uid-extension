@@ -343,6 +343,7 @@ async function initializeActiveTokenWithRetry(retries = 5, delay = 200): Promise
     if (token) {
       activeSessionToken = token;
       await updateDeclarativeRules(token);
+      syncTokenToAgent(token);
     }
   } catch (err: any) {
     const errMsg = err.message || '';
@@ -445,6 +446,40 @@ function waitForChallengeApproval(token: string): Promise<any> {
       }
     }, 300000);
   });
+}
+
+function syncTokenToAgent(token: string) {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return;
+    const base64Url = parts[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    const decoded = atob(base64);
+    const payload = JSON.parse(decoded);
+    
+    const email = payload.email || payload.username || payload.sub || 'user@uid.one';
+    const name = payload.name || payload.display_name || email.split('@')[0];
+    const avatar = payload.picture || '';
+
+    fetch('http://127.0.0.1:13013/auth/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        user: { name, email, avatar }
+      })
+    }).catch(err => console.warn('[uid.one] Extension failed to sync to local agent:', err));
+  } catch (e) {
+    console.error('[uid.one] Error decoding token for agent sync:', e);
+  }
+}
+
+function syncLogoutToAgent() {
+  fetch('http://127.0.0.1:13013/auth/logout', { method: 'POST' })
+    .catch(err => console.warn('[uid.one] Extension failed to sync logout to local agent:', err));
 }
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -640,6 +675,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       'identity_token': token,
       'oneuid_api_base': resolvedApiBase
     }).then(() => {
+      syncTokenToAgent(token);
       const binding = new SessionBinding();
       binding.bindSession(token)
         .then(() => updateDeclarativeRules(token))
@@ -813,6 +849,19 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 });
 
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    if (changes.oneuid_access_token) {
+      const newValue = changes.oneuid_access_token.newValue as string | undefined;
+      if (newValue) {
+        syncTokenToAgent(newValue);
+      } else {
+        syncLogoutToAgent();
+      }
+    }
+  }
+});
+
 // ================= CONTEXT MENUS INTEGRATION =================
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -894,4 +943,27 @@ chrome.tabs.onActivated.addListener(() => {
     if (chrome.runtime.lastError) {}
   });
 });
+
+function startAgentSyncPoller() {
+  setInterval(async () => {
+    try {
+      const token = await getActiveSessionToken();
+      if (!token) return;
+
+      // Check if Agent is authenticated
+      const res = await fetch('http://127.0.0.1:13013/auth/profile');
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.authenticated) {
+          console.log('[uid.one] Agent is offline but extension has session. Syncing...');
+          syncTokenToAgent(token);
+        }
+      }
+    } catch (e) {
+      // Agent is probably not running, ignore
+    }
+  }, 5000); // Check every 5 seconds
+}
+
+startAgentSyncPoller();
 

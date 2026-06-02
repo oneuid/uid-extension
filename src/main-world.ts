@@ -153,4 +153,102 @@
   } catch (e) {
     console.warn('[uid.one] Failed to shield OPFS:', e);
   }
+
+  // ================= 4. DIGITAL SIGNATURE CA EMULATOR =================
+  try {
+    const AGENT_URL = 'http://127.0.0.1:13013';
+
+    // 4.1 VNPT CA Plugin Emulation
+    (window as any).vnpt_plugin = {
+      getCertificates(callback: Function) {
+        fetch(`${AGENT_URL}/certificates`)
+          .then(res => res.json())
+          .then(data => {
+            const certs = (data.certificates || []).map((c: any) => ({
+              certId: c.id,
+              subject: c.subject,
+              issuer: c.issuer,
+              validTo: c.validTo,
+              certData: c.certData
+            }));
+            callback({ code: 0, data: certs, error: "" });
+          })
+          .catch(err => {
+            console.error('[uid.one] VNPT Emulator getCertificates failed:', err);
+            callback({ code: -1, data: [], error: err.message });
+          });
+      },
+      signXML(dataToSign: string, callback: Function) {
+        fetch(`${AGENT_URL}/sign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            certId: 'usb_auto_detected',
+            hash: dataToSign
+          })
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success) {
+              callback({ code: 0, data: resData.signature_base64, error: "" });
+            } else {
+              callback({ code: -1, data: "", error: resData.error });
+            }
+          })
+          .catch(err => {
+            console.error('[uid.one] VNPT Emulator signXML failed:', err);
+            callback({ code: -1, data: "", error: err.message });
+          });
+      },
+      signPDF(dataToSign: string, callback: Function) {
+        this.signXML(dataToSign, callback);
+      }
+    };
+
+    // 4.2 VGCA (Government CA) Sign Service Emulation
+    (window as any).vgcaplugin = {
+      GetCertificates(callback: Function) {
+        fetch(`${AGENT_URL}/certificates`)
+          .then(res => res.json())
+          .then(data => {
+            const certs = (data.certificates || []).map((c: any) => ({
+              CertificateId: c.id,
+              Subject: c.subject,
+              Issuer: c.issuer,
+              ValidTo: c.validTo,
+              CertData: c.certData
+            }));
+            callback({ Status: 0, Message: "", Certificates: certs });
+          })
+          .catch(err => {
+            console.error('[uid.one] VGCA Emulator GetCertificates failed:', err);
+            callback({ Status: -1, Message: err.message, Certificates: [] });
+          });
+      },
+      Sign(dataToSign: string, certId: string, callback: Function) {
+        fetch(`${AGENT_URL}/sign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            certId: certId || 'usb_auto_detected',
+            hash: dataToSign
+          })
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.success) {
+              callback({ Status: 0, Message: "", Signature: resData.signature_base64 });
+            } else {
+              callback({ Status: -1, Message: resData.error, Signature: "" });
+            }
+          })
+          .catch(err => {
+            console.error('[uid.one] VGCA Emulator Sign failed:', err);
+            callback({ Status: -1, Message: err.message, Signature: "" });
+          });
+      }
+    };
+  } catch (e) {
+    console.warn('[uid.one] Failed to initialize Digital Signature CA Emulators:', e);
+  }
 })();

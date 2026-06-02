@@ -62,5 +62,15 @@
         "required": ["none"]
       }
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/Roboto-Regular.ttf",
+        "fonts/Roboto-Bold.ttf",
+        "icon.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

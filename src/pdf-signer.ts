@@ -1190,14 +1190,10 @@ function showRemoteSigningModal(providerName: string, idNum: string, callback: (
 // PDF SIGNING ACTION
 btnSign.addEventListener('click', () => {
   if (!pdfBytes || !chrome.runtime?.id) return;
-  
-  chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, (pairingRes) => {
-    if (!pairingRes || !pairingRes.isPaired) {
-      alert(chrome.i18n.getMessage("alertSessionExpired") || "Session expired or not linked. Please log in to UID.one and link the extension first.");
-      return;
-    }
 
-    const certType = signingCertSelect?.value || 'uid';
+  const certType = signingCertSelect?.value || 'uid';
+
+  const proceedWithSigning = () => {
     let isPin = false;
     if (certType === 'local_agent') {
       const selectedIndex = localCertSelect.selectedIndex;
@@ -1655,7 +1651,19 @@ btnSign.addEventListener('click', () => {
     }, () => {
       // User cancelled
     }, isPin);
-  });
+  };
+
+  if (certType === 'uid') {
+    chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, (pairingRes) => {
+      if (!pairingRes || !pairingRes.isPaired) {
+        alert(chrome.i18n.getMessage("alertSessionExpired") || "Session expired or not linked. Please log in to UID.one and link the extension first.");
+        return;
+      }
+      proceedWithSigning();
+    });
+  } else {
+    proceedWithSigning();
+  }
 });
 
 // Manual download action
