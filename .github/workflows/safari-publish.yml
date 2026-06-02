@@ -34,6 +34,8 @@ jobs:
           xcrun safari-web-extension-converter dist/chrome \
             --project-type universal \
             --no-open \
+            --swift \
+            --force \
             --app-name "UID Link" \
             --bundle-identifier "one.uid.link"
 
