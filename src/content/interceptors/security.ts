@@ -262,7 +262,18 @@ export class OriginVerifier {
       const form = e.target as HTMLFormElement;
       if (!form.querySelector('[data-uid-autofill]')) return;
 
-      const action = new URL(form.action || window.location.href);
+      let action: URL;
+      try {
+        action = new URL(form.action || window.location.href);
+      } catch (err) {
+        // Fallback to current location if form action is not a valid absolute URL
+        try {
+          action = new URL(window.location.href);
+        } catch {
+          return;
+        }
+      }
+
       const isSecure = action.protocol === 'https:' || action.hostname === 'localhost' || action.hostname === '127.0.0.1';
 
       if (!isSecure) {

@@ -1382,6 +1382,15 @@ btnSign.addEventListener('click', () => {
                         }
                       }
                     }
+
+                    // Dynamically update UI elements to match retrieved certificate
+                    const optionToUpdate = localCertSelect.options[selectedIndex];
+                    if (optionToUpdate) {
+                      optionToUpdate.textContent = `${selectedCert.subject} (${selectedCert.issuer})`;
+                    }
+                    const successMsg = chrome.i18n.getMessage("pdfSignerUsbSuccessDesc") || 'Connected. USB Token certificates are ready.';
+                    usbTokenInfo.textContent = `${successMsg} (${selectedCert.subject})`;
+                    updateStampText();
                   } else {
                     throw new Error(loginData.error || 'Failed to login to USB Token.');
                   }
