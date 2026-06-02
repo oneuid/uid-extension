@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "ソブリンアイデンティティレイヤー"
+  },
+  "pdfSignerTitle": {
+    "message": "UID 電子署名"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Zero-Trust PDF 暗号検証とデジタルスタンプ。"
+  },
+  "pdfSignerPanelDocument": {
+    "message": "ドキュメント"
+  },
+  "pdfSignerLabelPage": {
+    "message": "対象ページの選択："
+  },
+  "pdfSignerPanelStamp": {
+    "message": "署名スタンプ設定"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "スタンプの表示位置："
+  },
+  "pdfSignerPanelMethod": {
+    "message": "署名方法"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one 暗号信頼署名（デフォルト）"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB トークン (スマートカード)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "リモートクラウド CA"
+  },
+  "pdfSignerMethodP12": {
+    "message": "証明書ファイルアップロード (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "USB トークン状態："
+  },
+  "pdfSignerUsbChecking": {
+    "message": "検出中..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "USBトークンが検出されません。USBを接続して再検出してください。"
+  },
+  "pdfSignerButtonDetect": {
+    "message": "USBトークンを検出"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "証明書の選択："
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "クラウド CA プロバイダー："
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "ユーザー名："
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "PFX/P12 ファイルのアップロード："
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "証明書のパスワード："
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "操作手順"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "対象ページを選択し、緑の枠をドラッグして署名スタンプの位置を調整します。下のボタンをクリックしてPDFに署名します。"
+  },
+  "pdfSignerButtonSign": {
+    "message": "ドキュメントに署名"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "署名済み PDF をダウンロード"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "UID.one ダッシュボードへ戻る"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "ページ移動"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "ユーザー名を入力"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "証明書のパスワードを入力"
+  },
+  "pdfSignerPinTitle": {
+    "message": "USBトークン PIN検証"
+  },
+  "pdfSignerPinDesc": {
+    "message": "電子署名を承認するために、USBトークンのPINコードを入力してください："
+  },
+  "pdfSignerPinError": {
+    "message": "USBのPINコードは4〜8桁の数字である必要があります。"
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "クラウドCAを承認"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "識別子 <strong>$2</strong> にリンクされた <strong>$1</strong> モバイルアプリにプッシュ通知が送信されました。携帯電話で承認して署名を完了してください。"
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "キャンセル"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "ベトナムのプロバイダー"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "グローバルプロバイダー"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "パスワード："
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "パスワードを入力"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "ユーザー名を入力してください。"
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "パスワードを入力してください。"
   }
 }

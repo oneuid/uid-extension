@@ -110,6 +110,36 @@
   "contextMenuTitle": {
     "message": "Ký số văn bản với UID.one"
   },
+  "contextMenuSignPdf": {
+    "message": "Ký số tệp PDF với UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "Lỗi ký số PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Không thể ký trực tiếp trong trình xem PDF của trình duyệt. Vui lòng nhấn chuột phải vào liên kết tải PDF để ký."
+  },
+  "pdfSignerTitle": {
+    "message": "UID Digital Signer"
+  },
+  "pdfSignerLoadError": {
+    "message": "Không thể tải tệp PDF. Vui lòng kiểm tra lại quyền truy cập tệp."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Trang"
+  },
+  "pdfSignerOfLabel": {
+    "message": "trên"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Ký số tài liệu"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Đang ký tệp PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Tải xuống bản PDF đã ký"
+  },
   "otpPromptTitle": {
     "message": "Google Authenticator"
   },
@@ -187,5 +217,122 @@
   },
   "floatingTooltipMismatch": {
     "message": "Email người gửi ($1) không khớp với danh tính UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Không thể tải hoặc băm tệp PDF. Vui lòng kiểm tra lại liên kết."
+  },
+  "pdfSignedSuccess": {
+    "message": "Ký số tệp PDF thành công!"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Xác thực mã hóa PDF không tin cậy & đóng dấu ký số."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Tài liệu"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Chọn trang để ký:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Cấu hình nhãn ký"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Vị trí nhãn ký:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Phương thức ký số"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one Cryptographic Trust (Mặc định)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB Token (Smart Card)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Chữ ký số từ xa (Cloud CA)"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Tải lên tệp chứng thư (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "Trạng thái USB Token:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Đang kiểm tra..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "Chưa phát hiện thấy USB Token. Vui lòng cắm USB và nhấn quét."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Quét USB Token"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Chọn Chứng Thư Số:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Nhà cung cấp Cloud CA:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Tên đăng nhập:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Tải lên tệp PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Mật khẩu chứng thư:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Hướng dẫn sử dụng"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Chọn trang cần ký, sau đó kéo khung màu xanh tới vị trí mong muốn trên tài liệu. Click nút phía dưới để bắt đầu ký số."
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Truy cập UID.one Dashboard"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Điều hướng"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Nhập tên đăng nhập"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Nhập mật khẩu chứng thư"
+  },
+  "pdfSignerPinTitle": {
+    "message": "Xác thực mã PIN USB Token"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Vui lòng nhập mã PIN USB Token để phê duyệt chữ ký số:"
+  },
+  "pdfSignerPinError": {
+    "message": "Mã PIN USB Token phải từ 4 đến 8 chữ số."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Ủy quyền Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "Yêu cầu xác thực đã được gửi tới ứng dụng di động <strong>$1</strong> liên kết với số định danh <strong>$2</strong>. Vui lòng phê duyệt trên điện thoại để hoàn tất ký số."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Hủy bỏ"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Nhà cung cấp Việt Nam"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Nhà cung cấp quốc tế"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Mật khẩu:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Nhập mật khẩu tài khoản"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Vui lòng nhập tên đăng nhập."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Vui lòng nhập mật khẩu."
   }
 }

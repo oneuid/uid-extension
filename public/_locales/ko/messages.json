@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "소버린 아이덴티티 레이어"
+  },
+  "pdfSignerTitle": {
+    "message": "UID 디지털 서명"
+  },
+  "pdfSignerSubtitle": {
+    "message": "제로 트러스트 PDF 암호화 검증 및 디지털 서명 도장."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "문서"
+  },
+  "pdfSignerLabelPage": {
+    "message": "대상 페이지 선택:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "서명 스탬프 설정"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "스탬프 표시 위치:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "서명 방법"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one 암호화 신뢰 서명 (기본값)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB 토큰 (스마트 카드)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "원격 클라우드 CA"
+  },
+  "pdfSignerMethodP12": {
+    "message": "인증서 파일 업로드 (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "USB 토큰 상태:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "확인 중..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "USB 토큰이 감지되지 않았습니다. USB를 연결하고 감지를 클릭하세요."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "USB 토큰 감지"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "인증서 선택:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "클라우드 CA 제공업체:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "사용자 이름:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "PFX/P12 파일 업로드:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "인증서 비밀번호:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "이용 안내"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "대상 페이지를 선택하고 초록색 상자를 드래그하여 서명 스탬프의 위치를 조정하세요. 아래 버튼을 클릭하여 PDF에 서명합니다."
+  },
+  "pdfSignerButtonSign": {
+    "message": "문서 서명"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "서명된 PDF 다운로드"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "UID.one 대시보드로 이동"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "페이지 탐색"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "사용자 이름 입력"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "인증서 비밀번호 입력"
+  },
+  "pdfSignerPinTitle": {
+    "message": "USB 토큰 PIN 인증"
+  },
+  "pdfSignerPinDesc": {
+    "message": "디지털 서명을 승인하기 위해 USB 토큰 PIN을 입력하십시오:"
+  },
+  "pdfSignerPinError": {
+    "message": "USB PIN은 4자에서 8자 사이의 숫자여야 합니다."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "클라우드 CA 권한 부여"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "식별자 <strong>$2</strong>와(과) 연동된 <strong>$1</strong> 모바일 앱으로 푸시 알림이 전송되었습니다. 서명을 완료하려면 스마트폰에서 승인해 주십시오."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "취소"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "베ท남 제공업체"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "글로벌 제공업체"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "비밀번호:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "비밀번호 입력"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "사용자 이름을 입력하십시오."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "비밀번호를 입력하십시오."
   }
 }

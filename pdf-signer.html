@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UID Link — PDF Digital Signer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #030712;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-primary: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary-glow: #0ea5e9;
+      --success-glow: #10b981;
+      --warning-glow: #f59e0b;
+      --radius-lg: 14px;
+      --radius-md: 8px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-dark);
+      font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(10, 18, 32, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success-glow);
+      box-shadow: 0 0 10px var(--success-glow);
+    }
+
+    /* Workspace */
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.04), transparent 50%),
+                  var(--bg-dark);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px;
+      border-right: 1px solid var(--card-border);
+      background: rgba(10, 18, 32, 0.4);
+      backdrop-filter: blur(20px);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 10px 0 30px -15px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .panel-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .file-info {
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .file-name {
+      font-weight: 600;
+      word-break: break-all;
+      margin-bottom: 4px;
+    }
+
+    .file-size {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .page-indicator {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .instructions {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Main Editor Area */
+    .editor-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 40px;
+      position: relative;
+    }
+
+    .pdf-viewport {
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      background: #ffffff;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Draggable Signature Stamp Box */
+    .signature-stamp-box {
+      position: absolute;
+      border: 1px solid #064e3b;
+      background: #f0fdf4; /* Light green background for high contrast */
+      color: #064e3b;
+      box-sizing: border-box;
+      cursor: move;
+      user-select: none;
+      z-index: 10;
+      min-width: 140px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8px 12px;
+      font-family: system-ui, -apple-system, sans-serif;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+    }
+
+    .stamp-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55px;
+      height: 55px;
+      color: #064e3b;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .stamp-header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+      font-size: 9px;
+      color: #065f46;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stamp-text {
+      position: relative;
+      z-index: 2;
+      font-size: 8.5px;
+      color: #1f2937; /* Dark gray for high contrast */
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .control-select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--card-border);
+      background: rgba(17, 24, 39, 0.9);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .control-select:focus {
+      border-color: var(--primary-glow);
+      box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+    }
+    .control-select option {
+      background: var(--bg-dark);
+      color: var(--text-primary);
+    }
+
+    .resize-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--success-glow);
+      bottom: 0;
+      right: 0;
+      cursor: se-resize;
+      border-top-left-radius: 2px;
+    }
+
+    /* Buttons */
+    .btn-action {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #34d399, #10b981);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Local File Picker card */
+    .file-picker-card {
+      text-align: center;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.01);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-picker-card:hover {
+      border-color: var(--primary-glow);
+      background: rgba(14, 165, 233, 0.02);
+    }
+
+    .file-picker-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border-left-color: var(--success-glow);
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Modal / Alert Overlay styling */
+    .uid-otp-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999999;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #e4e4e7;
+    }
+
+    .warning-container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .warning-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span data-i18n="pdfSignerTitle">UID Digital Signer</span>
+    </div>
+    <div style="font-size: 12px; color: var(--text-muted);" id="user-display">Checking identity...</div>
+  </div>
+
+  <!-- Main Area -->
+  <div class="workspace">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- File Metadata -->
+      <div class="panel-card">
+        <div class="panel-title" data-i18n="pdfSignerPanelDocument">Document</div>
+        <div class="file-info" id="file-info-container">
+          <div class="file-name" id="doc-name">Loading file...</div>
+          <div class="file-size" id="doc-size">-</div>
+        </div>
+      </div>
+
+      <!-- Page Selection Controls -->
+      <div class="panel-card">
+        <div class="panel-title" data-i18n="pdfSignerPanelNavigation">Navigation</div>
+        <div class="controls-row">
+          <button class="btn-nav" id="btn-prev" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <span class="page-indicator" id="page-num-display">Page - of -</span>
+          <button class="btn-nav" id="btn-next" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Signing Certificate Selector -->
+      <div class="panel-card" id="cert-selector-container">
+        <div class="panel-title" data-i18n="pdfSignerPanelMethod">Signing Method</div>
+        <select class="control-select" id="signing-cert-select" style="margin-bottom: 12px;">
+          <option value="uid" data-i18n="pdfSignerMethodUid">UID.one Cryptographic Trust (Default)</option>
+          <option value="local_agent" data-i18n="pdfSignerMethodLocal">USB Token (Smart Card)</option>
+          <option value="remote_ca" data-i18n="pdfSignerMethodRemote">Remote Cloud CA</option>
+          <option value="p12_file" data-i18n="pdfSignerMethodP12">Upload Certificate File (.p12 / .pfx)</option>
+        </select>
+
+        <!-- Local Agent Config Panel -->
+        <div id="panel-local-agent" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
+          <input type="hidden" id="local-agent-url" value="http://localhost:13013">
+          
+          <!-- USB Status Card -->
+          <div id="usb-status-card" style="border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 10px; background: rgba(255, 255, 255, 0.02); font-size: 11px; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelUsbStatus">USB Token Status:</span>
+              <span id="usb-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(245, 158, 11, 0.1); color: #f59e0b;" data-i18n="pdfSignerUsbChecking">Checking...</span>
+            </div>
+            <div id="usb-token-info" style="color: var(--text-muted); line-height: 1.4; margin-top: 4px;" data-i18n="pdfSignerUsbNoDetect">No USB token detected. Plug in your USB and click detect.</div>
+          </div>
+
+          <button class="btn-nav" id="btn-detect-certs" style="width: 100%; padding: 6px; font-size: 11px; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; cursor: pointer; margin-top: 4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+            <span data-i18n="pdfSignerButtonDetect">Detect USB Token</span>
+          </button>
+
+          <div id="local-certs-container" style="display: none; flex-direction: column; gap: 4px;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="pdfSignerLabelSelectCert">Select Certificate:</div>
+            <select class="control-select" id="local-cert-select" style="font-size: 11px; padding: 6px 8px;"></select>
+          </div>
+        </div>
+
+        <!-- Remote CA Config Panel -->
+        <div id="panel-remote-ca" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelCloudProvider">Cloud CA Provider:</div>
+          <select class="control-select" id="remote-ca-provider" style="font-size: 11px; padding: 6px 8px; margin-bottom: 4px;">
+            <optgroup label="Vietnam Providers" data-i18n-label="pdfSignerGroupVnProviders">
+              <option value="vnpt_smartca">VNPT SmartCA</option>
+              <option value="viettel_mysign">Viettel MySign</option>
+              <option value="misa_esign">MISA eSign</option>
+              <option value="fpt_esign">FPT.eSign</option>
+              <option value="bkav_ca">BKAV Remote CA</option>
+              <option value="ca2_smartca">CA2 Smart CA</option>
+              <option value="trustca">CMC TrustCA</option>
+            </optgroup>
+            <optgroup label="Global Providers" data-i18n-label="pdfSignerGroupGlobalProviders">
+              <option value="digicert">DigiCert Document Signing</option>
+              <option value="globalsign">GlobalSign Atlas</option>
+              <option value="docusign">DocuSign Cloud CA</option>
+              <option value="adobe_sign">Adobe Acrobat Sign CA</option>
+              <option value="entrust">Entrust Cloud Signing</option>
+              <option value="infocert">InfoCert (Europe)</option>
+              <option value="swisscom">Swisscom Signing Service</option>
+              <option value="itsme">Itsme Sign (Belgium)</option>
+            </optgroup>
+          </select>
+          
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelPersonalId">Username:</div>
+          <input type="text" id="remote-ca-user" data-i18n-placeholder="pdfSignerPlaceholderPersonalId" placeholder="Enter your username" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(10, 10, 10, 0.4); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box; margin-bottom: 4px;">
+          
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelCloudPassword">Password:</div>
+          <input type="password" id="remote-ca-password" data-i18n-placeholder="pdfSignerPlaceholderCloudPassword" placeholder="Enter your password" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(10, 10, 10, 0.4); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box;">
+        </div>
+
+        <!-- P12 File Upload Config Panel -->
+        <div id="panel-p12-file" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelUploadP12">Upload PFX/P12 File:</div>
+          <input type="file" id="p12-file-input" accept=".p12,.pfx" style="font-size: 11px; color: var(--text-muted); width: 100%;">
+          
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelCertPassword">Certificate Password:</div>
+          <input type="password" id="p12-password" data-i18n-placeholder="pdfSignerPlaceholderPassword" placeholder="Enter file password" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(10, 10, 10, 0.4); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="panel-card">
+        <div class="panel-title" data-i18n="pdfSignerPanelInstructions">Instructions</div>
+        <div class="instructions" id="instructions-text" data-i18n="pdfSignerInstructionsText">
+          Select the target page and drag the green box to position your signature stamp. Click the button below to sign the PDF.
+        </div>
+      </div>
+
+      <!-- Manual Upload (shown if file could not be loaded or fallback requested) -->
+      <div class="panel-card file-picker-card" id="manual-picker-card" style="display: none;">
+        <div class="file-picker-icon">📁</div>
+        <div style="font-size: 12px; font-weight: 600;">Choose Local PDF</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Or drag PDF here</div>
+        <input type="file" id="manual-file-input" accept="application/pdf" style="display: none;">
+      </div>
+
+      <!-- Sign Button -->
+      <button class="btn-action" id="btn-sign" style="margin-top: auto;" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span data-i18n="pdfSignerButtonSign">Sign Document</span>
+      </button>
+
+      <!-- Download Button (shown after successful signing) -->
+      <button class="btn-action" id="btn-download" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3); display: none; margin-top: 12px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span data-i18n="pdfSignerButtonDownload">Download Signed PDF</span>
+      </button>
+    </div>
+
+    <!-- Canvas viewport area -->
+    <div class="editor-container" id="editor-container">
+      <div class="warning-container" id="file-access-warning" style="display: none;">
+        <div class="warning-title">Local File Access Disabled</div>
+        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">
+          To sign local file URLs directly, please enable "Allow access to file URLs" for the UID Link extension in your browser extensions manager.
+        </p>
+        <div class="panel-card file-picker-card" id="warning-picker-card">
+          <div class="file-picker-icon">📁</div>
+          <div style="font-size: 13px; font-weight: 600;">Upload PDF File to Sign</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Drag and drop the PDF here or click to browse</div>
+        </div>
+      </div>
+
+      <div class="pdf-viewport" id="pdf-viewport" style="display: none;">
+        <canvas id="pdf-canvas"></canvas>
+        
+        <!-- Overlaid Draggable Signature Box -->
+        <div class="signature-stamp-box" id="signature-box">
+          <!-- Center Watermark Background -->
+          <svg class="stamp-watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+            <path d="m9 12 2 2 4-4"></path>
+          </svg>
+          <div class="stamp-header">
+            UID.ONE VERIFIED
+          </div>
+          <div class="stamp-text" id="stamp-signer">Signer: user@uid.one</div>
+          <div class="stamp-text" id="stamp-time">Date: -</div>
+          <div class="stamp-text" id="stamp-hash">Hash: pending...</div>
+          <div class="resize-handle" id="resize-handle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/pdf-signer.ts"></script>
+</body>
+
+</html>

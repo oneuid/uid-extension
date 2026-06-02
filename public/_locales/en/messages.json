@@ -110,6 +110,36 @@
   "contextMenuTitle": {
     "message": "Sign text with UID.one"
   },
+  "contextMenuSignPdf": {
+    "message": "Sign PDF with UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "PDF Signing Error"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Cannot sign PDF directly inside this browser PDF viewer. Please right-click a PDF link instead."
+  },
+  "pdfSignerTitle": {
+    "message": "UID Digital Signer"
+  },
+  "pdfSignerLoadError": {
+    "message": "Failed to load PDF file. Please check if the file is accessible."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Page"
+  },
+  "pdfSignerOfLabel": {
+    "message": "of"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Sign Document"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Signing PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Download Signed PDF"
+  },
   "otpPromptTitle": {
     "message": "Google Authenticator"
   },
@@ -187,5 +217,122 @@
   },
   "floatingTooltipMismatch": {
     "message": "Sender email ($1) does not match UID identity ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Failed to fetch or hash PDF. Please make sure the link is accessible."
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF digitally signed successfully!"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Zero-Trust PDF cryptographic verification & digital stamps."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Document"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Select Target Page:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Signing Stamp Config"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Visual Stamp Position:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Signing Method"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one Cryptographic Trust (Default)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB Token (Smart Card)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Remote Cloud CA"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Upload Certificate File (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "USB Token Status:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Checking..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "No USB token detected. Plug in your USB and click detect."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Detect USB Token"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Select Certificate:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Cloud CA Provider:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Username:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Upload PFX/P12 File:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Certificate Password:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Instructions"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Select the target page and drag the green box to position your signature stamp. Click the button below to sign the PDF."
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Go to UID.one Dashboard"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Navigation"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Enter your username"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Enter file password"
+  },
+  "pdfSignerPinTitle": {
+    "message": "USB Token PIN Verification"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Please enter your USB Token PIN to authorize the digital signature:"
+  },
+  "pdfSignerPinError": {
+    "message": "The USB PIN must be between 4 and 8 digits."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Authorize Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "A push notification has been sent to your <strong>$1</strong> mobile app linked with identifier <strong>$2</strong>. Please approve it on your phone to complete signing."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Cancel"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Vietnam Providers"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Global Providers"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Password:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Enter your password"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Please enter your username."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Please enter your password."
   }
 }

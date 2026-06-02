@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "主权身份安全层"
+  },
+  "pdfSignerTitle": {
+    "message": "UID 电子签章"
+  },
+  "pdfSignerSubtitle": {
+    "message": "零信任 PDF 密码学验证与数字盖章。"
+  },
+  "pdfSignerPanelDocument": {
+    "message": "文档"
+  },
+  "pdfSignerLabelPage": {
+    "message": "选择签署页面："
+  },
+  "pdfSignerPanelStamp": {
+    "message": "印章外观配置"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "印章显示位置："
+  },
+  "pdfSignerPanelMethod": {
+    "message": "签署方式"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one 密码学受信签名（默认）"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB Token (智能卡)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "云端 CA 远程签署"
+  },
+  "pdfSignerMethodP12": {
+    "message": "上传证书文件 (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "USB Key 状态："
+  },
+  "pdfSignerUsbChecking": {
+    "message": "正在检测..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "未检测到 USB Key，请插入 USB 后点击检测。"
+  },
+  "pdfSignerButtonDetect": {
+    "message": "检测 USB Token"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "选择证书："
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "云 CA 服务商："
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "用户名："
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "上传 PFX/P12 文件："
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "证书密码："
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "使用说明"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "选择目标页面并拖动绿色框以调整签章位置，然后点击下方按钮完成 PDF 签署。"
+  },
+  "pdfSignerButtonSign": {
+    "message": "签署文档"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "下载已签署的 PDF"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "前往 UID.one 控制台"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "页面导航"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "请输入您的用户名"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "请输入证书密码"
+  },
+  "pdfSignerPinTitle": {
+    "message": "USB Token PIN 码验证"
+  },
+  "pdfSignerPinDesc": {
+    "message": "请输入您的 USB Key PIN 码以授权电子签署："
+  },
+  "pdfSignerPinError": {
+    "message": "USB PIN 码必须为 4 至 8 位数字。"
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "授权云端 CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "授权确认已发送至您的 <strong>$1</strong> 移动端 App，账户标识为 <strong>$2</strong>。请在手机上点击同意以完成签署。"
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "取消"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "越南服务商"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "全球服务商"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "密码："
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "请输入您的密码"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "请输入您的用户名。"
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "请输入您的密码。"
   }
 }

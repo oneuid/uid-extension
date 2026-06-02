@@ -52,11 +52,31 @@ document.addEventListener('contextmenu', (e) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === 'START_PDF_SIGNING') {
     handlePdfSigning(request.url).catch(console.error);
   } else if (request.action === 'START_TEXT_SIGNING') {
     handleTextSigning(request.text).catch(console.error);
+  } else if (request.action === 'FETCH_PDF_BYTES') {
+    fetch(request.url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then(buffer => {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+        sendResponse({ success: true, base64 });
+      })
+      .catch(err => {
+        sendResponse({ success: false, error: err.message });
+      });
+    return true; // keep channel open for async response
   }
 });
 
@@ -285,44 +305,49 @@ async function handlePdfSigning(pdfUrl: string) {
       return;
     }
 
-    showToast("Fetching PDF for signing...", "info");
-    const response = await fetch(pdfUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    
-    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    const heartbeatInterval = setInterval(() => {
-      chrome.runtime.sendMessage({ type: 'HEARTBEAT' }, () => {
-        if (chrome.runtime.lastError) {
-          console.warn('[uid.one] Heartbeat error:', chrome.runtime.lastError.message);
-        }
-      });
-    }, 10000);
+    showToast("Fetching and hashing PDF...", "info");
+    chrome.runtime.sendMessage({ type: 'FETCH_AND_HASH_PDF', url: pdfUrl }, (hashRes) => {
+      if (!hashRes || !hashRes.success) {
+        showToast("Failed to process PDF: " + (hashRes?.error || "CORS or download error"), "error");
+        alert(chrome.i18n.getMessage("errorFetchPdf") || "Failed to fetch or hash PDF. Please make sure the link is accessible.");
+        return;
+      }
+      const hashHex = hashRes.hashHex;
+      
+      const heartbeatInterval = setInterval(() => {
+        chrome.runtime.sendMessage({ type: 'HEARTBEAT' }, () => {
+          if (chrome.runtime.lastError) {
+            console.warn('[uid.one] Heartbeat error:', chrome.runtime.lastError.message);
+          }
+        });
+      }, 10000);
 
-    showOtpPromptModal((otpCode) => {
-      chrome.runtime.sendMessage({
-        action: 'REQUEST_DIGITAL_SIGNATURE',
-        domain: window.location.hostname,
-        user_agent: navigator.userAgent,
-        identifier: "Digital Signature",
-        otp_code: otpCode,
-        metadata: {
-          pdf_hash: hashHex,
-          document_url: pdfUrl
-        }
-      }, (res) => {
+      showOtpPromptModal((otpCode) => {
+        chrome.runtime.sendMessage({
+          action: 'REQUEST_DIGITAL_SIGNATURE',
+          domain: window.location.hostname,
+          user_agent: navigator.userAgent,
+          identifier: "Digital Signature",
+          otp_code: otpCode,
+          metadata: {
+            pdf_hash: hashHex,
+            text_hash: hashHex, // fallback for legacy backend compatibility
+            document_url: pdfUrl
+          }
+        }, (res) => {
+          clearInterval(heartbeatInterval);
+          if (res && res.success) {
+            showToast("PDF signed successfully!", "success");
+            alert(chrome.i18n.getMessage("pdfSignedSuccess") || "PDF digitally signed successfully!");
+          } else {
+            showToast("PDF signing failed or was rejected: " + (res?.error || "Unknown error"), "error");
+            alert(res?.error || "Unknown error");
+          }
+        });
+      }, () => {
         clearInterval(heartbeatInterval);
-        if (res && res.success) {
-          showToast("PDF signed successfully!", "success");
-        } else {
-          showToast("PDF signing failed or was rejected: " + (res?.error || "Unknown error"), "error");
-        }
+        showToast("PDF signing cancelled by user", "info");
       });
-    }, () => {
-      clearInterval(heartbeatInterval);
-      showToast("PDF signing cancelled by user", "info");
     });
   });
 }

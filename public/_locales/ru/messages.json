@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "Суверенный слой идентификации"
+  },
+  "pdfSignerTitle": {
+    "message": "UID Цифровая Подпись"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Zero-Trust криптографическая проверка PDF и цифровые штампы."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Документ"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Выберите целевую страницу:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Настройка штампа подписи"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Расположение визуального штампа:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Способ подписи"
+  },
+  "pdfSignerMethodUid": {
+    "message": "Криптографическое доверие UID.one (По умолчанию)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB-токен (Смарт-карта)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Облачный CA (Remote)"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Загрузить файл сертификата (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "Статус USB-токена:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Проверка..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "USB-токен не обнаружен. Подключите токен и нажмите кнопку обнаружения."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Обнаружить USB-токен"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Выберите сертификат:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Провайдер облачного CA:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Имя пользователя:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Загрузить файл PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Пароль сертификата:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Инструкция"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Выберите нужную страницу и перетащите зеленый прямоугольник для размещения штампа подписи. Нажмите кнопку ниже для подписания PDF."
+  },
+  "pdfSignerButtonSign": {
+    "message": "Подписать документ"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Скачать подписанный PDF"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Перейти в личный кабинет UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Навигация"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Введите имя пользователя"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Введите пароль файла"
+  },
+  "pdfSignerPinTitle": {
+    "message": "Проверка PIN-кода USB-токена"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Пожалуйста, введите PIN-код вашего USB-токена для авторизации цифровой подписи:"
+  },
+  "pdfSignerPinError": {
+    "message": "PIN-код USB должен содержать от 4 до 8 цифр."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Авторизация облачного CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "Push-уведомление было отправлено на ваше мобильное приложение <strong>$1</strong>, привязанное к идентификатору <strong>$2</strong>. Пожалуйста, подтвердите его на телефоне для завершения подписания."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Отмена"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Провайдеры Вьетнама"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Глобальные провайдеры"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Пароль:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Введите пароль"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Пожалуйста, введите имя пользователя."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Пожалуйста, введите пароль."
   }
 }

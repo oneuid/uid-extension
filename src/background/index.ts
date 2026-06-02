@@ -452,6 +452,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   }
+  else if (request.type === 'FETCH_AND_HASH_PDF') {
+    fetch(request.url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then(arrayBuffer => crypto.subtle.digest('SHA-256', arrayBuffer))
+      .then(hashBuffer => {
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        sendResponse({ success: true, hashHex });
+      })
+      .catch(err => {
+        console.error('[uid.one] FETCH_AND_HASH_PDF failed:', err);
+        sendResponse({ success: false, error: err.message });
+      });
+    return true;
+  }
   else if (request.type === 'CHECK_PAIRING') {
     getActiveSessionToken().then(token => sendResponse({ isPaired: !!token }));
     return true;
@@ -548,6 +566,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         // Ignore error if menu item not registered yet
       }
     });
+    chrome.contextMenus.update("sign-pdf-page", { enabled: isEnabled }, () => {
+      if (chrome.runtime.lastError) {
+        // Ignore error if menu item not registered yet
+      }
+    });
     sendResponse({ success: true });
     return false;
   }
@@ -563,13 +586,19 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   else if (request.type === 'GET_USER_PUBKEY') {
     const identifier = request.identifier;
     getApiBase().then(async (apiBase) => {
+      let res: Response | null = null;
       try {
-        let res = await fetch(`${apiBase}/users/${identifier}/pubkey/`, { credentials: 'omit' });
-        if (!res.ok && apiBase !== 'https://api.uid.one/v1/auth') {
-          console.log(`[uid.one] Key not found on ${apiBase}, trying production backend...`);
+        res = await fetch(`${apiBase}/users/${identifier}/pubkey/`, { credentials: 'omit' });
+      } catch (e) {
+        console.warn(`[uid.one] Fetch public key failed on ${apiBase}:`, e);
+      }
+
+      try {
+        if ((!res || !res.ok) && apiBase !== 'https://api.uid.one/v1/auth') {
+          console.log(`[uid.one] Key not found or fetch failed on ${apiBase}, trying production backend...`);
           res = await fetch(`https://api.uid.one/v1/auth/users/${identifier}/pubkey/`, { credentials: 'omit' });
         }
-        if (!res.ok) throw new Error('User public key not found');
+        if (!res || !res.ok) throw new Error('User public key not found');
         const data = await res.json();
         if (data.status === 'success' && data.public_key) {
           sendResponse({ success: true, publicKey: data.public_key });
@@ -789,8 +818,23 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "sign-pdf",
-    title: "Sign PDF with UID.ONE",
+    title: chrome.i18n.getMessage("contextMenuSignPdf") || "Sign PDF with UID.one",
     contexts: ["link"]
+  });
+  chrome.contextMenus.create({
+    id: "sign-pdf-page",
+    title: chrome.i18n.getMessage("contextMenuSignPdf") || "Sign PDF with UID.one",
+    contexts: ["page", "frame"],
+    documentUrlPatterns: [
+      "*://*/*.pdf",
+      "*://*/*.pdf?*",
+      "*://*/*.PDF",
+      "*://*/*.PDF?*",
+      "file://*/*.pdf",
+      "file://*/*.PDF",
+      "file:///*/*.pdf",
+      "file:///*/*.PDF"
+    ]
   });
   chrome.contextMenus.create({
     id: "sign-text",
@@ -801,13 +845,34 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!tab?.id) return;
-  if (info.menuItemId === "sign-pdf" && info.linkUrl) {
-    chrome.tabs.sendMessage(tab.id, {
-      action: "START_PDF_SIGNING",
-      url: info.linkUrl
-    }).catch(err => {
-      console.warn('[uid.one] Could not send START_PDF_SIGNING message to tab (receiving end might not exist yet):', err);
-    });
+  if (info.menuItemId === "sign-pdf" || info.menuItemId === "sign-pdf-page") {
+    const pdfUrl = info.linkUrl || info.pageUrl || tab.url;
+    if (pdfUrl) {
+      if (pdfUrl.startsWith('file://')) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: "FETCH_PDF_BYTES",
+          url: pdfUrl
+        }, (response) => {
+          if (chrome.runtime.lastError || !response || !response.success) {
+            console.warn('[uid.one] Could not fetch local PDF bytes via content script, opening signer page with direct URL:', chrome.runtime.lastError?.message || response?.error);
+            chrome.tabs.create({
+              url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
+            });
+          } else {
+            const cacheKey = `pdf_cache_${Date.now()}`;
+            chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
+              chrome.tabs.create({
+                url: chrome.runtime.getURL(`pdf-signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`)
+              });
+            });
+          }
+        });
+      } else {
+        chrome.tabs.create({
+          url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
+        });
+      }
+    }
   } else if (info.menuItemId === "sign-text") {
     chrome.tabs.sendMessage(tab.id, {
       action: "START_TEXT_SIGNING",
@@ -823,6 +888,9 @@ chrome.tabs.onActivated.addListener(() => {
     if (chrome.runtime.lastError) {}
   });
   chrome.contextMenus.update("sign-pdf", { enabled: true }, () => {
+    if (chrome.runtime.lastError) {}
+  });
+  chrome.contextMenus.update("sign-pdf-page", { enabled: true }, () => {
     if (chrome.runtime.lastError) {}
   });
 });

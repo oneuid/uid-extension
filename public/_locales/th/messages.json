@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "ชั้นข้อมูลระบุตัวตนแบบอธิปไตย"
+  },
+  "pdfSignerTitle": {
+    "message": "UID เครื่องมือลงลายมือชื่อดิจิทัล"
+  },
+  "pdfSignerSubtitle": {
+    "message": "การตรวจสอบความถูกต้องเข้ารหัส PDF แบบ Zero-Trust และตราประทับดิจิทัล"
+  },
+  "pdfSignerPanelDocument": {
+    "message": "เอกสาร"
+  },
+  "pdfSignerLabelPage": {
+    "message": "เลือกหน้าเป้าหมาย:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "การกำหนดค่าตราประทับลายเซ็น"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "ตำแหน่งตราประทับ:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "วิธีการลงลายมือชื่อ"
+  },
+  "pdfSignerMethodUid": {
+    "message": "ความน่าเชื่อถือทางเข้ารหัส UID.one (ค่าเริ่มต้น)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB Token (สมาร์ทการ์ด)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "ระบบคลาวด์ CA ระยะไกล"
+  },
+  "pdfSignerMethodP12": {
+    "message": "อัปโหลดไฟล์ใบรับรอง (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "สถานะ USB Token:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "กำลังตรวจสอบ..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "ไม่พบ USB Token โปรดเสียบ USB ของคุณแล้วคลิกตรวจหา"
+  },
+  "pdfSignerButtonDetect": {
+    "message": "ตรวจหา USB Token"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "เลือกใบรับรอง:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "ผู้ให้บริการ Cloud CA:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "ชื่อผู้ใช้:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "อัปโหลดไฟล์ PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "รหัสผ่านใบรับรอง:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "คำแนะนำ"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "เลือกหน้าเป้าหมายและลากกล่องสีเขียวเพื่อกำหนดตำแหน่งตราประทับลายเซ็นของคุณ คลิกปุ่มด้านล่างเพื่อลงชื่อใน PDF"
+  },
+  "pdfSignerButtonSign": {
+    "message": "ลงนามในเอกสาร"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "ดาวน์โหลด PDF ที่ลงนามแล้ว"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "ไปที่แดชบอร์ด UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "การนำทาง"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "ป้อนชื่อผู้ใช้ของคุณ"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "ป้อนรหัสผ่านของไฟล์"
+  },
+  "pdfSignerPinTitle": {
+    "message": "การยืนยันรหัส PIN ของ USB Token"
+  },
+  "pdfSignerPinDesc": {
+    "message": "โปรดป้อนรหัส PIN ของ USB Token เพื่ออนุมัติลายมือชื่อดิจิทัล:"
+  },
+  "pdfSignerPinError": {
+    "message": "รหัส PIN ของ USB ต้องมีความยาวระหว่าง 4 ถึง 8 หลัก"
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "อนุมัติ Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "ส่งการแจ้งเตือนแบบพุชไปยังแอปมือถือ <strong>$1</strong> ของคุณที่เชื่อมโยงกับรหัส <strong>$2</strong> แล้ว โปรดอนุมัติบนโทรศัพท์เพื่อเสร็จสิ้นการลงนาม"
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "ยกเลิก"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "ผู้ให้บริการในเวียดนาม"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "ผู้ให้บริการทั่วโลก"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "รหัสผ่าน:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "ป้อนรหัสผ่านของคุณ"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "โปรดป้อนชื่อผู้ใช้ของคุณ"
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "โปรดป้อนรหัสผ่านของคุณ"
   }
 }

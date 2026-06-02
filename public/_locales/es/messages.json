@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "Capa de Identidad Soberana"
+  },
+  "pdfSignerTitle": {
+    "message": "Firmador Digital UID"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Verificación criptográfica PDF Zero-Trust y sellos digitales."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Documento"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Seleccionar página de destino:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Configuración del sello de firma"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Posición visual del sello:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Método de firma"
+  },
+  "pdfSignerMethodUid": {
+    "message": "Confianza criptográfica UID.one (Por defecto)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "Token USB (Tarjeta inteligente)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Cloud CA Remota"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Subir archivo de certificado (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "Estado del token USB:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Comprobando..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "No se detectó ningún token USB. Conecte su USB y haga clic en detectar."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Detectar token USB"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Seleccionar certificado:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Proveedor de Cloud CA:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Nombre de usuario:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Subir archivo PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Contraseña del certificado:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Instrucciones"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Seleccione la página de destino y arrastre el cuadro verde para colocar su sello de firma. Haga clic en el botón de abajo para firmar el PDF."
+  },
+  "pdfSignerButtonSign": {
+    "message": "Firmar documento"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Descargar PDF firmado"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Ir al panel de UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Navegación"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Ingrese su nombre de usuario"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Ingrese contraseña del archivo"
+  },
+  "pdfSignerPinTitle": {
+    "message": "Verificación de PIN de token USB"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Por favor, introduzca el PIN de su token USB para autorizar la firma digital:"
+  },
+  "pdfSignerPinError": {
+    "message": "El PIN de USB debe tener entre 4 y 8 dígitos."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Autorizar Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "Se ha enviado una notificación push a su aplicación móvil <strong>$1</strong> vinculada con el identificador <strong>$2</strong>. Por favor, apruébela en su teléfono para completar la firma."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Cancelar"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Proveedores de Vietnam"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Proveedores globales"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Contraseña:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Ingrese su contraseña"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Por favor, ingrese su nombre de usuario."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Por favor, ingrese su contraseña."
   }
 }

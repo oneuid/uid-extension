@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "طبقة الهوية السيادية"
+  },
+  "pdfSignerTitle": {
+    "message": "موقّع المستندات الرقمي UID"
+  },
+  "pdfSignerSubtitle": {
+    "message": "التحقق التشفيري لملفات PDF بنظام Zero-Trust والأختام الرقمية."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "المستند"
+  },
+  "pdfSignerLabelPage": {
+    "message": "اختر الصفحة المستهدفة:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "إعدادات ختم التوقيع"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "موقع الختم المرئي:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "طريقة التوقيع"
+  },
+  "pdfSignerMethodUid": {
+    "message": "وثوقية تشفير UID.one (افتراضي)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "رمز USB (بطاقة ذكية)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "سلطة تصديق سحابية خارجية (Cloud CA)"
+  },
+  "pdfSignerMethodP12": {
+    "message": "تحميل ملف الشهادة (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "حالة رمز USB:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "جاري التحقق..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "لم يتم اكتشاف رمز USB. قم بتوصيل رمز USB وانقر على الكشف."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "كشف رمز USB"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "اختر الشهادة:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "مزود خدمة التوقيع السحابي (Cloud CA):"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "اسم المستخدم:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "تحميل ملف PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "كلمة مرور الشهادة:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "التعليمات"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "حدد الصفحة المستهدفة واسحب الصندوق الأخضر لتحديد موضع ختم توقيعك. انقر فوق الزر أدناه لتوقيع ملف PDF."
+  },
+  "pdfSignerButtonSign": {
+    "message": "توقيع المستند"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "تنزيل ملف PDF الموقع"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "الانتقال إلى لوحة تحكم UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "التنقل"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "أدخل اسم المستخدم الخاص بك"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "أدخل كلمة مرور الملف"
+  },
+  "pdfSignerPinTitle": {
+    "message": "التحقق من رمز PIN لرمز USB"
+  },
+  "pdfSignerPinDesc": {
+    "message": "يرجى إدخال رمز PIN الخاص برمز USB لتفويض التوقيع الرقمي:"
+  },
+  "pdfSignerPinError": {
+    "message": "يجب أن يتكون رمز PIN الخاص بـ USB من 4 إلى 8 أرقام."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "تفويض سلطة التصديق السحابية"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "تم إرسال إشعار دفع إلى تطبيق الجوال <strong>$1</strong> المرتبط بالمعرف <strong>$2</strong>. يرجى الموافقة عليه من هاتفك لإكمال التوقيع."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "إلغاء"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "مزودي الخدمة في فيتنام"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "مزودي الخدمة العالميين"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "كلمة المرور:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "أدخل كلمة المرور الخاصة بك"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "يرجى إدخال اسم المستخدم."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "يرجى إدخال كلمة المرور."
   }
 }

@@ -55,5 +55,125 @@
   },
   "sovereignIdentityLayer": {
     "message": "Couche d'Identité Souveraine"
+  },
+  "pdfSignerTitle": {
+    "message": "Signataire Numérique UID"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Vérification cryptographique PDF Zero-Trust et tampons numériques."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Document"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Sélectionner la page cible :"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Configuration du tampon de signature"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Position du tampon visuel :"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Méthode de signature"
+  },
+  "pdfSignerMethodUid": {
+    "message": "Confiance cryptographique UID.one (Par défaut)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "Jeton USB (Carte à puce)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Remote Cloud CA"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Télécharger le fichier de certificat (.p12 / .pfx)"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "Statut du jeton USB :"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Vérification..."
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "Aucun jeton USB détecté. Branchez votre clé USB et cliquez sur détecter."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Détecter le jeton USB"
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Sélectionner le certificat :"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Fournisseur de Cloud CA :"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Nom d'utilisateur :"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Télécharger le fichier PFX/P12 :"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Mot de passe du certificat :"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Instructions"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Sélectionnez la page cible et faites glisser la boîte verte pour positionner votre tampon de signature. Cliquez sur le bouton ci-dessous pour signer le PDF."
+  },
+  "pdfSignerButtonSign": {
+    "message": "Signer le document"
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Télécharger le PDF signé"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Aller au tableau de bord UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Navigation"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Saisissez votre nom d'utilisateur"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Entrez le mot de passe du fichier"
+  },
+  "pdfSignerPinTitle": {
+    "message": "Vérification du code PIN du jeton USB"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Veuillez entrer le code PIN de votre jeton USB pour autoriser la signature numérique :"
+  },
+  "pdfSignerPinError": {
+    "message": "Le code PIN USB doit comporter entre 4 et 8 chiffres."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Autoriser Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "Une notification push a été envoyée à votre application mobile <strong>$1</strong> liée à l'identifiant <strong>$2</strong>. Veuillez l'approuver sur votre téléphone pour terminer la signature."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Annuler"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Fournisseurs du Vietnam"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Fournisseurs mondiaux"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Mot de passe :"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Saisissez votre mot de passe"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Veuillez saisir votre nom d'utilisateur."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Veuillez saisir votre mot de passe."
   }
 }

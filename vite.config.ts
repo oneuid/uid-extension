@@ -10,6 +10,9 @@ export default defineConfig({
   },
   plugins: [
     webExtension({
+      additionalInputs: [
+        "pdf-signer.html"
+      ],
       manifest: () => {
         const manifestString = fs.readFileSync('./manifest.json', 'utf-8');
         const manifest = JSON.parse(manifestString);
