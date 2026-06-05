@@ -89,3 +89,32 @@ jobs:
         with:
           name: uid-link-safari-archive
           path: "build/UID Link.xcarchive"
+
+      - name: Upload to App Store Connect
+        if: ${{ github.event.inputs.should_sign == 'true' && env.BUILD_CERTIFICATE_BASE64 != '' }}
+        env:
+          API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          if [ -z "$API_KEY" ] || [ -z "$KEY_ID" ] || [ -z "$ISSUER_ID" ]; then
+            echo "App Store Connect credentials not found. Skipping App Store upload."
+            exit 0
+          fi
+
+          # 1. Prepare private key for altool authentication
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
+
+          # 2. Package the app as a ZIP archive (App Store expects zip for macOS app uploads)
+          cd "build/UID Link.xcarchive/Products/Applications"
+          zip -r "../../../../UID_Link.zip" "UID Link.app"
+          cd -
+
+          # 3. Upload to App Store Connect
+          xcrun altool --upload-app \
+            --type osx \
+            --file "UID_Link.zip" \
+            --apiKey "$KEY_ID" \
+            --apiIssuer "$ISSUER_ID"
+
