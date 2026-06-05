@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Sovereign client-side security layer for UID.one. Enforces Zero-Trust, DLP protection, session binding, and SSD anti-tracking."
+    "message": "Zero-Trust client-side security layer for UID.one. Enforces DLP, session binding, and SSD anti-tracking."
   },
   "iconTitle": {
     "message": "Login with Passkey (UID.one)"

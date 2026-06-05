@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Суверенный уровень безопасности на стороне клиента для UID.one. Обеспечивает Zero-Trust, защиту DLP, привязку сессий и защиту от отслеживания SSD."
+    "message": "Безопасность Zero-Trust для UID.one. Обеспечивает защиту DLP, привязку сессий и защиту от отслеживания."
   },
   "iconTitle": {
     "message": "Войти с помощью Passkey (UID.one)"

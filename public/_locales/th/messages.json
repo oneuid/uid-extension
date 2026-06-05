@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "ชั้นความปลอดภัยและข้อมูลระบุตัวตนแบบอธิปไตยสำหรับ UID.one บังคับใช้ Zero-Trust, การป้องกัน DLP และการป้องกันการติดตาม SSD"
+    "message": "ชั้นความปลอดภัยสำหรับ UID.one บังคับใช้ Zero-Trust, การป้องกัน DLP และการป้องกันการติดตาม SSD"
   },
   "iconTitle": {
     "message": "เข้าสู่ระบบด้วย Passkey (UID.one)"

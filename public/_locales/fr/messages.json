@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Couche de sécurité et d'identité souveraine pour UID.one. Impose le Zero-Trust, la protection DLP, la liaison de session et l'anti-traçage SSD."
+    "message": "Sécurité client Zero-Trust pour UID.one. Impose la protection DLP, la liaison de session et l'anti-traçage."
   },
   "iconTitle": {
     "message": "Se connecter avec Passkey (UID.one)"

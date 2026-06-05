@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Souveräne clientseitige Sicherheitsebene für UID.one. Setzt Zero-Trust, DLP-Schutz, Sitzungsbindung und SSD-Anti-Tracking durch."
+    "message": "Zero-Trust-Sicherheitsebene für UID.one. Bietet DLP-Schutz, Sitzungsbindung und SSD-Anti-Tracking."
   },
   "iconTitle": {
     "message": "Mit Passkey anmelden (UID.one)"

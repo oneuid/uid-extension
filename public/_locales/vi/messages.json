@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Lớp bảo mật và danh tính chủ quyền cho hệ sinh thái UID.one. Thực thi Zero-Trust, bảo vệ dữ liệu (DLP) và chống theo dõi SSD."
+    "message": "Lớp bảo mật Zero-Trust cho hệ sinh thái UID.one. Thực thi bảo vệ dữ liệu DLP và chống theo dõi SSD."
   },
   "iconTitle": {
     "message": "Đăng nhập bằng Passkey (UID.one)"

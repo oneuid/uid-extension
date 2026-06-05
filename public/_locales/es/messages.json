@@ -3,7 +3,7 @@
     "message": "UID Link - Security & Identity"
   },
   "extensionDesc": {
-    "message": "Capa de seguridad e identidad soberana para UID.one. Aplica Zero-Trust, protección DLP, vinculación de sesión y anti-rastreo SSD."
+    "message": "Seguridad Zero-Trust para UID.one. Aplica protección DLP, vinculación de sesión y anti-rastreo."
   },
   "iconTitle": {
     "message": "Iniciar sesión con Passkey (UID.one)"

@@ -42,6 +42,8 @@ jobs:
             --app-name "UID Link" \
             --bundle-identifier "one.uid.link"
           python3 -c "import os; path = 'UID Link/UID Link.xcodeproj/project.pbxproj'; data = open(path).read().replace('one.uid.UID-Link', 'one.uid.link'); open(path, 'w').write(data); print('Rewrote Bundle Identifier to one.uid.link')"
+          python3 scripts/prepare-safari-project.py
+
 
 
       - name: Upload Unsigned Xcode Project Artifact
@@ -92,11 +94,13 @@ jobs:
       - name: Build and Archive with Xcode
         if: ${{ github.event.inputs.should_sign == 'true' && env.BUILD_CERTIFICATE_BASE64 != '' }}
         run: |
-          # Build, sign and archive using xcodebuild
+          # Build, sign and archive using xcodebuild as a Universal Binary
           xcodebuild -project "UID Link/UID Link.xcodeproj" \
             -scheme "UID Link (macOS)" \
             -configuration Release \
             -archivePath "build/UID Link.xcarchive" \
+            ONLY_ACTIVE_ARCH=NO \
+            ARCHS="arm64 x86_64" \
             archive
             
       - name: Upload Archive Artifact
@@ -122,15 +126,27 @@ jobs:
           mkdir -p ~/.appstoreconnect/private_keys
           echo "$API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
 
-          # 2. Package the app as a ZIP archive (App Store expects zip for macOS app uploads)
-          cd "build/UID Link.xcarchive/Products/Applications"
-          zip -r "../../../../UID_Link.zip" "UID Link.app"
-          cd -
+          # 2. Detect the Installer certificate from the keychain
+          INSTALLER_ID=$(security find-identity -v | grep "Developer Installer" | head -n 1 | sed -E 's/.*"[0-9a-fA-F]+"\s+"([^"]+)".*/\1/')
+          if [ -z "$INSTALLER_ID" ]; then
+            INSTALLER_ID=$(security find-identity -v | grep "Distribution" | head -n 1 | sed -E 's/.*"[0-9a-fA-F]+"\s+"([^"]+)".*/\1/')
+          fi
+          
+          if [ -z "$INSTALLER_ID" ]; then
+            echo "Error: No matching installer or distribution certificate found for signing the package."
+            exit 1
+          fi
+          
+          echo "Signing package with certificate: $INSTALLER_ID"
 
-          # 3. Upload to App Store Connect
+          # 3. Package the app as a signed installer PKG using productbuild (required for macOS App Store)
+          productbuild --component "build/UID Link.xcarchive/Products/Applications/UID Link.app" /Applications "build/UID_Link.pkg" --sign "$INSTALLER_ID"
+
+          # 4. Upload the signed PKG to App Store Connect
           xcrun altool --upload-app \
             --type osx \
-            --file "UID_Link.zip" \
+            --file "build/UID_Link.pkg" \
             --apiKey "$KEY_ID" \
             --apiIssuer "$ISSUER_ID"
+
 
