@@ -70,15 +70,8 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # Import certificate and provisioning profile from secrets
-          python3 -c "
-import base64, os
-s = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split())
-print('DEBUG clean length:', len(s))
-if len(s) == 4177:
-    print('Auto-healing: Appending A==')
-    s += 'A=='
-open('$CERTIFICATE_PATH', 'wb').write(base64.b64decode(s))
-"
+          python3 -c "import base64, os; s = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split()); print('DEBUG clean length:', len(s)); s = s + 'A==' if len(s) == 4177 else s; open('$CERTIFICATE_PATH', 'wb').write(base64.b64decode(s))"
+
 
 
 
