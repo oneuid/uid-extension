@@ -77,18 +77,7 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # Import certificates from secrets
-          python3 -c "
-import base64, os
-raw = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split())
-print('DEBUG clean length:', len(raw))
-parts = raw.split(',')
-for i, part in enumerate(parts):
-    # Auto-healing legacy check for truncated strings if any
-    part = part + 'A==' if len(part) == 4177 else (part[:-2] + 'A==' if len(part) == 4179 else part)
-    p12_path = f'{os.environ[\"RUNNER_TEMP\"]}/cert_{i}.p12'
-    open(p12_path, 'wb').write(base64.b64decode(part))
-    print(f'Wrote certificate {i} to: {p12_path}')
-"
+          python3 -c "import base64, os; raw = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split()); print('DEBUG clean length:', len(raw)); parts = raw.split(','); [open(f'{os.environ[\"RUNNER_TEMP\"]}/cert_{i}.p12', 'wb').write(base64.b64decode(p + 'A==' if len(p) == 4177 else (p[:-2] + 'A==' if len(p) == 4179 else p))) for i, p in enumerate(parts)]"
 
           # Create keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
