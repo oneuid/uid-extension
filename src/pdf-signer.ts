@@ -178,6 +178,19 @@ class LocalP12Signer extends Signer {
   }
 }
 
+class RemoteSigner extends Signer {
+  private signatureHex: string;
+
+  constructor(signatureHex: string) {
+    super();
+    this.signatureHex = signatureHex;
+  }
+
+  async sign(_pdfBuffer: Buffer, _signingTime?: Date): Promise<Buffer> {
+    return Buffer.from(this.signatureHex, 'hex');
+  }
+}
+
 function generateMockCert(subjectName: string): { privateKey: any, cert: any } {
   const keys = forge.pki.rsa.generateKeyPair(512);
   const cert = forge.pki.createCertificate();
@@ -1213,7 +1226,12 @@ btnSign.addEventListener('click', () => {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        const onSignatureAcquired = async (success: boolean, errorMsg?: string) => {
+        const onSignatureAcquired = async (
+          success: boolean,
+          errorMsg?: string,
+          remoteSignature?: string,
+          remoteSignerCert?: string
+        ) => {
           if (!success) {
             btnSign.disabled = false;
             btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign Document"}`;
@@ -1436,6 +1454,27 @@ btnSign.addEventListener('click', () => {
               const p12Asn1 = forge.asn1.fromDer(binaryString);
               
               activeSigner = new LocalP12Signer(null, null, p12Asn1, p12Password);
+            } else if (certType === 'uid' && remoteSignature) {
+              activeSigner = new RemoteSigner(remoteSignature);
+              if (remoteSignerCert) {
+                if (remoteSignerCert.startsWith("did:uid:")) {
+                  // Format: did:uid:user@email.com:platform or did:uid:user@email.com
+                  const parts = remoteSignerCert.split(":");
+                  const email = parts[2] || "user@uid.one";
+                  headerText = `${lblSignedBy}: ${email}`;
+                  line1Text = `${lblSigner}: ${email}`;
+                  line2Text = `${lblDate}: ${formattedTime}`;
+                  line3Text = `${lblIssuer}: UID.ONE Cryptographic Trust`;
+                } else {
+                  const parsed = getFriendlyCertName(remoteSignerCert);
+                  if (parsed) {
+                    headerText = `${lblSignedBy}: ${parsed.subject.replace(/^(CÔNG TY\s+TNHH\s+|CÔNG TY\s+CỔ\s+PHẦN\s+)/i, '')}`;
+                    line1Text = `${lblSigner}: ${parsed.subject}`;
+                    line2Text = `${lblDate}: ${formattedTime}`;
+                    line3Text = `${lblIssuer}: ${parsed.issuer}`;
+                  }
+                }
+              }
             }
 
             if (!activeSigner) {
@@ -1639,7 +1678,12 @@ btnSign.addEventListener('click', () => {
               page_num: currentPageNum
             }
           }, async (res) => {
-            onSignatureAcquired(res && res.success, res ? res.error : undefined);
+            onSignatureAcquired(
+              res && res.success,
+              res ? res.error : undefined,
+              res ? res.signature : undefined,
+              res ? res.signer : undefined
+            );
           });
         }
       } catch (err: any) {

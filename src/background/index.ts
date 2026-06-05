@@ -4,7 +4,11 @@ const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v
 
 async function getApiBase(): Promise<string> {
   const res = await chrome.storage.local.get(['oneuid_api_base']);
-  return res.oneuid_api_base || DEFAULT_API_BASE;
+  let base = res.oneuid_api_base || DEFAULT_API_BASE;
+  if (!import.meta.env.VITE_API_BASE && (base.includes('127.0.0.1') || base.includes('localhost') || base.includes(':8001'))) {
+    base = DEFAULT_API_BASE;
+  }
+  return base;
 }
 
 const CLIENT_ID = 'uid-extension-client';
@@ -662,9 +666,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const origin = request.origin || '';
     
     let resolvedApiBase = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
-    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('http://') || origin.includes(':3000')) {
-      resolvedApiBase = 'http://127.0.0.1:8001/v1/auth';
-    } else if (origin.includes('uid.one')) {
+    if (origin.includes('uid.one')) {
       resolvedApiBase = 'https://api.uid.one/v1/auth';
     }
     
