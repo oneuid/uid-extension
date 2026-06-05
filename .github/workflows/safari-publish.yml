@@ -103,6 +103,39 @@ jobs:
             ONLY_ACTIVE_ARCH=NO \
             ARCHS="arm64 x86_64" \
             archive
+             
+      - name: Sign Binaries with Entitlements
+        if: ${{ github.event.inputs.should_sign == 'true' && env.BUILD_CERTIFICATE_BASE64 != '' }}
+        run: |
+          # 1. Detect the Apple Distribution certificate from the keychain
+          APP_ID=$(security find-identity -v | grep "Apple Distribution" | head -n 1 | cut -d '"' -f 2)
+          if [ -z "$APP_ID" ]; then
+            APP_ID=$(security find-identity -v | grep "Distribution" | head -n 1 | cut -d '"' -f 2)
+          fi
+          if [ -z "$APP_ID" ]; then
+            echo "Error: No matching Apple Distribution certificate found for codesigning."
+            exit 1
+          fi
+          echo "Signing binaries with App Distribution certificate: $APP_ID"
+
+          # 2. Codesign the App Extension first
+          codesign --force --options runtime \
+            --entitlements "UID Link/macOS (Extension)/UID Link.entitlements" \
+            --sign "$APP_ID" \
+            "build/UID Link.xcarchive/Products/Applications/UID Link.app/Contents/PlugIns/UID Link Extension.appex"
+
+          # 3. Codesign the Main App
+          codesign --force --options runtime \
+            --entitlements "UID Link/macOS (App)/UID Link.entitlements" \
+            --sign "$APP_ID" \
+            "build/UID Link.xcarchive/Products/Applications/UID Link.app"
+
+          # 4. Verify entitlements in the signed binaries
+          echo "=== VERIFYING EXTENSION ENTITLEMENTS ==="
+          codesign -d --entitlements :- "build/UID Link.xcarchive/Products/Applications/UID Link.app/Contents/PlugIns/UID Link Extension.appex"
+          
+          echo "=== VERIFYING APP ENTITLEMENTS ==="
+          codesign -d --entitlements :- "build/UID Link.xcarchive/Products/Applications/UID Link.app"
             
       - name: Upload Archive Artifact
         if: ${{ github.event.inputs.should_sign == 'true' && env.BUILD_CERTIFICATE_BASE64 != '' }}
