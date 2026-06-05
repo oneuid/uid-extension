@@ -118,13 +118,25 @@ jobs:
           fi
           echo "Signing binaries with App Distribution certificate: $APP_ID"
 
-          # 2. Codesign the App Extension first
+          # 2. Codesign nested Swift dylibs in Frameworks first
+          FRAMEWORKS_DIR="build/UID Link.xcarchive/Products/Applications/UID Link.app/Contents/Frameworks"
+          if [ -d "$FRAMEWORKS_DIR" ]; then
+            echo "Signing embedded frameworks/dylibs..."
+            for dylib in "$FRAMEWORKS_DIR"/*.dylib; do
+              if [ -f "$dylib" ]; then
+                echo "Signing dylib: $dylib"
+                codesign --force --options runtime --sign "$APP_ID" "$dylib"
+              fi
+            done
+          fi
+
+          # 3. Codesign the App Extension next
           codesign --force --options runtime \
             --entitlements "UID Link/macOS (Extension)/UID Link.entitlements" \
             --sign "$APP_ID" \
             "build/UID Link.xcarchive/Products/Applications/UID Link.app/Contents/PlugIns/UID Link Extension.appex"
 
-          # 3. Codesign the Main App
+          # 4. Codesign the Main App last
           codesign --force --options runtime \
             --entitlements "UID Link/macOS (App)/UID Link.entitlements" \
             --sign "$APP_ID" \
