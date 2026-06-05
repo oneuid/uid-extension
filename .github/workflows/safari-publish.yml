@@ -73,6 +73,11 @@ jobs:
           # Import certificate and provisioning profile from secrets
           python3 -c "import base64, os; open('$CERTIFICATE_PATH', 'wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
 
+          # Verify certificate decryption with openssl
+          if ! openssl pkcs12 -in $CERTIFICATE_PATH -passin pass:"$P12_PASSWORD" -nokeys -info >/dev/null 2>&1; then
+            echo "Error: The provided P12_PASSWORD does not match the BUILD_CERTIFICATE_BASE64 certificate!"
+            exit 1
+          fi
 
           # Create keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
