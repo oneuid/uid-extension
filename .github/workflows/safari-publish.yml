@@ -57,8 +57,7 @@ jobs:
             exit 0
           fi
           if [ -z "$P12_PASSWORD" ]; then
-            echo "Error: P12_PASSWORD secret is empty. Please set it in GitHub Secrets."
-            exit 1
+            echo "P12_PASSWORD is empty (using passwordless certificate)."
           fi
           if [ -z "$KEYCHAIN_PASSWORD" ]; then
             echo "Error: KEYCHAIN_PASSWORD secret is empty. Please set it in GitHub Secrets."
