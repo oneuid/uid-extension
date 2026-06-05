@@ -29,19 +29,23 @@ def prepare_project():
     else:
         print(f"Warning: project.pbxproj not found at {project_file}")
 
-    # 2. Add LSApplicationCategoryType to Info.plists of the main app targets
+    # 2. Add LSApplicationCategoryType and ITSAppUsesNonExemptEncryption to Info.plists
     plists = glob.glob('UID Link/**/Info.plist', recursive=True)
     for p in plists:
         try:
             with open(p, 'rb') as f:
                 pl = plistlib.load(f)
             
+            # Add Export Compliance bypass key to all targets
+            pl['ITSAppUsesNonExemptEncryption'] = False
+            
             # Identify the main app (not the extension, which has NSExtension)
             if 'NSExtension' not in pl:
                 pl['LSApplicationCategoryType'] = 'public.app-category.utilities'
-                with open(p, 'wb') as f:
-                    plistlib.dump(pl, f)
-                print(f"Added LSApplicationCategoryType to {p}")
+                
+            with open(p, 'wb') as f:
+                plistlib.dump(pl, f)
+            print(f"Configured Info.plist at {p}")
         except Exception as e:
             print(f"Error modifying {p}: {e}")
             
