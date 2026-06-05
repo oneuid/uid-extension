@@ -130,10 +130,11 @@ jobs:
           echo "$API_KEY" > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
 
           # 2. Detect the Installer certificate from the keychain
-          INSTALLER_ID=$(security find-identity -v | grep "Developer Installer" | head -n 1 | sed -E 's/.*"[0-9a-fA-F]+"\s+"([^"]+)".*/\1/')
+          INSTALLER_ID=$(security find-identity -v | grep "Developer Installer" | head -n 1 | cut -d '"' -f 2)
           if [ -z "$INSTALLER_ID" ]; then
-            INSTALLER_ID=$(security find-identity -v | grep "Distribution" | head -n 1 | sed -E 's/.*"[0-9a-fA-F]+"\s+"([^"]+)".*/\1/')
+            INSTALLER_ID=$(security find-identity -v | grep "Distribution" | head -n 1 | cut -d '"' -f 2)
           fi
+
           
           if [ -z "$INSTALLER_ID" ]; then
             echo "Error: No matching installer or distribution certificate found for signing the package."
