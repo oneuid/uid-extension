@@ -56,6 +56,15 @@ jobs:
             echo "Signing certificates not found in secrets. Skipping signing step."
             exit 0
           fi
+          if [ -z "$P12_PASSWORD" ]; then
+            echo "Error: P12_PASSWORD secret is empty. Please set it in GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "$KEYCHAIN_PASSWORD" ]; then
+            echo "Error: KEYCHAIN_PASSWORD secret is empty. Please set it in GitHub Secrets."
+            exit 1
+          fi
+
           
           # Create temporary keychain
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
