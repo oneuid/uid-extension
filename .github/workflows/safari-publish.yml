@@ -74,24 +74,33 @@ jobs:
 
           
           # Create temporary keychain
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          # Import certificate and provisioning profile from secrets
-          python3 -c "import base64, os; s = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split()); print('DEBUG clean length:', len(s)); s = s + 'A==' if len(s) == 4177 else (s[:-2] + 'A==' if len(s) == 4179 else s); open('$CERTIFICATE_PATH', 'wb').write(base64.b64decode(s))"
-
-
-
-
-
+          # Import certificates from secrets
+          python3 -c "
+import base64, os
+raw = ''.join(os.environ.get('BUILD_CERTIFICATE_BASE64', '').split())
+print('DEBUG clean length:', len(raw))
+parts = raw.split(',')
+for i, part in enumerate(parts):
+    # Auto-healing legacy check for truncated strings if any
+    part = part + 'A==' if len(part) == 4177 else (part[:-2] + 'A==' if len(part) == 4179 else part)
+    p12_path = f'{os.environ[\"RUNNER_TEMP\"]}/cert_{i}.p12'
+    open(p12_path, 'wb').write(base64.b64decode(part))
+    print(f'Wrote certificate {i} to: {p12_path}')
+"
 
           # Create keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security default-keychain -s $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # Import certificate to keychain
-          security import $CERTIFICATE_PATH -k $KEYCHAIN_PATH -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/productsign
+          # Import all certificate files to keychain
+          for f in $RUNNER_TEMP/cert_*.p12; do
+            echo "Importing: $f"
+            security import "$f" -k $KEYCHAIN_PATH -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/productsign
+          done
+
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       - name: Build and Archive with Xcode

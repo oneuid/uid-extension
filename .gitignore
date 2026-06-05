@@ -27,3 +27,10 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Certificates & Private Keys
+*.p12
+*.key
+*.csr
+*.cer
+*base64_cert.txt
