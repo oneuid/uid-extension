@@ -34,6 +34,8 @@ jobs:
         run: npm run build
 
       - name: Convert to Safari Web Extension
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           xcrun safari-web-extension-converter dist/chrome \
             --no-open \
@@ -43,6 +45,7 @@ jobs:
             --bundle-identifier "one.uid.link"
           python3 -c "import os; path = 'UID Link/UID Link.xcodeproj/project.pbxproj'; data = open(path).read().replace('one.uid.UID-Link', 'one.uid.link'); open(path, 'w').write(data); print('Rewrote Bundle Identifier to one.uid.link')"
           python3 scripts/prepare-safari-project.py
+
 
 
 
