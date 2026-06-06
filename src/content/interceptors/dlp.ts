@@ -805,10 +805,12 @@ export class PresentationModeController {
   private isActive = false;
   private observer: MutationObserver | null = null;
   private styleEl: HTMLStyleElement | null = null;
+  private originalTextMap = new WeakMap<HTMLSpanElement, string>();
+  private placeholderMap = new WeakMap<HTMLSpanElement, string>();
 
   init(): void {
     document.addEventListener('keydown', (e) => {
-      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+      if (e.altKey && e.shiftKey && (e.key.toLowerCase() === 'p' || e.code === 'KeyP')) {
         e.preventDefault();
         e.stopPropagation();
         this.toggle();
@@ -837,22 +839,60 @@ export class PresentationModeController {
     });
   }
 
+  private getRedactedPlaceholder(text: string, type: string): string {
+    if (type === 'phone') {
+      if (text.length > 6) {
+        return text.slice(0, 3) + '••••' + text.slice(-3);
+      }
+      return '••••••••';
+    }
+    if (type === 'emailBulk') {
+      const parts = text.split('@');
+      if (parts.length === 2) {
+        const name = parts[0];
+        const domain = parts[1];
+        const redactedName = name.length > 2 ? name[0] + '••••' + name.slice(-1) : '••••';
+        return `${redactedName}@${domain}`;
+      }
+    }
+    if (type === 'creditCard') {
+      if (text.length > 8) {
+        return text.slice(0, 4) + '••••••••' + text.slice(-4);
+      }
+    }
+    if (type === 'vnId') {
+      if (text.length > 6) {
+        return text.slice(0, 3) + '••••' + text.slice(-3);
+      }
+    }
+    if (type === 'jwt') {
+      return 'eyJ••••••••';
+    }
+    if (type === 'apiKey') {
+      return 'key_••••••••';
+    }
+    // Fallback
+    if (text.length <= 8) return '••••••••';
+    return text.slice(0, 4) + '••••' + text.slice(-4);
+  }
+
   private activate(): void {
     if (!this.styleEl) {
       this.styleEl = document.createElement('style');
       this.styleEl.id = 'uid-presentation-style';
       this.styleEl.textContent = `
         .uid-presentation-blur {
-          filter: blur(6px) !important;
-          transition: filter 0.15s ease-in-out !important;
           cursor: pointer !important;
-          background: rgba(226, 232, 240, 0.4) !important;
+          background: rgba(226, 232, 240, 0.9) !important;
           border-radius: 3px !important;
-          padding: 0 2px !important;
-        }
-        .uid-presentation-blur:hover {
-          filter: none !important;
-          background: transparent !important;
+          padding: 0 4px !important;
+          margin: 0 1px !important;
+          font-family: monospace !important;
+          color: #0f172a !important;
+          border: 1px solid #cbd5e1 !important;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+          display: inline-block !important;
+          line-height: 1.2 !important;
         }
       `;
       document.head.appendChild(this.styleEl);
@@ -891,14 +931,24 @@ export class PresentationModeController {
 
     const elements = document.querySelectorAll('.uid-presentation-blur');
     elements.forEach((el) => {
-      const parent = el.parentNode;
-      if (parent) {
-        while (el.firstChild) {
-          parent.insertBefore(el.firstChild, el);
+      const span = el as HTMLSpanElement;
+      const original = this.originalTextMap.get(span);
+      if (original !== undefined) {
+        const textNode = document.createTextNode(original);
+        span.parentNode?.replaceChild(textNode, span);
+      } else {
+        const parent = span.parentNode;
+        if (parent) {
+          while (span.firstChild) {
+            parent.insertBefore(span.firstChild, span);
+          }
+          span.remove();
         }
-        el.remove();
       }
     });
+
+    this.originalTextMap = new WeakMap();
+    this.placeholderMap = new WeakMap();
 
     document.body.normalize();
   }
@@ -955,21 +1005,82 @@ export class PresentationModeController {
 
     if (earliestMatch) {
       const { start, end } = earliestMatch;
+      const originalText = text.slice(start, end);
+      const placeholder = this.getRedactedPlaceholder(originalText, earliestMatch.type);
+
       const matchNode = textNode.splitText(start);
       const afterNode = matchNode.splitText(end - start);
 
       const span = document.createElement('span');
       span.className = 'uid-presentation-blur';
       span.dataset.uidType = earliestMatch.type;
-      
+      span.textContent = placeholder;
+      span.title = "Click to reveal & copy";
+
+      let isRevealed = false;
+
+      // Add Hover Listeners for isolated memory disclosure
+      span.addEventListener('mouseenter', () => {
+        if (!isRevealed) {
+          const original = this.originalTextMap.get(span);
+          if (original !== undefined) {
+            span.textContent = original;
+            span.classList.remove('uid-presentation-blur');
+          }
+        }
+      });
+
+      span.addEventListener('mouseleave', () => {
+        if (!isRevealed) {
+          const placeholderVal = this.placeholderMap.get(span);
+          if (placeholderVal !== undefined) {
+            span.textContent = placeholderVal;
+            span.classList.add('uid-presentation-blur');
+          }
+        }
+      });
+
+      // Add Click Listener to toggle reveal, auto-copy, and prevent page-level bubble actions (like Zalo search)
+      span.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        isRevealed = !isRevealed;
+        const original = this.originalTextMap.get(span);
+        const placeholderVal = this.placeholderMap.get(span);
+        
+        if (isRevealed) {
+          if (original !== undefined) {
+            span.textContent = original;
+            span.classList.remove('uid-presentation-blur');
+            span.title = "Click to mask again";
+            
+            // Auto copy to clipboard
+            navigator.clipboard.writeText(original).catch((err) => {
+              console.error("[uid.one] Clipboard copy failed:", err);
+            });
+          }
+        } else {
+          if (placeholderVal !== undefined) {
+            span.textContent = placeholderVal;
+            span.classList.add('uid-presentation-blur');
+            span.title = "Click to reveal & copy";
+          }
+        }
+      }, true);
+
+      this.originalTextMap.set(span, originalText);
+      this.placeholderMap.set(span, placeholder);
+
       const parent = matchNode.parentNode;
       if (parent) {
         parent.insertBefore(span, matchNode);
-        span.appendChild(matchNode);
+        matchNode.remove();
       }
 
       this.processTextNode(afterNode);
     }
   }
 }
+
 
