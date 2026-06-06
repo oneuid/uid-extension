@@ -4,6 +4,23 @@
 
 ---
 
+## 🤝 Cặp đôi hoàn hảo: UID Link & UID Agent
+
+Để đạt được cấp độ bảo mật và độ tin cậy phía máy khách cao nhất, **UID Link** (Tiện ích mở rộng trình duyệt) và [**UID Agent**](https://github.com/oneuid/uid-agent) (Ứng dụng máy tính & Daemon) được thiết kế để hoạt động song song như một hệ sinh thái thống nhất.
+
+| Hợp phần | Lớp xử lý | Vai trò bảo mật cốt lõi |
+| :--- | :--- | :--- |
+| **UID Link (Browser Extension)** | Trình duyệt & Phiên | Khóa phiên thời gian thực, chống lừa đảo, DLP lớp trình duyệt, chặn cookie theo dõi, kích hoạt ký số văn bản/PDF trực tuyến. |
+| **[UID Agent](https://github.com/oneuid/uid-agent) (Desktop App)** | Phần cứng & Hệ điều hành | Giám sát toàn vẹn thiết bị đầu cuối (SOC 2), khóa bảo mật phần cứng PKCS#11 (USB Token), hộp cát ứng dụng an toàn (Docker + Wine). |
+
+### 🚀 Sức mạnh Hiệp đồng Hệ sinh thái
+1. **Ký số Xác thực bằng Phần cứng:** Khi bạn thực hiện ký số tài liệu hoặc văn bản trên trình duyệt thông qua UID Link, tiện ích sẽ giao tiếp với **UID Agent** cục bộ qua cổng native an toàn để truy cập các khóa bảo mật USB (Token PKCS#11/smartcard) đang cắm trên máy, thực hiện quá trình ký trực tiếp trên thiết bị mà không làm lộ khóa riêng tư.
+2. **Xác thực Thiết bị & Toàn vẹn Phiên:** UID Link chủ động xác minh xem **UID Agent** tin cậy có đang chạy trên thiết bị hay không. Agent sẽ đồng bộ trạng thái ủy quyền và đảm bảo thiết bị đáp ứng các tiêu chuẩn tuân thủ an toàn (mã hóa ổ đĩa, tường lửa hoạt động) trước khi cho phép truy cập.
+
+👉 **Tải UID Agent:** Xem hướng dẫn tại [UID Agent Setup Guide](https://github.com/oneuid/uid-agent) (hoặc `../../uid-agent/README.md` nếu nhân bản cục bộ cạnh nhau) để tự biên dịch và cài đặt bảng điều khiển desktop cho Linux, macOS, hoặc Windows.
+
+---
+
 ## 🛡 Tính năng của Động cơ Bảo mật
 
 ### 1. Liên kết Phiên mã hóa (Cryptographic Session Binding)

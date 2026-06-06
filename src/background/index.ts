@@ -63,7 +63,7 @@ export class SessionBinding {
         body: JSON.stringify({ binding_key: bindingKey })
       });
     } catch (err) {
-      console.error('[uid.one] Failed to register session binding on server:', err);
+      console.warn('[uid.one] Failed to register session binding on server:', err);
     }
 
     return bindingKey;
@@ -439,7 +439,7 @@ function waitForChallengeApproval(token: string): Promise<any> {
           handleFailure(data.status.toLowerCase());
         }
       } catch (err) {
-        console.error('[uid.one] Polling fallback error:', err);
+        console.warn('[uid.one] Polling fallback error:', err);
       }
     }, 2000);
 
@@ -504,7 +504,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         sendResponse({ success: true, hashHex });
       })
       .catch(err => {
-        console.error('[uid.one] FETCH_AND_HASH_PDF failed:', err);
+        console.warn('[uid.one] FETCH_AND_HASH_PDF failed:', err);
         sendResponse({ success: false, error: err.message });
       });
     return true;
@@ -587,7 +587,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         console.log('[uid.one] GET_PROFILE API success:', email);
         sendResponse({ success: true, email, sub: data.uuid || data.id || data.sub });
       } catch (err: any) {
-        console.error('[uid.one] GET_PROFILE API fetch failed:', err.message);
+        console.warn('[uid.one] GET_PROFILE API fetch failed:', err.message);
         sendResponse({ success: false, error: `Failed to retrieve profile: ${err.message}` });
       }
     });
@@ -843,7 +843,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         }
         sendResponse({ success: res.ok });
       }).catch(err => {
-        console.error('[uid.one] Audit log network error:', err);
+        console.warn('[uid.one] Audit log network error:', err);
         sendResponse({ success: false, error: err.toString() });
       });
     });
@@ -899,30 +899,25 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "sign-pdf" || info.menuItemId === "sign-pdf-page") {
     const pdfUrl = info.linkUrl || info.pageUrl || tab.url;
     if (pdfUrl) {
-      if (pdfUrl.startsWith('file://')) {
-        chrome.tabs.sendMessage(tab.id, {
-          action: "FETCH_PDF_BYTES",
-          url: pdfUrl
-        }, (response) => {
-          if (chrome.runtime.lastError || !response || !response.success) {
-            console.warn('[uid.one] Could not fetch local PDF bytes via content script, opening signer page with direct URL:', chrome.runtime.lastError?.message || response?.error);
+      // Try to fetch PDF bytes via the content script first to bypass extension origin CORS limitations
+      chrome.tabs.sendMessage(tab.id, {
+        action: "FETCH_PDF_BYTES",
+        url: pdfUrl
+      }, (response) => {
+        if (chrome.runtime.lastError || !response || !response.success) {
+          console.warn('[uid.one] Could not fetch PDF bytes via content script, opening signer page with direct URL:', chrome.runtime.lastError?.message || response?.error);
+          chrome.tabs.create({
+            url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
+          });
+        } else {
+          const cacheKey = `pdf_cache_${Date.now()}`;
+          chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
             chrome.tabs.create({
-              url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
+              url: chrome.runtime.getURL(`pdf-signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`)
             });
-          } else {
-            const cacheKey = `pdf_cache_${Date.now()}`;
-            chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
-              chrome.tabs.create({
-                url: chrome.runtime.getURL(`pdf-signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`)
-              });
-            });
-          }
-        });
-      } else {
-        chrome.tabs.create({
-          url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
-        });
-      }
+          });
+        }
+      });
     }
   } else if (info.menuItemId === "sign-text") {
     chrome.tabs.sendMessage(tab.id, {

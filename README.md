@@ -9,6 +9,23 @@ For detailed architectural specifications and ecosystem details, please visit th
 
 ---
 
+## 🤝 The Perfect Duo: UID Link & UID Agent
+
+To achieve the highest level of security and client-side trust, **UID Link** (Browser Extension) and [**UID Agent**](https://github.com/oneuid/uid-agent) (Desktop App & Daemon) are engineered to work in tandem.
+
+| Component | Layer | Core Security Responsibilities |
+| :--- | :--- | :--- |
+| **UID Link (Browser Extension)** | Web & Session | Real-time session lock, anti-phishing shield, browser-layer DLP, anti-tracking cookie guards, webmail/PDF cryptographic signing triggers. |
+| **[UID Agent](https://github.com/oneuid/uid-agent) (Desktop App)** | Hardware & OS | Continuous endpoint integrity monitoring (SOC 2), PKCS#11 hardware keys (USB tokens), containerized app sandboxes (Docker + Wine). |
+
+### 🚀 Unified Workflow Synergy
+1. **Hardware-Backed Cryptographic Signing:** When signing a document or text in the browser using UID Link, it communicates with the local **UID Agent** daemon over secure native ports to access your plugged-in USB security tokens (PKCS#11/smartcards), executing the signing process directly on-device without exposing private keys.
+2. **Device Attestation & Session Integrity:** UID Link actively checks that a trusted **UID Agent** is running on the host machine. The agent synchronizes authorization states and verifies that the device meets enterprise security compliance (disk encryption, firewall status) before enabling access.
+
+👉 **Get UID Agent:** Check out the [UID Agent Setup Guide](https://github.com/oneuid/uid-agent) (or `../uid-agent/README.md` if cloned locally side-by-side) to build and install the desktop dashboard for Linux, macOS, or Windows.
+
+---
+
 ## 🛡 Security Engine Features
 
 ### 1. Cryptographic Session Binding
@@ -25,7 +42,7 @@ Actively checks visited domains to detect spoofing, typosquatting, and phishing 
 
 ### 3. Browser-Layer Data Loss Prevention (DLP)
 Inspects client-side actions to prevent inadvertent leaks of PII, credentials, or sensitive documents:
-- **Presentation Mode (Chế độ Trình chiếu/Chụp ảnh):** Toggle via `Alt+Shift+P` to dynamically blur and hide all sensitive plain-text patterns (such as phone numbers, emails, Vietnam Citizen IDs, credit card numbers) across web pages. This ensures screen shares and captures do not leak business details. Rê chuột (hover) để xem tạm thời.
+- **Presentation Mode:** Toggle via `Alt+Shift+P` to dynamically blur and hide all sensitive plain-text patterns (such as phone numbers, emails, Vietnam Citizen IDs, credit card numbers) across web pages. This ensures screen shares and captures do not leak business details. Hovering reveals the text temporarily.
 - **File Upload Interceptor:** Listens for `input[type="file"]` change events and drag & drop drops. Files are analyzed client-side, blocking unsafe files and displaying a warning overlay.
 - **Clipboard Interceptor:** Intercepts `paste` and `copy` events. Unsafe clipboard pastes are stopped with confirmation modals, while sensitive copies trigger native browser warning notifications.
 - **Form Interceptor:** Scans outbound `<form>` submissions for compliance before payloads leave the browser context.

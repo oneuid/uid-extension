@@ -64,14 +64,16 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         return res.arrayBuffer();
       })
       .then(buffer => {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        const base64 = btoa(binary);
-        sendResponse({ success: true, base64 });
+        const blob = new Blob([buffer]);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          sendResponse({ success: true, base64 });
+        };
+        reader.onerror = () => {
+          sendResponse({ success: false, error: 'Failed to read array buffer' });
+        };
+        reader.readAsDataURL(blob);
       })
       .catch(err => {
         sendResponse({ success: false, error: err.message });
@@ -306,14 +308,8 @@ async function handlePdfSigning(pdfUrl: string) {
     }
 
     showToast("Fetching and hashing PDF...", "info");
-    chrome.runtime.sendMessage({ type: 'FETCH_AND_HASH_PDF', url: pdfUrl }, (hashRes) => {
-      if (!hashRes || !hashRes.success) {
-        showToast("Failed to process PDF: " + (hashRes?.error || "CORS or download error"), "error");
-        alert(chrome.i18n.getMessage("errorFetchPdf") || "Failed to fetch or hash PDF. Please make sure the link is accessible.");
-        return;
-      }
-      const hashHex = hashRes.hashHex;
-      
+
+    const proceedWithHash = (hashHex: string) => {
       const heartbeatInterval = setInterval(() => {
         chrome.runtime.sendMessage({ type: 'HEARTBEAT' }, () => {
           if (chrome.runtime.lastError) {
@@ -348,7 +344,31 @@ async function handlePdfSigning(pdfUrl: string) {
         clearInterval(heartbeatInterval);
         showToast("PDF signing cancelled by user", "info");
       });
-    });
+    };
+
+    // Try to fetch and hash locally within the content script to bypass extension CORS
+    fetch(pdfUrl)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then(arrayBuffer => crypto.subtle.digest('SHA-256', arrayBuffer))
+      .then(hashBuffer => {
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        proceedWithHash(hashHex);
+      })
+      .catch(err => {
+        console.warn('[uid.one] Local PDF fetch failed, falling back to background helper:', err.message);
+        chrome.runtime.sendMessage({ type: 'FETCH_AND_HASH_PDF', url: pdfUrl }, (hashRes) => {
+          if (!hashRes || !hashRes.success) {
+            showToast("Failed to process PDF: " + (hashRes?.error || "CORS or download error"), "error");
+            alert(chrome.i18n.getMessage("errorFetchPdf") || "Failed to fetch or hash PDF. Please make sure the link is accessible.");
+            return;
+          }
+          proceedWithHash(hashRes.hashHex);
+        });
+      });
   });
 }
 

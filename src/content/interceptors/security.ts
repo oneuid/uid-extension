@@ -389,7 +389,6 @@ export class CookieGuard {
   private isWhitelistedDomain(hostname: string): boolean {
     const whitelist = [
       'uid.one',
-      'trip.express',
       'localhost',
       '127.0.0.1'
     ];

@@ -1560,7 +1560,9 @@ btnSign.addEventListener('click', () => {
             // 2. Cryptographically sign the document using @signpdf/signpdf
             showToast("Generating PKCS#7 cryptographic signature container...", "info");
             let signpdfInstance: any = signpdf;
-            while (signpdfInstance && signpdfInstance.default && !signpdfInstance.sign) {
+            const visited = new Set();
+            while (signpdfInstance && signpdfInstance.default && !signpdfInstance.sign && !visited.has(signpdfInstance)) {
+              visited.add(signpdfInstance);
               signpdfInstance = signpdfInstance.default;
             }
             if (typeof signpdfInstance === 'function') {
