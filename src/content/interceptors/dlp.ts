@@ -800,3 +800,176 @@ export class TextDLPShield {
     });
   }
 }
+
+export class PresentationModeController {
+  private isActive = false;
+  private observer: MutationObserver | null = null;
+  private styleEl: HTMLStyleElement | null = null;
+
+  init(): void {
+    document.addEventListener('keydown', (e) => {
+      if (e.altKey && e.shiftKey && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      }
+    }, true);
+  }
+
+  private toggle(): void {
+    this.isActive = !this.isActive;
+    console.log(`[uid.one] Presentation Mode toggled: ${this.isActive}`);
+
+    if (this.isActive) {
+      this.activate();
+      this.showToast("Presentation Mode Activated");
+    } else {
+      this.deactivate();
+      this.showToast("Presentation Mode Deactivated");
+    }
+  }
+
+  private showToast(msg: string): void {
+    chrome.runtime.sendMessage({
+      type: 'SHOW_NOTIFICATION',
+      title: 'Presentation Mode',
+      message: msg,
+    });
+  }
+
+  private activate(): void {
+    if (!this.styleEl) {
+      this.styleEl = document.createElement('style');
+      this.styleEl.id = 'uid-presentation-style';
+      this.styleEl.textContent = `
+        .uid-presentation-blur {
+          filter: blur(6px) !important;
+          transition: filter 0.15s ease-in-out !important;
+          cursor: pointer !important;
+          background: rgba(226, 232, 240, 0.4) !important;
+          border-radius: 3px !important;
+          padding: 0 2px !important;
+        }
+        .uid-presentation-blur:hover {
+          filter: none !important;
+          background: transparent !important;
+        }
+      `;
+      document.head.appendChild(this.styleEl);
+    }
+
+    this.scanAndWrap(document.body);
+
+    this.observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            this.scanAndWrap(node as HTMLElement);
+          } else if (node.nodeType === Node.TEXT_NODE) {
+            this.processTextNode(node as Text);
+          }
+        });
+      }
+    });
+
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  private deactivate(): void {
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
+    }
+
+    if (this.styleEl) {
+      this.styleEl.remove();
+      this.styleEl = null;
+    }
+
+    const elements = document.querySelectorAll('.uid-presentation-blur');
+    elements.forEach((el) => {
+      const parent = el.parentNode;
+      if (parent) {
+        while (el.firstChild) {
+          parent.insertBefore(el.firstChild, el);
+        }
+        el.remove();
+      }
+    });
+
+    document.body.normalize();
+  }
+
+  private scanAndWrap(root: HTMLElement): void {
+    const walk = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: (node) => {
+          const parent = node.parentNode as HTMLElement | null;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const tagName = parent.tagName.toUpperCase();
+          if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'IFRAME'].includes(tagName)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (parent.closest('.uid-presentation-blur') || parent.classList.contains('uid-presentation-blur')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const textNodes: Text[] = [];
+    let node: Node | null;
+    while ((node = walk.nextNode())) {
+      textNodes.push(node as Text);
+    }
+
+    for (const textNode of textNodes) {
+      this.processTextNode(textNode);
+    }
+  }
+
+  private processTextNode(textNode: Text): void {
+    const text = textNode.nodeValue || '';
+    if (!text.trim()) return;
+
+    let earliestMatch: { start: number; end: number; type: string } | null = null;
+
+    for (const [type, regex] of Object.entries(SENSITIVE_PATTERNS)) {
+      const pattern = new RegExp(regex);
+      pattern.lastIndex = 0;
+      const match = pattern.exec(text);
+      if (match) {
+        const start = match.index;
+        const end = start + match[0].length;
+        if (!earliestMatch || start < earliestMatch.start) {
+          earliestMatch = { start, end, type };
+        }
+      }
+    }
+
+    if (earliestMatch) {
+      const { start, end } = earliestMatch;
+      const matchNode = textNode.splitText(start);
+      const afterNode = matchNode.splitText(end - start);
+
+      const span = document.createElement('span');
+      span.className = 'uid-presentation-blur';
+      span.dataset.uidType = earliestMatch.type;
+      
+      const parent = matchNode.parentNode;
+      if (parent) {
+        parent.insertBefore(span, matchNode);
+        span.appendChild(matchNode);
+      }
+
+      this.processTextNode(afterNode);
+    }
+  }
+}
+

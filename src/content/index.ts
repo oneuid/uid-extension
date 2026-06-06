@@ -1,6 +1,6 @@
 import { isWebmailSite, isContextValid } from './utils';
 import { findComposerSenderEmail, detectWebmailUserEmail, normalizeEmail } from './adapters/webmail';
-import { FileUploadInterceptor, ClipboardInterceptor, FormInterceptor, TextDLPShield } from './interceptors/dlp';
+import { FileUploadInterceptor, ClipboardInterceptor, FormInterceptor, TextDLPShield, PresentationModeController } from './interceptors/dlp';
 import { ScreenshotProtector, OriginVerifier, ViewportCleaner, CookieGuard, NotificationBlocker, GPCEnforcer } from './interceptors/security';
 import { captureSessionToken, injectAll } from './autofill';
 import { EmailSignatureGuard, EmailSendInterceptor, ComposerFloatingSignButton } from './signature';
@@ -573,6 +573,7 @@ function init() {
     { name: 'EmailSignatureGuard', run: () => new EmailSignatureGuard().init() },
     { name: 'EmailSendInterceptor', run: () => new EmailSendInterceptor().init() },
     { name: 'ComposerFloatingSignButton', run: () => new ComposerFloatingSignButton().init() },
+    { name: 'PresentationModeController', run: () => new PresentationModeController().init() },
     { name: 'captureSessionToken', run: () => captureSessionToken() }
   ];
 
