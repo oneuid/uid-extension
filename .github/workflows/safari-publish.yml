@@ -43,7 +43,6 @@ jobs:
             --force \
             --app-name "UID Link" \
             --bundle-identifier "one.uid.link"
-          python3 -c "import os; path = 'UID Link/UID Link.xcodeproj/project.pbxproj'; data = open(path).read().replace('one.uid.UID-Link', 'one.uid.link'); open(path, 'w').write(data); print('Rewrote Bundle Identifier to one.uid.link')"
           python3 scripts/prepare-safari-project.py
 
 

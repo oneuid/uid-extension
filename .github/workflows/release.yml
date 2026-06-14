@@ -71,6 +71,7 @@ jobs:
             --force \
             --app-name "UID Link" \
             --bundle-identifier "one.uid.link"
+          python3 scripts/prepare-safari-project.py
 
       - name: Compress Safari Xcode Project
         run: zip -r uid-link-safari-xcode.zip "UID Link/"
