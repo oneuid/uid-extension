@@ -949,8 +949,10 @@ async function renderPage(pageNum: number) {
   const page = await pdfDocument.getPage(pageNum);
   
   // Calculate dynamic scale to fit viewport beautifully
-  const containerWidth = editorContainer.clientWidth - 80;
-  const containerHeight = editorContainer.clientHeight - 80;
+  let containerWidth = editorContainer.clientWidth - 80;
+  let containerHeight = editorContainer.clientHeight - 80;
+  if (containerWidth <= 100) containerWidth = 800;
+  if (containerHeight <= 100) containerHeight = 600;
   const unscaledViewport = page.getViewport({ scale: 1 });
   
   const scaleW = containerWidth / unscaledViewport.width;
@@ -959,9 +961,10 @@ async function renderPage(pageNum: number) {
 
   const viewport = page.getViewport({ scale });
   
-  // Resize canvas and overlay container
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
+  // Support high-DPI screens for crisp rendering
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = viewport.width * dpr;
+  canvas.height = viewport.height * dpr;
   canvas.style.width = `${viewport.width}px`;
   canvas.style.height = `${viewport.height}px`;
   
@@ -976,7 +979,8 @@ async function renderPage(pageNum: number) {
 
   const renderContext = {
     canvasContext: ctx,
-    viewport: viewport
+    viewport: viewport,
+    transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : undefined
   };
   
   await page.render(renderContext).promise;
@@ -1252,7 +1256,9 @@ btnSign.addEventListener('click', () => {
             const page = pages[pageIndex];
 
             // Map overlay container coordinates to original PDF coordinates
-            const htmlHeight = canvas.height;
+            const pdfjsPage = await pdfDocument.getPage(currentPageNum);
+            const viewport = pdfjsPage.getViewport({ scale });
+            const htmlHeight = viewport.height;
             const stampLeft = signatureBox.offsetLeft;
             const stampTop = signatureBox.offsetTop;
             const stampWidth = signatureBox.offsetWidth;
@@ -1550,7 +1556,7 @@ btnSign.addEventListener('click', () => {
               signingTime: now,
               signatureLength: 16384,
               subFilter: 'adbe.pkcs7.detached',
-              widgetRect: [pdfX, pdfY, pdfX + pdfW, pdfY + pdfH],
+              widgetRect: [0, 0, 0, 0],
               appName: 'UID.one Cryptographic Signer'
             });
 
@@ -1602,8 +1608,12 @@ btnSign.addEventListener('click', () => {
             showToast("PDF signed and saved successfully!", "success");
             alert(chrome.i18n.getMessage("pdfSignedSuccess") || "PDF digitally signed and saved successfully!");
             
-            // Reload the rendering viewport with the new signed bytes
-            loadPdfBytes(signedPdfBuffer.buffer as ArrayBuffer, name);
+            // Reload the rendering viewport with the new signed bytes (safely slicing the ArrayBuffer)
+            const exactSignedBytes = signedPdfBuffer.buffer.slice(
+              signedPdfBuffer.byteOffset,
+              signedPdfBuffer.byteOffset + signedPdfBuffer.byteLength
+            );
+            loadPdfBytes(exactSignedBytes, name);
           } catch (err: any) {
             console.error('[uid.one] Visual signature stamp error:', err);
             btnSign.disabled = false;
