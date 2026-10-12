@@ -1,15 +1,15 @@
 :root {
-  --bg-dark: #030712;
-  --card-bg: rgba(17, 24, 39, 0.7);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f9fafb;
-  --text-muted: #9ca3af;
-  --primary-glow: #0ea5e9;
+  --bg-dark: #020617;
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --card-border: rgba(51, 65, 85, 0.6);
+  --text-primary: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary-glow: #2563eb;
   --success-glow: #10b981;
   --warning-glow: #f59e0b;
   --danger-glow: #ef4444;
-  --radius-lg: 14px;
-  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
 }
 
 html, body {
@@ -20,7 +20,7 @@ html, body {
 
 body {
   overflow: hidden;
-  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
@@ -33,7 +33,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 60%),
+  background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 60%),
               radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.08), transparent 50%),
               var(--bg-dark);
 }
@@ -54,7 +54,7 @@ body {
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -70,7 +70,7 @@ body {
 
 /* Premium Card & Row Layouts */
 .premium-card {
-  background: rgba(10, 18, 32, 0.55);
+  background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
@@ -105,22 +105,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(14, 165, 233, 0.08);
-  border: 1px solid rgba(14, 165, 233, 0.15);
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   color: var(--primary-glow);
   flex-shrink: 0;
 }
 
 .icon-wrapper.success {
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: var(--success-glow);
 }
 
 .icon-wrapper.purple {
-  background: rgba(168, 85, 247, 0.08);
-  border: 1px solid rgba(168, 85, 247, 0.15);
-  color: #c084fc;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #818cf8;
 }
 
 .icon-wrapper.warning {
