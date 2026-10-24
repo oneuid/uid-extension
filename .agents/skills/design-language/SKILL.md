@@ -32,13 +32,15 @@ Interactive controls must use fixed height tokens (`h-*`) rather than arbitrary 
 - **Button-to-Card Area Ratio**: A card's primary action button must never exceed **12–15%** of the card's total vertical height (`h-9` inside a `p-5` card is ideal).
 - **Button Label Discipline**: Keep button labels to **1–2 crisp words** (`Save`, `Merge`, `Dispatch`, `Verify`). Never stretch secondary action buttons to `flex-1` next to a short text button.
 
-### C. Four-Step Surface Ladder & Hairline Borders (Depth Without Heavy Shadows)
-Following Linear and Vercel's surface engineering, hierarchy is achieved via **surface luminance steps** and **1px hairline borders**, NOT heavy drop shadows (`shadow-xl`, `shadow-2xl`) or thick 4-sided colored borders (`border-2 border-emerald-500`):
+### C. Four-Step Surface Ladder & Hairline Borders (Depth Without Heavy Shadows or Left Borders)
+Following Linear and Vercel's surface engineering, hierarchy is achieved via **surface luminance steps** and **1px hairline borders**, NOT heavy drop shadows (`shadow-xl`, `shadow-2xl`), thick 4-sided colored borders (`border-2 border-emerald-500`), or "vibe-code" colored left borders (`border-l-4`, `border-s-4`, `border-l-2`):
 1. **Level 0 — Canvas**: Page background (`bg-slate-50` light / `bg-slate-950` or `#010102` dark).
-2. **Level 1 — Primary Surface**: Card / Panel (`bg-white` light / `bg-slate-900` dark) with `1px` hairline border (`border-slate-200/90` light / `border-slate-800` dark) and at most `shadow-xs`.
-3. **Level 2 — Elevated / Interactive Surface**: Hovered row, active tab pill, or subtle callout (`bg-slate-100/80` light / `bg-slate-800/60` dark).
+2. **Level 1 — Primary Surface**: Card / Panel (`bg-white` light / `bg-slate-900` dark) with uniform `1px` hairline border (`border-slate-200/90` light / `border-slate-800` dark) and at most `shadow-2xs`.
+3. **Level 2 — Elevated / Interactive Surface**: Hovered row, active nav item (`bg-slate-900/[0.05] dark:bg-white/[0.08] rounded-lg`), or active tab pill.
 4. **Level 3 — Translucent Floating Chrome**: Sticky headers, drawers, command palettes (`bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl`).
-- **Status Indication on Cards**: To indicate card status (e.g., `Received`, `Preparing`, `Ready`), use a **3px–4px left accent bar** (`border-s-4 border-s-emerald-500`) paired with a neutral 1px outer border — NEVER wrap the entire card in a thick 2px neon border.
+- **Strict Zero Left-Border & Zero Nested-Card Rule**:
+  - **NEVER** use colored left borders (`border-l-4`, `border-s-4`, `border-s-2`, `border-l-[3px]`) on cards, alerts, notes, or navigation items — that is a telltale "vibe code / AI template" trope. Convey status cleanly through the compact status badge (`RECEIVED`, `PREPARING`) and the primary action button color.
+  - **NEVER** nest a bordered/tinted box (`bg-amber-50 border p-3 rounded-xl` or `bg-slate-50 p-3 rounded-lg`) inside a card for notes, warnings, or sub-sections. Separate internal card sections strictly with a `1px` horizontal divider (`border-b border-slate-100 dark:border-slate-800/80`) or clean typography (`text-xs text-slate-500`).
 
 ---
 
@@ -52,7 +54,7 @@ Following Linear and Vercel's surface engineering, hierarchy is achieved via **s
 2. **Numeric & Financial Discipline (`tabular-nums`)**:
    - Every price, quantity (`x2`), timer (`6m ago`), percentage, folio line, and reference code (`REF-981244`) MUST use `tabular-nums` (`font-mono` where appropriate) so columns align vertically to the pixel.
 3. **Zero Redundant Data Repetition**:
-   - Never display the same field twice inside a single card (e.g., never use `booking.notes` as both the item title and the quoted note box below it).
+   - Never display the same field twice inside a single card (e.g., never use `booking.notes` as both the item title and the note line below it).
    - Hide pagination controls completely whenever `totalPages <= 1`.
 
 ---
@@ -81,7 +83,7 @@ While sharing the geometric chassis above, each product line expresses its own u
 
 | Product Line | Design Language Name | Aesthetic Reference | Signature Visual DNA |
 | :--- | :--- | :--- | :--- |
-| **1. DING OS** (`getding.io`, `app.getding.io`) | **Tactile Precision** | Braun (Dieter Rams) + Linear + Teenage Engineering | • **Palette**: Crisp Slate (`#0f172a` / `#f8fafc`) + Signal Amber (`#f59e0b`) & Operational Emerald (`#10b981`).<br>• **Character**: High-density operational cockpit, borderless grouped navigation with `3px` left active indicator, `border-s-4` status tickets, `h-9` tactile buttons, dual-modality acoustic + visual alerts. |
+| **1. DING OS** (`getding.io`, `app.getding.io`) | **Tactile Precision** | Braun (Dieter Rams) + Linear + Teenage Engineering | • **Palette**: Crisp Slate (`#0f172a` / `#f8fafc`) + Signal Amber (`#f59e0b`) & Operational Emerald (`#10b981`).<br>• **Character**: High-density operational cockpit, uniform `1px` hairline cards, flat divider sections (zero nested boxes, zero left-border stripes), `h-9` tactile buttons, dual-modality acoustic + visual alerts. |
 | **2. Trip Express** (`trip.express/web`, `mobile`, `enterprises`) | **Kinetic Horizon** | Airbnb Luxe + Stripe + Apple Maps | • **Palette**: Clean Daylight Canvas + Trust Blue/Indigo & Warm Coral/Amber accents.<br>• **Character**: Effortless discovery cards (`16:10` / `4:3` imagery with subtle inner ring), frictionless multi-currency checkout, Stripe-grade B2B/OTA admin tables (`h-9` controls, zero nested cards). |
 | **3. OneUID** (`uid.one/uid-web`, `uid-app`) | **Cryptographic Minimal** | Vercel Geist + Apple Passkeys + Ledger | • **Palette**:Stark Monochrome (`#010102` canvas, `#171717` surface, `1px` `white/10` hairlines) + single security accent.<br>• **Character**: Zero-knowledge vault clarity, monospace cryptographic tokens (`Geist Mono`), instant passkey/QR challenge feedback, zero decorative fluff. |
 | **4. SHAN** (`shan.estate`, `shan.club`, `shan.voyage`, `shan.one`, `shan.academy`) | **Quiet Architectural Luxury** | Aman Resorts + Hermès + Bottega Veneta | • **Palette**: Warm Stone / Alabaster (`#f6f4f0`) & Deep Espresso/Obsidian (`#0c0b09`) + Muted Champagne Gold (`#c5a572`).<br>• **Character**: Editorial serif headlines (`Cormorant Garamond` / negative tracking) paired with crisp geometric sans body, generous gallery whitespace, refined `rounded-lg`/`rounded-xl` geometry, never loud neon or generic SaaS tropes. |
@@ -96,8 +98,8 @@ Before completing any UI task, verify every modified component against this tabl
 | :--- | :--- |
 | **Concentric Radii** | Card is `rounded-2xl` (`p-4`/`p-5`), inner buttons/inputs are `rounded-xl` or `rounded-lg`. |
 | **Button Proportion** | Buttons use `h-7` / `h-8` / `h-9` / `h-10` — zero `py-5` or `py-6` bloated buttons. |
-| **Surface & Borders** | `1px` hairline border (`border-slate-200/90 dark:border-slate-800`), status via `border-s-4`, zero `border-2` full-card neon frames. |
-| **Zero Nested Cards** | No boxed cards inside boxed cards; inner groups separated by `border-t` or whitespace. |
+| **Surface & Borders** | Uniform `1px` hairline border (`border-slate-200/90 dark:border-slate-800`), zero `border-l-*`/`border-s-*` vibe-code stripes, zero `border-2` neon frames. |
+| **Zero Nested Cards** | No boxed cards/callouts/notes inside boxed cards; inner groups separated strictly by `border-b`/`border-t` or whitespace. |
 | **Pagination Hygiene** | Pagination component returns `null` when `totalPages <= 1`. |
 | **Numeric Alignment** | All prices, counts, timers, and codes have `tabular-nums`. |
 | **Motion & Press** | Under `250ms` `ease-out`, `active:scale-[0.98]`, no animation on high-frequency tab/keyboard switches. |
