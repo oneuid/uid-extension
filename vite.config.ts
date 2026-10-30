@@ -4,9 +4,13 @@ import webExtension from 'vite-plugin-web-extension';
 import fs from 'fs';
 
 export default defineConfig({
+  esbuild: {
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+  },
   build: {
     outDir: process.env.TARGET === 'firefox' ? 'dist/firefox' : 'dist/chrome',
     emptyOutDir: true,
+    sourcemap: false,
   },
   plugins: [
     webExtension({
