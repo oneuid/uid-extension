@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "Sécurité client Zero-Trust pour UID.one. Impose la protection DLP, la liaison de session et l'anti-traçage."
@@ -36,28 +36,28 @@
     "message": "Connectez-vous à votre compte web <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. L'extension se synchronisera et s'associera automatiquement."
   },
   "cookiesGuard": {
-    "message": "Protection Cookies"
+    "message": "Protection cookies"
   },
   "exifStripped": {
-    "message": "EXIF Supprimé"
+    "message": "EXIF supprimé"
   },
   "inputsWiped": {
-    "message": "Champs Nettoyés"
+    "message": "Champs nettoyés"
   },
   "engineControl": {
     "message": "Contrôle du Moteur"
   },
   "activeDlpInterceptor": {
-    "message": "Intercepteur DLP Activo"
+    "message": "Intercepteur DLP activo"
   },
   "activeDlpInterceptorDesc": {
     "message": "Analyse les téléchargements, les copies et les formulaires"
   },
   "sovereignIdentityLayer": {
-    "message": "Couche d'Identité Souveraine"
+    "message": "Couche d'Identité souveraine"
   },
   "pdfSignerTitle": {
-    "message": "Signataire Numérique UID"
+    "message": "Signataire numérique UID"
   },
   "pdfSignerSubtitle": {
     "message": "Vérification cryptographique PDF Zero-Trust et tampons numériques."
@@ -84,7 +84,7 @@
     "message": "Jeton USB (Carte à puce)"
   },
   "pdfSignerMethodRemote": {
-    "message": "Remote Cloud CA"
+    "message": "Remote cloud CA"
   },
   "pdfSignerMethodP12": {
     "message": "Télécharger le fichier de certificat (.p12 / .pfx)"
@@ -105,7 +105,7 @@
     "message": "Sélectionner le certificat :"
   },
   "pdfSignerLabelCloudProvider": {
-    "message": "Fournisseur de Cloud CA :"
+    "message": "Fournisseur de cloud CA :"
   },
   "pdfSignerLabelPersonalId": {
     "message": "Nom d'utilisateur :"
@@ -150,7 +150,7 @@
     "message": "Le code PIN USB doit comporter entre 4 et 8 chiffres."
   },
   "pdfSignerRemoteTitle": {
-    "message": "Autoriser Cloud CA"
+    "message": "Autoriser cloud CA"
   },
   "pdfSignerRemoteDesc": {
     "message": "Une notification push a été envoyée à votre application mobile <strong>$1</strong> liée à l'identifiant <strong>$2</strong>. Veuillez l'approuver sur votre téléphone pour terminer la signature."

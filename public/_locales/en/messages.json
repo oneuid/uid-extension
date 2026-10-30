@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "Zero-Trust client-side security layer for UID.one. Enforces DLP, session binding, and SSD anti-tracking."
@@ -18,16 +18,16 @@
     "message": "Please enter your email or username first to use your Passkey."
   },
   "pickerHeader": {
-    "message": "Select Account"
+    "message": "Select account"
   },
   "setupGuidance": {
     "message": "First time setup: Please enter your email and password to log in normally. A secure Passkey vault will be created automatically!"
   },
   "vaultConnected": {
-    "message": "Vault Connected"
+    "message": "Vault connected"
   },
   "waitingForLogin": {
-    "message": "Waiting for Login"
+    "message": "Waiting for login"
   },
   "vaultConnectedDesc": {
     "message": "Zero-Trust security active. Passkeys and credentials synced securely with vault."
@@ -36,25 +36,25 @@
     "message": "Log in to your <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> web account. The extension will synchronize and pair automatically."
   },
   "cookiesGuard": {
-    "message": "Cookies Guard"
+    "message": "Cookies guard"
   },
   "exifStripped": {
-    "message": "EXIF Stripped"
+    "message": "EXIF stripped"
   },
   "inputsWiped": {
-    "message": "Inputs Wiped"
+    "message": "Inputs wiped"
   },
   "engineControl": {
-    "message": "Engine Control"
+    "message": "Engine control"
   },
   "activeDlpInterceptor": {
-    "message": "Active DLP Interceptor"
+    "message": "Active DLP interceptor"
   },
   "activeDlpInterceptorDesc": {
     "message": "Analyze uploads, copies, and form submissions"
   },
   "sovereignIdentityLayer": {
-    "message": "Sovereign Identity Layer"
+    "message": "Sovereign identity layer"
   },
   "signButton": {
     "message": "Sign UID"
@@ -72,10 +72,10 @@
     "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> to select the matching number."
   },
   "dialogCancel": {
-    "message": "Cancel Request"
+    "message": "Cancel request"
   },
   "dialogApprove": {
-    "message": "Approve Signature"
+    "message": "Approve signature"
   },
   "dialogApproving": {
     "message": "Approving..."
@@ -93,10 +93,10 @@
     "message": "Signer"
   },
   "signatureTime": {
-    "message": "Signing Time"
+    "message": "Signing time"
   },
   "signatureVerify": {
-    "message": "Verify Identity →"
+    "message": "Verify identity →"
   },
   "alertLinkFirst": {
     "message": "Please link your UID.one account before performing digital signature."
@@ -114,13 +114,13 @@
     "message": "Sign PDF with UID.one"
   },
   "notificationSignPdfErrorTitle": {
-    "message": "PDF Signing Error"
+    "message": "PDF signing error"
   },
   "notificationSignPdfErrorMsg": {
     "message": "Cannot sign PDF directly inside this browser PDF viewer. Please right-click a PDF link instead."
   },
   "pdfSignerTitle": {
-    "message": "UID Digital Signer"
+    "message": "UID digital signer"
   },
   "pdfSignerLoadError": {
     "message": "Failed to load PDF file. Please check if the file is accessible."
@@ -132,16 +132,16 @@
     "message": "of"
   },
   "pdfSignerButtonSign": {
-    "message": "Sign Document"
+    "message": "Sign document"
   },
   "pdfSignerButtonSigning": {
     "message": "Signing PDF..."
   },
   "pdfSignerButtonDownload": {
-    "message": "Download Signed PDF"
+    "message": "Download signed PDF"
   },
   "otpPromptTitle": {
-    "message": "Google Authenticator"
+    "message": "Google authenticator"
   },
   "otpPromptDesc": {
     "message": "Please enter the 6-digit OTP code to verify your digital signature:"
@@ -183,10 +183,10 @@
     "message": "This email is digitally signed and verified by UID.one for sender: $1"
   },
   "filterFocus": {
-    "message": "UID Trust Shield: Priority ($1)"
+    "message": "UID trust shield: Priority ($1)"
   },
   "filterWarning": {
-    "message": "UID Trust Shield: Warning ($1)"
+    "message": "UID trust shield: Warning ($1)"
   },
   "reasonUnsignedSensitive": {
     "message": "Unsigned email contains sensitive financial keywords."
@@ -207,10 +207,10 @@
     "message": "Sender is unsigned."
   },
   "filterSafe": {
-    "message": "AI Trust Filter: Trusted ($1)"
+    "message": "AI trust filter: Trusted ($1)"
   },
   "verifiedSender": {
-    "message": "Verified Sender"
+    "message": "Verified sender"
   },
   "floatingTooltipSign": {
     "message": "Sign this email with UID.one"
@@ -231,31 +231,31 @@
     "message": "Document"
   },
   "pdfSignerLabelPage": {
-    "message": "Select Target Page:"
+    "message": "Select target page:"
   },
   "pdfSignerPanelStamp": {
-    "message": "Signing Stamp Config"
+    "message": "Signing stamp config"
   },
   "pdfSignerLabelPosition": {
-    "message": "Visual Stamp Position:"
+    "message": "Visual stamp position:"
   },
   "pdfSignerPanelMethod": {
-    "message": "Signing Method"
+    "message": "Signing method"
   },
   "pdfSignerMethodUid": {
-    "message": "UID.one Cryptographic Trust (Default)"
+    "message": "UID.one cryptographic trust (Default)"
   },
   "pdfSignerMethodLocal": {
-    "message": "USB Token (Smart Card)"
+    "message": "USB token (Smart card)"
   },
   "pdfSignerMethodRemote": {
-    "message": "Remote Cloud CA"
+    "message": "Remote cloud CA"
   },
   "pdfSignerMethodP12": {
-    "message": "Upload Certificate File (.p12 / .pfx)"
+    "message": "Upload certificate file (.p12 / .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
-    "message": "CA Client App:"
+    "message": "CA client app:"
   },
   "pdfSignerAgentChecking": {
     "message": "Checking..."
@@ -267,7 +267,7 @@
     "message": "Running"
   },
   "pdfSignerLabelUsbStatus": {
-    "message": "USB Token:"
+    "message": "USB token:"
   },
   "pdfSignerUsbChecking": {
     "message": "Checking..."
@@ -276,7 +276,7 @@
     "message": "Unknown"
   },
   "pdfSignerUsbNotFound": {
-    "message": "Not Found"
+    "message": "Not found"
   },
   "pdfSignerUsbDetected": {
     "message": "Detected"
@@ -285,7 +285,7 @@
     "message": "No USB token detected. Plug in your USB and click detect."
   },
   "pdfSignerButtonDetect": {
-    "message": "Detect USB CA App"
+    "message": "Detect USB CA app"
   },
   "pdfSignerAgentOfflineDesc": {
     "message": "CA client application is not running or not installed on this computer."
@@ -300,19 +300,19 @@
     "message": "Querying local CA signing application..."
   },
   "pdfSignerLabelSelectCert": {
-    "message": "Select Certificate:"
+    "message": "Select certificate:"
   },
   "pdfSignerLabelCloudProvider": {
-    "message": "Cloud CA Provider:"
+    "message": "Cloud CA provider:"
   },
   "pdfSignerLabelPersonalId": {
     "message": "Username:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Upload PFX/P12 File:"
+    "message": "Upload PFX/P12 file:"
   },
   "pdfSignerLabelCertPassword": {
-    "message": "Certificate Password:"
+    "message": "Certificate password:"
   },
   "pdfSignerPanelInstructions": {
     "message": "Instructions"
@@ -321,7 +321,7 @@
     "message": "Select the target page and drag the green box to position your signature stamp. Click the button below to sign the PDF."
   },
   "pdfSignerLinkDashboard": {
-    "message": "Go to UID.one Dashboard"
+    "message": "Go to UID.one dashboard"
   },
   "pdfSignerPanelNavigation": {
     "message": "Navigation"
@@ -333,7 +333,7 @@
     "message": "Enter file password"
   },
   "pdfSignerPinTitle": {
-    "message": "USB Token PIN Verification"
+    "message": "USB token PIN verification"
   },
   "pdfSignerPinDesc": {
     "message": "Please enter your USB Token PIN to authorize the digital signature:"
@@ -342,7 +342,7 @@
     "message": "The USB PIN must be between 4 and 8 digits."
   },
   "pdfSignerRemoteTitle": {
-    "message": "Authorize Cloud CA"
+    "message": "Authorize cloud CA"
   },
   "pdfSignerRemoteDesc": {
     "message": "A push notification has been sent to your <strong>$1</strong> mobile app linked with identifier <strong>$2</strong>. Please approve it on your phone to complete signing."
@@ -351,10 +351,10 @@
     "message": "Cancel"
   },
   "pdfSignerGroupVnProviders": {
-    "message": "Vietnam Providers"
+    "message": "Vietnam providers"
   },
   "pdfSignerGroupGlobalProviders": {
-    "message": "Global Providers"
+    "message": "Global providers"
   },
   "pdfSignerLabelCloudPassword": {
     "message": "Password:"

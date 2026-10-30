@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "Безопасность Zero-Trust для UID.one. Обеспечивает защиту DLP, привязку сессий и защиту от отслеживания."
@@ -36,13 +36,13 @@
     "message": "Войдите в свою веб-учетную запись на <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. Расширение синхронизируется и подключится автоматически."
   },
   "cookiesGuard": {
-    "message": "Защита Cookie"
+    "message": "Защита cookie"
   },
   "exifStripped": {
-    "message": "EXIF Удален"
+    "message": "EXIF удален"
   },
   "inputsWiped": {
-    "message": "Поля Очищены"
+    "message": "Поля очищены"
   },
   "engineControl": {
     "message": "Управление"
@@ -57,7 +57,7 @@
     "message": "Суверенный слой идентификации"
   },
   "pdfSignerTitle": {
-    "message": "UID Цифровая Подпись"
+    "message": "UID цифровая подпись"
   },
   "pdfSignerSubtitle": {
     "message": "Zero-Trust криптографическая проверка PDF и цифровые штампы."
@@ -159,7 +159,7 @@
     "message": "Отмена"
   },
   "pdfSignerGroupVnProviders": {
-    "message": "Провайдеры Вьетнама"
+    "message": "Провайдеры вьетнама"
   },
   "pdfSignerGroupGlobalProviders": {
     "message": "Глобальные провайдеры"

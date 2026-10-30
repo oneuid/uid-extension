@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID link - Security & Identity"
   },
   "extensionDesc": {
     "message": "Lớp bảo mật Zero-Trust cho hệ sinh thái UID.one. Thực thi bảo vệ dữ liệu DLP và chống theo dõi SSD."
@@ -9,25 +9,25 @@
     "message": "Đăng nhập bằng Passkey (UID.one)"
   },
   "errorVaultNotFound": {
-    "message": "Lỗi: Không tìm thấy Két sắt (Vault) cho trang web này."
+    "message": "Lỗi: Không tìm thấy két sắt (Vault) cho trang web này."
   },
   "errorDecryptionFailed": {
     "message": "Lỗi: Không thể giải mã tài khoản."
   },
   "errorNoUsernameProvided": {
-    "message": "Vui lòng gõ Tên đăng nhập / Email của bạn vào ô trước khi nhấn biểu tượng Passkey."
+    "message": "Vui lòng gõ tên đăng nhập / email của bạn vào ô trước khi nhấn biểu tượng Passkey."
   },
   "pickerHeader": {
-    "message": "Chọn Tài khoản"
+    "message": "Chọn tài khoản"
   },
   "setupGuidance": {
-    "message": "Lần đầu tiên sử dụng: Vui lòng gõ Email và Mật khẩu rồi nhấn Đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!"
+    "message": "Lần đầu tiên sử dụng: Vui lòng gõ email và mật khẩu rồi nhấn đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!"
   },
   "vaultConnected": {
-    "message": "Két sắt Đã kết nối"
+    "message": "Két sắt đã kết nối"
   },
   "waitingForLogin": {
-    "message": "Chờ Đăng nhập"
+    "message": "Chờ đăng nhập"
   },
   "vaultConnectedDesc": {
     "message": "Chế độ bảo mật Zero-Trust đang hoạt động. Passkeys và thông tin đăng nhập được đồng bộ an toàn."
@@ -39,22 +39,22 @@
     "message": "Chặn Cookie"
   },
   "exifStripped": {
-    "message": "Xóa EXIF Ảnh"
+    "message": "Xóa EXIF ảnh"
   },
   "inputsWiped": {
     "message": "Xóa OTP / Form"
   },
   "engineControl": {
-    "message": "Bảng Điều khiển"
+    "message": "Bảng điều khiển"
   },
   "activeDlpInterceptor": {
-    "message": "Trình chặn DLP Chủ động"
+    "message": "Trình chặn DLP chủ động"
   },
   "activeDlpInterceptorDesc": {
     "message": "Phân tích lượt tải lên, sao chép và gửi biểu mẫu"
   },
   "sovereignIdentityLayer": {
-    "message": "Lớp Bảo mật Định danh Chủ quyền"
+    "message": "Lớp bảo mật định danh chủ quyền"
   },
   "signButton": {
     "message": "Ký UID"
@@ -285,7 +285,7 @@
     "message": "Không phát hiện USB Token. Vui lòng cắm USB và nhấn quét thiết bị."
   },
   "pdfSignerButtonDetect": {
-    "message": "Quét Thiết Bị CA"
+    "message": "Quét thiết bị CA"
   },
   "pdfSignerAgentOfflineDesc": {
     "message": "Chương trình ký số chưa được bật hoặc chưa cài đặt trên máy tính."
@@ -300,7 +300,7 @@
     "message": "Đang kết nối tới chương trình ký số cục bộ..."
   },
   "pdfSignerLabelSelectCert": {
-    "message": "Chọn Chứng Thư Số:"
+    "message": "Chọn chứng thư số:"
   },
   "pdfSignerLabelCloudProvider": {
     "message": "Nhà cung cấp Cloud CA:"

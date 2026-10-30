@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "UID.one 的主权客户端安全与身份层。执行零信任 (Zero-Trust)、数据防泄漏 (DLP) 保护、会话绑定和 SSD 反跟踪。"

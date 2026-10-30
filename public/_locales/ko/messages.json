@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "UID.one을 위한 자주적 클라이언트 사이드 보안 계층. Zero-Trust, DLP 보호, 세션 바인딩 및 SSD 추적 방지를 적용합니다."

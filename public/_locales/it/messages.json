@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link - security & identity"
   },
   "extensionDesc": {
     "message": "Sicurezza Zero-Trust per UID.one. Impone protezione DLP, associazione di sessione e anti-tracciamento."
@@ -18,13 +18,13 @@
     "message": "Inserisci prima la tua email o nome utente per utilizzare la tua Passkey."
   },
   "pickerHeader": {
-    "message": "Seleziona Account"
+    "message": "Seleziona account"
   },
   "setupGuidance": {
     "message": "Configurazione iniziale: Inserisci email e password per accedere normalmente. Verrà creata automaticamente una cassaforte Passkey sicura!"
   },
   "vaultConnected": {
-    "message": "Cassaforte Connessa"
+    "message": "Cassaforte connessa"
   },
   "waitingForLogin": {
     "message": "In attesa di accesso"
@@ -36,28 +36,28 @@
     "message": "Accedi al tuo account web su <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. L'estensione si sincronizzerà e si collegherà automaticamente."
   },
   "cookiesGuard": {
-    "message": "Protezione Cookie"
+    "message": "Protezione cookie"
   },
   "exifStripped": {
-    "message": "EXIF Rimosso"
+    "message": "EXIF rimosso"
   },
   "inputsWiped": {
-    "message": "Campi Puliti"
+    "message": "Campi puliti"
   },
   "engineControl": {
-    "message": "Controllo Motore"
+    "message": "Controllo motore"
   },
   "activeDlpInterceptor": {
-    "message": "Intercettore DLP Attivo"
+    "message": "Intercettore DLP attivo"
   },
   "activeDlpInterceptorDesc": {
     "message": "Analizza caricamenti, copie e invii di moduli"
   },
   "sovereignIdentityLayer": {
-    "message": "Livello di Identità Sovrana"
+    "message": "Livello di identità sovrana"
   },
   "pdfSignerTitle": {
-    "message": "Firmatario Digitale UID"
+    "message": "Firmatario digitale UID"
   },
   "pdfSignerSubtitle": {
     "message": "Verifica crittografica PDF Zero-Trust e timbri digitali."
@@ -81,10 +81,10 @@
     "message": "Fiducia crittografica UID.one (Predefinito)"
   },
   "pdfSignerMethodLocal": {
-    "message": "Token USB (Smart Card)"
+    "message": "Token USB (Smart card)"
   },
   "pdfSignerMethodRemote": {
-    "message": "Cloud CA Remoto"
+    "message": "Cloud CA remoto"
   },
   "pdfSignerMethodP12": {
     "message": "Carica file certificato (.p12 / .pfx)"
@@ -105,7 +105,7 @@
     "message": "Seleziona certificato:"
   },
   "pdfSignerLabelCloudProvider": {
-    "message": "Provider Cloud CA:"
+    "message": "Provider cloud CA:"
   },
   "pdfSignerLabelPersonalId": {
     "message": "Nome utente:"
@@ -150,7 +150,7 @@
     "message": "Il PIN USB deve essere composto da 4 a 8 cifre."
   },
   "pdfSignerRemoteTitle": {
-    "message": "Autorizza Cloud CA"
+    "message": "Autorizza cloud CA"
   },
   "pdfSignerRemoteDesc": {
     "message": "È stata inviata una notifica push alla tua app mobile <strong>$1</strong> associata all'identificatore <strong>$2</strong>. Approvala sul tuo telefono per completare la firma."
