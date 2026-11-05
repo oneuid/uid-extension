@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "Livello di identità sovrana"
   },
+  "signButton": {
+    "message": "Firma UID"
+  },
+  "signedButton": {
+    "message": "Firmato"
+  },
+  "signingButton": {
+    "message": "Firma in corso..."
+  },
+  "dialogTitle": {
+    "message": "VERIFICA DELLA FIRMA DIGITALE"
+  },
+  "dialogDesc": {
+    "message": "Apri l'app mobile UID.one o visita <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> per selezionare il numero corrispondente."
+  },
+  "dialogCancel": {
+    "message": "Annulla richiesta"
+  },
+  "dialogApprove": {
+    "message": "Approva firma"
+  },
+  "dialogApproving": {
+    "message": "Approvazione in corso..."
+  },
+  "dialogSigner": {
+    "message": "Firmatario"
+  },
+  "dialogDomain": {
+    "message": "Dominio"
+  },
+  "signatureTitle": {
+    "message": "Questa email è firmata digitalmente da UID.one"
+  },
+  "signatureSigner": {
+    "message": "Firmatario"
+  },
+  "signatureTime": {
+    "message": "Data e ora di firma"
+  },
+  "signatureVerify": {
+    "message": "Verifica identità →"
+  },
+  "alertLinkFirst": {
+    "message": "Collega il tuo account UID.one prima di eseguire una firma digitale."
+  },
+  "alertEnterContent": {
+    "message": "Inserisci il contenuto prima di firmare."
+  },
+  "alertRejected": {
+    "message": "La richiesta di firma è stata rifiutata o è scaduta."
+  },
+  "contextMenuTitle": {
+    "message": "Firma testo con UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "Firma PDF con UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "Errore di firma PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Impossibile firmare il PDF direttamente nel visualizzatore PDF del browser. Fai invece clic con il pulsante destro del mouse su un link PDF."
+  },
   "pdfSignerTitle": {
     "message": "Firmatario digitale UID"
+  },
+  "pdfSignerLoadError": {
+    "message": "Impossibile caricare il file PDF. Verifica che il file sia accessibile."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Pagina"
+  },
+  "pdfSignerOfLabel": {
+    "message": "di"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Firma documento"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Firma PDF in corso..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Scarica PDF firmato"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Inserisci il codice OTP a 6 cifre per verificare la tua firma digitale:"
+  },
+  "otpCancel": {
+    "message": "Annulla"
+  },
+  "otpConfirm": {
+    "message": "Firma"
+  },
+  "otpErrorLength": {
+    "message": "Il codice OTP deve essere esattamente di 6 cifre."
+  },
+  "alertSessionExpired": {
+    "message": "Sessione scaduta o non collegata. Accedi a UID.one e fai clic su 'Collega estensione' per continuare."
+  },
+  "errorVerification": {
+    "message": "Errore di verifica: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Firma non valida o l'email è stata manomessa."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Impossibile caricare la chiave pubblica del mittente: $1"
+  },
+  "warningContentTampered": {
+    "message": "La firma digitale non corrisponde al contenuto dell'email (il contenuto è stato modificato)."
+  },
+  "warningVerifyError": {
+    "message": "Errore tecnico durante la verifica della firma: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Verifica della firma digitale non riuscita."
+  },
+  "warningLabel": {
+    "message": "Avviso"
+  },
+  "alertVerifiedSender": {
+    "message": "Questa email è firmata digitalmente e verificata da UID.one per il mittente: $1"
+  },
+  "filterFocus": {
+    "message": "Scudo di fiducia UID: Priorità ($1)"
+  },
+  "filterWarning": {
+    "message": "Scudo di fiducia UID: Avviso ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "L'email non firmata contiene parole chiave finanziarie sensibili."
+  },
+  "reasonUnsigned": {
+    "message": "L'email non è firmata."
+  },
+  "reasonSignedImportant": {
+    "message": "L'email da un partner di fiducia contiene una richiesta di azione importante."
+  },
+  "reasonSignedSafe": {
+    "message": "Email sicura da un partner."
+  },
+  "reasonTrustedVerified": {
+    "message": "La fonte attendibile è stata verificata."
+  },
+  "reasonNotSigned": {
+    "message": "Il mittente non ha firmato."
+  },
+  "filterSafe": {
+    "message": "Filtro di fiducia IA: Attendibile ($1)"
+  },
+  "verifiedSender": {
+    "message": "Mittente verificato"
+  },
+  "floatingTooltipSign": {
+    "message": "Firma questa email con UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "L'email del mittente ($1) non corrisponde all'identità UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Impossibile recuperare o calcolare l'hash del PDF. Assicurati che il link sia accessibile."
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF firmato digitalmente con successo!"
   },
   "pdfSignerSubtitle": {
     "message": "Verifica crittografica PDF Zero-Trust e timbri digitali."
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "Carica file certificato (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "App client CA:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Verifica in corso..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Offline"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "In esecuzione"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "Stato del token USB:"
   },
   "pdfSignerUsbChecking": {
     "message": "Verifica in corso..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "Sconosciuto"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Non trovato"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Rilevato"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "Nessun token USB rilevato. Collega l'USB e fai clic su Rileva."
   },
   "pdfSignerButtonDetect": {
     "message": "Rileva token USB"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "L'applicazione client CA non è in esecuzione o non è installata su questo computer."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "L'app client CA è attiva, ma non è stato trovato alcun token USB o smart card. Inserisci il tuo token USB."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Connesso. I certificati del token USB sono pronti."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Interrogazione dell'applicazione di firma CA locale..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "Seleziona certificato:"
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "Seleziona la pagina di destinazione e trascina la casella verde per posizionare il timbro di firma. Fai clic sul pulsante in basso per firmare il PDF."
-  },
-  "pdfSignerButtonSign": {
-    "message": "Firma documento"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "Scarica PDF firmato"
   },
   "pdfSignerLinkDashboard": {
     "message": "Vai alla dashboard di UID.one"

@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "主权身份安全层"
   },
+  "signButton": {
+    "message": "UID 签名"
+  },
+  "signedButton": {
+    "message": "已签名"
+  },
+  "signingButton": {
+    "message": "正在签名..."
+  },
+  "dialogTitle": {
+    "message": "数字签名验证"
+  },
+  "dialogDesc": {
+    "message": "请打开 UID.one 移动应用或访问 <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> 选择匹配的数字。"
+  },
+  "dialogCancel": {
+    "message": "取消请求"
+  },
+  "dialogApprove": {
+    "message": "批准签名"
+  },
+  "dialogApproving": {
+    "message": "正在批准..."
+  },
+  "dialogSigner": {
+    "message": "签名人"
+  },
+  "dialogDomain": {
+    "message": "域名"
+  },
+  "signatureTitle": {
+    "message": "此邮件已由 UID.one 进行数字签名"
+  },
+  "signatureSigner": {
+    "message": "签名人"
+  },
+  "signatureTime": {
+    "message": "签名时间"
+  },
+  "signatureVerify": {
+    "message": "验证身份 →"
+  },
+  "alertLinkFirst": {
+    "message": "请先绑定您的 UID.one 账户后再进行数字签名。"
+  },
+  "alertEnterContent": {
+    "message": "请在签名前输入内容。"
+  },
+  "alertRejected": {
+    "message": "签名请求已被拒绝或已过期。"
+  },
+  "contextMenuTitle": {
+    "message": "使用 UID.one 对文本签名"
+  },
+  "contextMenuSignPdf": {
+    "message": "使用 UID.one 对 PDF 签名"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "PDF 签名错误"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "无法在浏览器内置 PDF 查看器中直接签名。请右键点击 PDF 链接进行签名。"
+  },
   "pdfSignerTitle": {
     "message": "UID 电子签章"
+  },
+  "pdfSignerLoadError": {
+    "message": "加载 PDF 文件失败。请检查文件是否可访问。"
+  },
+  "pdfSignerPageLabel": {
+    "message": "第"
+  },
+  "pdfSignerOfLabel": {
+    "message": "页 / 共"
+  },
+  "pdfSignerButtonSign": {
+    "message": "签署文档"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "正在签署 PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "下载已签署的 PDF"
+  },
+  "otpPromptTitle": {
+    "message": "Google 身份验证器"
+  },
+  "otpPromptDesc": {
+    "message": "请输入 6 位 OTP 验证码以验证您的数字签名："
+  },
+  "otpCancel": {
+    "message": "取消"
+  },
+  "otpConfirm": {
+    "message": "签名"
+  },
+  "otpErrorLength": {
+    "message": "OTP 验证码必须为完整的 6 位数字。"
+  },
+  "alertSessionExpired": {
+    "message": "会话已过期或未绑定。请登录 UID.one 并点击“绑定扩展程序”以继续。"
+  },
+  "errorVerification": {
+    "message": "验证错误：$1"
+  },
+  "warningInvalidSignature": {
+    "message": "签名无效或邮件内容已被篡改。"
+  },
+  "warningPublicKeyFailed": {
+    "message": "无法加载发件人公钥：$1"
+  },
+  "warningContentTampered": {
+    "message": "数字签名与邮件内容不匹配（内容已被修改）。"
+  },
+  "warningVerifyError": {
+    "message": "验证签名时发生技术错误：$1"
+  },
+  "warningVerificationFailed": {
+    "message": "数字签名验证失败。"
+  },
+  "warningLabel": {
+    "message": "警告"
+  },
+  "alertVerifiedSender": {
+    "message": "此邮件已由 UID.one 为发件人 $1 进行数字签名并验证"
+  },
+  "filterFocus": {
+    "message": "UID 信任护盾：重点 ($1)"
+  },
+  "filterWarning": {
+    "message": "UID 信任护盾：警告 ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "未签名的邮件包含敏感财务关键词。"
+  },
+  "reasonUnsigned": {
+    "message": "邮件未进行数字签名。"
+  },
+  "reasonSignedImportant": {
+    "message": "来自可信合作伙伴的邮件包含重要操作请求。"
+  },
+  "reasonSignedSafe": {
+    "message": "来自合作伙伴的安全邮件。"
+  },
+  "reasonTrustedVerified": {
+    "message": "可信来源已通过验证。"
+  },
+  "reasonNotSigned": {
+    "message": "发件人未签名。"
+  },
+  "filterSafe": {
+    "message": "AI 信任过滤：可信 ($1)"
+  },
+  "verifiedSender": {
+    "message": "已验证发件人"
+  },
+  "floatingTooltipSign": {
+    "message": "使用 UID.one 对此邮件签名"
+  },
+  "floatingTooltipMismatch": {
+    "message": "发件人邮箱 ($1) 与 UID 身份 ($2) 不匹配"
+  },
+  "errorFetchPdf": {
+    "message": "获取或计算 PDF 哈希失败。请确保链接可访问。"
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF 数字签名成功！"
   },
   "pdfSignerSubtitle": {
     "message": "零信任 PDF 密码学验证与数字盖章。"
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "上传证书文件 (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "CA 客户端程序："
+  },
+  "pdfSignerAgentChecking": {
+    "message": "正在检测..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "未运行"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "正在运行"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "USB Key 状态："
   },
   "pdfSignerUsbChecking": {
     "message": "正在检测..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "未知"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "未找到"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "已识别"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "未检测到 USB Key，请插入 USB 后点击检测。"
   },
   "pdfSignerButtonDetect": {
     "message": "检测 USB Token"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "CA 客户端程序未运行或未在此计算机上安装。"
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "CA 客户端程序已启动，但未找到 USB Token 或智能卡。请插入您的 USB Token。"
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "已连接。USB Token 中的数字证书已就绪。"
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "正在连接本地 CA 签名服务程序..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "选择证书："
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "选择目标页面并拖动绿色框以调整签章位置，然后点击下方按钮完成 PDF 签署。"
-  },
-  "pdfSignerButtonSign": {
-    "message": "签署文档"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "下载已签署的 PDF"
   },
   "pdfSignerLinkDashboard": {
     "message": "前往 UID.one 控制台"

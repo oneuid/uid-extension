@@ -1,15 +1,20 @@
 :root {
   --bg-dark: #0B1220;
-  --card-bg: rgba(15, 23, 42, 0.75);
+  --surface-elevated: #111A2E;
+  --card-bg: rgba(17, 26, 46, 0.85);
   --card-border: rgba(51, 65, 85, 0.6);
   --text-primary: #f8fafc;
   --text-muted: #94a3b8;
-  --primary-glow: #2563eb;
-  --success-glow: #10b981;
-  --warning-glow: #f59e0b;
+  --primary-glow: #2563EB;
+  --success-glow: #10B981;
+  --warning-glow: #F59E0B;
   --danger-glow: #ef4444;
   --radius-lg: 16px;
   --radius-md: 10px;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 html, body {
@@ -54,7 +59,7 @@ body {
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #60a5fa, #2563eb);
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -70,7 +75,7 @@ body {
 
 /* Premium Card & Row Layouts */
 .premium-card {
-  background: rgba(15, 23, 42, 0.65);
+  background: var(--card-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
@@ -118,9 +123,9 @@ body {
 }
 
 .icon-wrapper.purple {
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: #818cf8;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #3B82F6;
 }
 
 .icon-wrapper.warning {
@@ -156,7 +161,7 @@ body {
 }
 
 .stat-box {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(17, 26, 46, 0.6);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
   padding: 12px 8px;
@@ -165,7 +170,7 @@ body {
 }
 
 .stat-box:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(17, 26, 46, 0.9);
   border-color: rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
 }
@@ -173,6 +178,7 @@ body {
 .stat-value {
   font-size: 18px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   margin-bottom: 2px;
   background: linear-gradient(135deg, #ffffff, #d1d5db);

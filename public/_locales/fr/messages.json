@@ -48,7 +48,7 @@
     "message": "Contrôle du Moteur"
   },
   "activeDlpInterceptor": {
-    "message": "Intercepteur DLP activo"
+    "message": "Intercepteur DLP actif"
   },
   "activeDlpInterceptorDesc": {
     "message": "Analyse les téléchargements, les copies et les formulaires"
@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "Couche d'Identité souveraine"
   },
+  "signButton": {
+    "message": "Signer UID"
+  },
+  "signedButton": {
+    "message": "Signé"
+  },
+  "signingButton": {
+    "message": "Signature en cours..."
+  },
+  "dialogTitle": {
+    "message": "VÉRIFICATION DE LA SIGNATURE NUMÉRIQUE"
+  },
+  "dialogDesc": {
+    "message": "Veuillez ouvrir votre application mobile UID.one ou visiter <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> pour sélectionner le numéro correspondant."
+  },
+  "dialogCancel": {
+    "message": "Annuler la demande"
+  },
+  "dialogApprove": {
+    "message": "Approuver la signature"
+  },
+  "dialogApproving": {
+    "message": "Approbation en cours..."
+  },
+  "dialogSigner": {
+    "message": "Signataire"
+  },
+  "dialogDomain": {
+    "message": "Domaine"
+  },
+  "signatureTitle": {
+    "message": "Cet e-mail est signé numériquement par UID.one"
+  },
+  "signatureSigner": {
+    "message": "Signataire"
+  },
+  "signatureTime": {
+    "message": "Heure de signature"
+  },
+  "signatureVerify": {
+    "message": "Vérifier l'identité →"
+  },
+  "alertLinkFirst": {
+    "message": "Veuillez lier votre compte UID.one avant d'effectuer une signature numérique."
+  },
+  "alertEnterContent": {
+    "message": "Veuillez saisir du contenu avant de signer."
+  },
+  "alertRejected": {
+    "message": "La demande de signature a été rejetée ou a expiré."
+  },
+  "contextMenuTitle": {
+    "message": "Signer le texte avec UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "Signer le PDF avec UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "Erreur de signature PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Impossible de signer le PDF directement dans la visionneuse PDF du navigateur. Veuillez plutôt faire un clic droit sur un lien PDF."
+  },
   "pdfSignerTitle": {
     "message": "Signataire numérique UID"
+  },
+  "pdfSignerLoadError": {
+    "message": "Échec du chargement du fichier PDF. Veuillez vérifier si le fichier est accessible."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Page"
+  },
+  "pdfSignerOfLabel": {
+    "message": "sur"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Signer le document"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Signature du PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Télécharger le PDF signé"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Veuillez saisir le code OTP à 6 chiffres pour vérifier votre signature numérique :"
+  },
+  "otpCancel": {
+    "message": "Annuler"
+  },
+  "otpConfirm": {
+    "message": "Signer"
+  },
+  "otpErrorLength": {
+    "message": "Le code OTP doit comporter exactement 6 chiffres."
+  },
+  "alertSessionExpired": {
+    "message": "Session expirée ou non liée. Veuillez vous connecter à UID.one et cliquer sur « Lier l'extension » pour continuer."
+  },
+  "errorVerification": {
+    "message": "Erreur de vérification : $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Signature invalide ou l'e-mail a été falsifié."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Échec du chargement de la clé publique de l'expéditeur : $1"
+  },
+  "warningContentTampered": {
+    "message": "La signature numérique ne correspond pas au contenu de l'e-mail (le contenu a été modifié)."
+  },
+  "warningVerifyError": {
+    "message": "Erreur technique lors de la vérification de la signature : $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Échec de la vérification de la signature numérique."
+  },
+  "warningLabel": {
+    "message": "Avertissement"
+  },
+  "alertVerifiedSender": {
+    "message": "Cet e-mail est signé numériquement et vérifié par UID.one pour l'expéditeur : $1"
+  },
+  "filterFocus": {
+    "message": "Bouclier de confiance UID : Priorité ($1)"
+  },
+  "filterWarning": {
+    "message": "Bouclier de confiance UID : Avertissement ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "L'e-mail non signé contient des mots-clés financiers sensibles."
+  },
+  "reasonUnsigned": {
+    "message": "L'e-mail n'est pas signé."
+  },
+  "reasonSignedImportant": {
+    "message": "L'e-mail d'un partenaire de confiance contient une demande d'action importante."
+  },
+  "reasonSignedSafe": {
+    "message": "E-mail sécurisé provenant d'un partenaire."
+  },
+  "reasonTrustedVerified": {
+    "message": "La source de confiance a été vérifiée."
+  },
+  "reasonNotSigned": {
+    "message": "L'expéditeur n'est pas signé."
+  },
+  "filterSafe": {
+    "message": "Filtre de confiance IA : Fiable ($1)"
+  },
+  "verifiedSender": {
+    "message": "Expéditeur vérifié"
+  },
+  "floatingTooltipSign": {
+    "message": "Signer cet e-mail avec UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "L'e-mail de l'expéditeur ($1) ne correspond pas à l'identité UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Échec de la récupération ou du hachage du PDF. Veuillez vérifier que le lien est accessible."
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF signé numériquement avec succès !"
   },
   "pdfSignerSubtitle": {
     "message": "Vérification cryptographique PDF Zero-Trust et tampons numériques."
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "Télécharger le fichier de certificat (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "Application cliente CA :"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Vérification..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Hors ligne"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "En cours d'exécution"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "Statut du jeton USB :"
   },
   "pdfSignerUsbChecking": {
     "message": "Vérification..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "Inconnu"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Introuvable"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Détecté"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "Aucun jeton USB détecté. Branchez votre clé USB et cliquez sur détecter."
   },
   "pdfSignerButtonDetect": {
     "message": "Détecter le jeton USB"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "L'application cliente CA n'est pas en cours d'exécution ou n'est pas installée sur cet ordinateur."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "L'application cliente CA est active, mais aucun jeton USB ou carte à puce n'est détecté. Veuillez insérer votre jeton USB."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Connecté. Les certificats du jeton USB sont prêts."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Interrogation de l'application locale de signature CA..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "Sélectionner le certificat :"
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "Sélectionnez la page cible et faites glisser la boîte verte pour positionner votre tampon de signature. Cliquez sur le bouton ci-dessous pour signer le PDF."
-  },
-  "pdfSignerButtonSign": {
-    "message": "Signer le document"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "Télécharger le PDF signé"
   },
   "pdfSignerLinkDashboard": {
     "message": "Aller au tableau de bord UID.one"

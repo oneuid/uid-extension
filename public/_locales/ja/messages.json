@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "ソブリンアイデンティティレイヤー"
   },
+  "signButton": {
+    "message": "UID署名"
+  },
+  "signedButton": {
+    "message": "署名済み"
+  },
+  "signingButton": {
+    "message": "署名中..."
+  },
+  "dialogTitle": {
+    "message": "電子署名の確認"
+  },
+  "dialogDesc": {
+    "message": "UID.one モバイルアプリを開くか、<a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> にアクセスして一致する番号を選択してください。"
+  },
+  "dialogCancel": {
+    "message": "リクエストをキャンセル"
+  },
+  "dialogApprove": {
+    "message": "署名を承認"
+  },
+  "dialogApproving": {
+    "message": "承認中..."
+  },
+  "dialogSigner": {
+    "message": "署名者"
+  },
+  "dialogDomain": {
+    "message": "ドメイン"
+  },
+  "signatureTitle": {
+    "message": "このメールは UID.one によって電子署名されています"
+  },
+  "signatureSigner": {
+    "message": "署名者"
+  },
+  "signatureTime": {
+    "message": "署名日時"
+  },
+  "signatureVerify": {
+    "message": "本人確認 →"
+  },
+  "alertLinkFirst": {
+    "message": "電子署名を行う前に、UID.one アカウントを連携してください。"
+  },
+  "alertEnterContent": {
+    "message": "署名する前に内容を入力してください。"
+  },
+  "alertRejected": {
+    "message": "署名リクエストが拒否されたか、有効期限が切れました。"
+  },
+  "contextMenuTitle": {
+    "message": "UID.one でテキストに署名"
+  },
+  "contextMenuSignPdf": {
+    "message": "UID.one で PDF に署名"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "PDF 署名エラー"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "ブラウザの PDF ビューア内で直接 PDF に署名することはできません。PDF リンクを右クリックして署名してください。"
+  },
   "pdfSignerTitle": {
     "message": "UID 電子署名"
+  },
+  "pdfSignerLoadError": {
+    "message": "PDF ファイルの読み込みに失敗しました。ファイルにアクセス可能か確認してください。"
+  },
+  "pdfSignerPageLabel": {
+    "message": "ページ"
+  },
+  "pdfSignerOfLabel": {
+    "message": "/"
+  },
+  "pdfSignerButtonSign": {
+    "message": "ドキュメントに署名"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "PDF に署名中..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "署名済み PDF をダウンロード"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "電子署名を確認するため、6桁の OTP コードを入力してください："
+  },
+  "otpCancel": {
+    "message": "キャンセル"
+  },
+  "otpConfirm": {
+    "message": "署名する"
+  },
+  "otpErrorLength": {
+    "message": "OTP コードは正確に6桁である必要があります。"
+  },
+  "alertSessionExpired": {
+    "message": "セッションの有効期限が切れているか、未連携です。続行するには UID.one にログインして「拡張機能を連携」をクリックしてください。"
+  },
+  "errorVerification": {
+    "message": "検証エラー: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "無効な署名、またはメールが改ざんされています。"
+  },
+  "warningPublicKeyFailed": {
+    "message": "送信者の公開鍵の読み込みに失敗しました: $1"
+  },
+  "warningContentTampered": {
+    "message": "電子署名がメールの内容と一致しません（内容が変更されています）。"
+  },
+  "warningVerifyError": {
+    "message": "署名検証中の技術的エラー: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "電子署名の検証に失敗しました。"
+  },
+  "warningLabel": {
+    "message": "警告"
+  },
+  "alertVerifiedSender": {
+    "message": "このメールは送信者 $1 に対して UID.one により電子署名および検証されています"
+  },
+  "filterFocus": {
+    "message": "UID トラストシールド: 優先 ($1)"
+  },
+  "filterWarning": {
+    "message": "UID トラストシールド: 警告 ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "未署名のメールに機密性の高い金融関連キーワードが含まれています。"
+  },
+  "reasonUnsigned": {
+    "message": "メールに電子署名がありません。"
+  },
+  "reasonSignedImportant": {
+    "message": "信頼できるパートナーからのメールに重要な対応依頼が含まれています。"
+  },
+  "reasonSignedSafe": {
+    "message": "パートナーからの安全なメールです。"
+  },
+  "reasonTrustedVerified": {
+    "message": "信頼できる送信元として検証済みです。"
+  },
+  "reasonNotSigned": {
+    "message": "送信者は未署名です。"
+  },
+  "filterSafe": {
+    "message": "AI トラストフィルター: 信頼済み ($1)"
+  },
+  "verifiedSender": {
+    "message": "検証済み送信者"
+  },
+  "floatingTooltipSign": {
+    "message": "このメールに UID.one で署名する"
+  },
+  "floatingTooltipMismatch": {
+    "message": "送信者メール ($1) が UID アイデンティティ ($2) と一致しません"
+  },
+  "errorFetchPdf": {
+    "message": "PDF の取得またはハッシュ化に失敗しました。リンクにアクセスできるか確認してください。"
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF の電子署名が完了しました！"
   },
   "pdfSignerSubtitle": {
     "message": "Zero-Trust PDF 暗号検証とデジタルスタンプ。"
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "証明書ファイルアップロード (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "CA クライアントアプリ："
+  },
+  "pdfSignerAgentChecking": {
+    "message": "確認中..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "オフライン"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "実行中"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "USB トークン状態："
   },
   "pdfSignerUsbChecking": {
     "message": "検出中..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "不明"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "未検出"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "検出済み"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "USBトークンが検出されません。USBを接続して再検出してください。"
   },
   "pdfSignerButtonDetect": {
     "message": "USBトークンを検出"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "CA クライアントアプリケーションが起動していないか、このコンピュータにインストールされていません。"
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "CA クライアントアプリは動作中ですが、USB トークンまたはスマートカードが見つかりません。USB トークンを挿入してください。"
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "接続完了。USB トークンの証明書が利用可能です。"
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "ローカル CA 署名アプリケーションを確認しています..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "証明書の選択："
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "対象ページを選択し、緑の枠をドラッグして署名スタンプの位置を調整します。下のボタンをクリックしてPDFに署名します。"
-  },
-  "pdfSignerButtonSign": {
-    "message": "ドキュメントに署名"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "署名済み PDF をダウンロード"
   },
   "pdfSignerLinkDashboard": {
     "message": "UID.one ダッシュボードへ戻る"

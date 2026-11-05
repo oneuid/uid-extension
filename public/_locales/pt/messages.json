@@ -1,0 +1,371 @@
+{
+  "extensionName": {
+    "message": "UID Link - security & identity"
+  },
+  "extensionDesc": {
+    "message": "Camada de segurança cliente Zero-Trust para UID.one. Aplica proteção DLP, vinculação de sessão e antirastreamento SSD."
+  },
+  "iconTitle": {
+    "message": "Entrar com Passkey (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "Erro: Cofre não encontrado para este site."
+  },
+  "errorDecryptionFailed": {
+    "message": "Erro: Falha ao descriptografar as credenciais."
+  },
+  "errorNoUsernameProvided": {
+    "message": "Insira primeiro seu e-mail ou nome de usuário para usar sua Passkey."
+  },
+  "pickerHeader": {
+    "message": "Selecionar conta"
+  },
+  "setupGuidance": {
+    "message": "Configuração inicial: Insira seu e-mail e senha para fazer login normalmente. Um cofre Passkey seguro será criado automaticamente!"
+  },
+  "vaultConnected": {
+    "message": "Cofre conectado"
+  },
+  "waitingForLogin": {
+    "message": "Aguardando login"
+  },
+  "vaultConnectedDesc": {
+    "message": "Segurança Zero-Trust ativa. Passkeys e credenciais sincronizadas com segurança no cofre."
+  },
+  "waitingForLoginDesc": {
+    "message": "Faça login na sua conta web em <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. A extensão será sincronizada e pareada automaticamente."
+  },
+  "cookiesGuard": {
+    "message": "Proteção de cookies"
+  },
+  "exifStripped": {
+    "message": "EXIF removido"
+  },
+  "inputsWiped": {
+    "message": "Campos limpos"
+  },
+  "engineControl": {
+    "message": "Controle do motor"
+  },
+  "activeDlpInterceptor": {
+    "message": "Interceptador DLP ativo"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "Analisar uploads, cópias e envios de formulários"
+  },
+  "sovereignIdentityLayer": {
+    "message": "Camada de identidade soberana"
+  },
+  "signButton": {
+    "message": "Assinar UID"
+  },
+  "signedButton": {
+    "message": "Assinado"
+  },
+  "signingButton": {
+    "message": "Assinando..."
+  },
+  "dialogTitle": {
+    "message": "VERIFICAÇÃO DE ASSINATURA DIGITAL"
+  },
+  "dialogDesc": {
+    "message": "Abra seu aplicativo móvel UID.one ou acesse <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> para selecionar o número correspondente."
+  },
+  "dialogCancel": {
+    "message": "Cancelar solicitação"
+  },
+  "dialogApprove": {
+    "message": "Aprovar assinatura"
+  },
+  "dialogApproving": {
+    "message": "Aprovando..."
+  },
+  "dialogSigner": {
+    "message": "Signatário"
+  },
+  "dialogDomain": {
+    "message": "Domínio"
+  },
+  "signatureTitle": {
+    "message": "Este e-mail foi assinado digitalmente por UID.one"
+  },
+  "signatureSigner": {
+    "message": "Signatário"
+  },
+  "signatureTime": {
+    "message": "Horário da assinatura"
+  },
+  "signatureVerify": {
+    "message": "Verificar identidade →"
+  },
+  "alertLinkFirst": {
+    "message": "Vincule sua conta UID.one antes de realizar uma assinatura digital."
+  },
+  "alertEnterContent": {
+    "message": "Insira o conteúdo antes de assinar."
+  },
+  "alertRejected": {
+    "message": "A solicitação de assinatura foi rejeitada ou expirou."
+  },
+  "contextMenuTitle": {
+    "message": "Assinar texto com UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "Assinar PDF com UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "Erro ao assinar PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Não é possível assinar o PDF diretamente no visualizador de PDF do navegador. Clique com o botão direito em um link de PDF."
+  },
+  "pdfSignerTitle": {
+    "message": "Assinador digital UID"
+  },
+  "pdfSignerLoadError": {
+    "message": "Falha ao carregar o arquivo PDF. Verifique se o arquivo está acessível."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Página"
+  },
+  "pdfSignerOfLabel": {
+    "message": "de"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Assinar documento"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Assinando PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Baixar PDF assinado"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Insira o código OTP de 6 dígitos para verificar sua assinatura digital:"
+  },
+  "otpCancel": {
+    "message": "Cancelar"
+  },
+  "otpConfirm": {
+    "message": "Assinar"
+  },
+  "otpErrorLength": {
+    "message": "O código OTP deve ter exatamente 6 dígitos."
+  },
+  "alertSessionExpired": {
+    "message": "Sessão expirada ou não vinculada. Faça login no UID.one e clique em 'Vincular extensão' para continuar."
+  },
+  "errorVerification": {
+    "message": "Erro de verificação: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Assinatura inválida ou o e-mail foi adulterado."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Falha ao carregar a chave pública do remetente: $1"
+  },
+  "warningContentTampered": {
+    "message": "A assinatura digital não corresponde ao conteúdo do e-mail (o conteúdo foi modificado)."
+  },
+  "warningVerifyError": {
+    "message": "Erro técnico ao verificar a assinatura: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Falha na verificação da assinatura digital."
+  },
+  "warningLabel": {
+    "message": "Aviso"
+  },
+  "alertVerifiedSender": {
+    "message": "Este e-mail foi assinado digitalmente e verificado pelo UID.one para o remetente: $1"
+  },
+  "filterFocus": {
+    "message": "Escudo de confiança UID: Prioridade ($1)"
+  },
+  "filterWarning": {
+    "message": "Escudo de confiança UID: Aviso ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "O e-mail não assinado contém palavras-chave financeiras confidenciais."
+  },
+  "reasonUnsigned": {
+    "message": "O e-mail não está assinado."
+  },
+  "reasonSignedImportant": {
+    "message": "O e-mail de um parceiro confiável contém uma solicitação de ação importante."
+  },
+  "reasonSignedSafe": {
+    "message": "E-mail seguro de um parceiro."
+  },
+  "reasonTrustedVerified": {
+    "message": "A fonte confiável foi verificada."
+  },
+  "reasonNotSigned": {
+    "message": "O remetente não assinou."
+  },
+  "filterSafe": {
+    "message": "Filtro de confiança de IA: Confiável ($1)"
+  },
+  "verifiedSender": {
+    "message": "Remetente verificado"
+  },
+  "floatingTooltipSign": {
+    "message": "Assinar este e-mail com UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "O e-mail do remetente ($1) não corresponde à identidade UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Falha ao buscar ou gerar o hash do PDF. Certifique-se de que o link esteja acessível."
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF assinado digitalmente com sucesso!"
+  },
+  "pdfSignerSubtitle": {
+    "message": "Verificação criptográfica de PDF Zero-Trust e carimbos digitais."
+  },
+  "pdfSignerPanelDocument": {
+    "message": "Documento"
+  },
+  "pdfSignerLabelPage": {
+    "message": "Selecionar página de destino:"
+  },
+  "pdfSignerPanelStamp": {
+    "message": "Configuração do carimbo de assinatura"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "Posição visual do carimbo:"
+  },
+  "pdfSignerPanelMethod": {
+    "message": "Método de assinatura"
+  },
+  "pdfSignerMethodUid": {
+    "message": "Confiança criptográfica UID.one (Padrão)"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "Token USB (Cartão inteligente)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "Cloud CA remota"
+  },
+  "pdfSignerMethodP12": {
+    "message": "Enviar arquivo de certificado (.p12 / .pfx)"
+  },
+  "pdfSignerLabelAgentStatus": {
+    "message": "Aplicativo cliente CA:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Verificando..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Offline"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "Em execução"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "Status do token USB:"
+  },
+  "pdfSignerUsbChecking": {
+    "message": "Verificando..."
+  },
+  "pdfSignerUsbUnknown": {
+    "message": "Desconhecido"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Não encontrado"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Detectado"
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "Nenhum token USB detectado. Conecte seu USB e clique em detectar."
+  },
+  "pdfSignerButtonDetect": {
+    "message": "Detectar aplicativo USB CA"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "O aplicativo cliente CA não está em execução ou não está instalado neste computador."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "O aplicativo cliente CA está ativo, mas nenhum token USB ou cartão inteligente foi encontrado. Insira seu token USB."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Conectado. Os certificados do token USB estão prontos."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Consultando aplicativo local de assinatura CA..."
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "Selecionar certificado:"
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "Provedor de Cloud CA:"
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "Nome de usuário:"
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "Enviar arquivo PFX/P12:"
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "Senha do certificado:"
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "Instruções"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "Selecione a página de destino e arraste a caixa verde para posicionar seu carimbo de assinatura. Clique no botão abaixo para assinar o PDF."
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "Ir para o painel do UID.one"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "Navegação"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "Digite seu nome de usuário"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "Digite a senha do arquivo"
+  },
+  "pdfSignerPinTitle": {
+    "message": "Verificação de PIN do token USB"
+  },
+  "pdfSignerPinDesc": {
+    "message": "Insira o PIN do seu token USB para autorizar a assinatura digital:"
+  },
+  "pdfSignerPinError": {
+    "message": "O PIN do USB deve ter entre 4 e 8 dígitos."
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "Autorizar Cloud CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "Uma notificação push foi enviada para o seu aplicativo móvel <strong>$1</strong> vinculado ao identificador <strong>$2</strong>. Aprove-a no seu telefone para concluir a assinatura."
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "Cancelar"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "Provedores do Vietnã"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "Provedores globais"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "Senha:"
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "Digite sua senha"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "Insira seu nome de usuário."
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "Insira sua senha."
+  }
+}

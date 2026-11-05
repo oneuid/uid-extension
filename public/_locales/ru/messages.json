@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "Суверенный слой идентификации"
   },
+  "signButton": {
+    "message": "Подписать UID"
+  },
+  "signedButton": {
+    "message": "Подписано"
+  },
+  "signingButton": {
+    "message": "Подписание..."
+  },
+  "dialogTitle": {
+    "message": "ПРОВЕРКА ЦИФРОВОЙ ПОДПИСИ"
+  },
+  "dialogDesc": {
+    "message": "Откройте мобильное приложение UID.one или перейдите на <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a>, чтобы выбрать совпадающее число."
+  },
+  "dialogCancel": {
+    "message": "Отменить запрос"
+  },
+  "dialogApprove": {
+    "message": "Подтвердить подпись"
+  },
+  "dialogApproving": {
+    "message": "Подтверждение..."
+  },
+  "dialogSigner": {
+    "message": "Подписант"
+  },
+  "dialogDomain": {
+    "message": "Домен"
+  },
+  "signatureTitle": {
+    "message": "Это письмо подписано цифровой подписью UID.one"
+  },
+  "signatureSigner": {
+    "message": "Подписант"
+  },
+  "signatureTime": {
+    "message": "Время подписи"
+  },
+  "signatureVerify": {
+    "message": "Проверить личность →"
+  },
+  "alertLinkFirst": {
+    "message": "Привяжите учетную запись UID.one перед выполнением цифровой подписи."
+  },
+  "alertEnterContent": {
+    "message": "Введите содержимое перед подписанием."
+  },
+  "alertRejected": {
+    "message": "Запрос на подпись был отклонен или истек."
+  },
+  "contextMenuTitle": {
+    "message": "Подписать текст с помощью UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "Подписать PDF с помощью UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "Ошибка подписания PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "Невозможно подписать PDF напрямую во встроенном просмотрщике браузера. Нажмите правой кнопкой мыши по ссылке на PDF-файл."
+  },
   "pdfSignerTitle": {
     "message": "UID цифровая подпись"
+  },
+  "pdfSignerLoadError": {
+    "message": "Не удалось загрузить PDF-файл. Проверьте доступность файла."
+  },
+  "pdfSignerPageLabel": {
+    "message": "Страница"
+  },
+  "pdfSignerOfLabel": {
+    "message": "из"
+  },
+  "pdfSignerButtonSign": {
+    "message": "Подписать документ"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "Подписание PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "Скачать подписанный PDF"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "Введите 6-значный код OTP для подтверждения цифровой подписи:"
+  },
+  "otpCancel": {
+    "message": "Отмена"
+  },
+  "otpConfirm": {
+    "message": "Подписать"
+  },
+  "otpErrorLength": {
+    "message": "Код OTP должен состоять ровно из 6 цифр."
+  },
+  "alertSessionExpired": {
+    "message": "Сессия истекла или не привязана. Войдите в UID.one и нажмите «Привязать расширение», чтобы продолжить."
+  },
+  "errorVerification": {
+    "message": "Ошибка проверки: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "Недействительная подпись или письмо было изменено."
+  },
+  "warningPublicKeyFailed": {
+    "message": "Не удалось загрузить открытый ключ отправителя: $1"
+  },
+  "warningContentTampered": {
+    "message": "Цифровая подпись не соответствует содержимому письма (содержимое было изменено)."
+  },
+  "warningVerifyError": {
+    "message": "Техническая ошибка при проверке подписи: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "Проверка цифровой подписи не удалась."
+  },
+  "warningLabel": {
+    "message": "Предупреждение"
+  },
+  "alertVerifiedSender": {
+    "message": "Это письмо подписано цифровой подписью и проверено UID.one для отправителя: $1"
+  },
+  "filterFocus": {
+    "message": "Щит доверия UID: Приоритет ($1)"
+  },
+  "filterWarning": {
+    "message": "Щит доверия UID: Предупреждение ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "Неподписанное письмо содержит конфиденциальные финансовые ключевые слова."
+  },
+  "reasonUnsigned": {
+    "message": "Письмо не подписано."
+  },
+  "reasonSignedImportant": {
+    "message": "Письмо от надежного партнера содержит важный запрос на действие."
+  },
+  "reasonSignedSafe": {
+    "message": "Безопасное письмо от партнера."
+  },
+  "reasonTrustedVerified": {
+    "message": "Надежный источник подтвержден."
+  },
+  "reasonNotSigned": {
+    "message": "Отправитель не подписал письмо."
+  },
+  "filterSafe": {
+    "message": "ИИ-фильтр доверия: Надежно ($1)"
+  },
+  "verifiedSender": {
+    "message": "Проверенный отправитель"
+  },
+  "floatingTooltipSign": {
+    "message": "Подписать это письмо с помощью UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "Email отправителя ($1) не совпадает с личностью UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "Не удалось получить или хешировать PDF. Убедитесь, что ссылка доступна."
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF успешно подписан цифровой подписью!"
   },
   "pdfSignerSubtitle": {
     "message": "Zero-Trust криптографическая проверка PDF и цифровые штампы."
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "Загрузить файл сертификата (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "Клиентское приложение CA:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "Проверка..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "Не в сети"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "Запущено"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "Статус USB-токена:"
   },
   "pdfSignerUsbChecking": {
     "message": "Проверка..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "Неизвестно"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "Не найден"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "Обнаружен"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "USB-токен не обнаружен. Подключите токен и нажмите кнопку обнаружения."
   },
   "pdfSignerButtonDetect": {
     "message": "Обнаружить USB-токен"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "Клиентское приложение CA не запущено или не установлено на этом компьютере."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "Клиентское приложение CA активно, но USB-токен или смарт-карта не найдены. Подключите USB-токен."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "Подключено. Сертификаты USB-токена готовы к работе."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "Запрос к локальному приложению подписи CA..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "Выберите сертификат:"
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "Выберите нужную страницу и перетащите зеленый прямоугольник для размещения штампа подписи. Нажмите кнопку ниже для подписания PDF."
-  },
-  "pdfSignerButtonSign": {
-    "message": "Подписать документ"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "Скачать подписанный PDF"
   },
   "pdfSignerLinkDashboard": {
     "message": "Перейти в личный кабинет UID.one"
@@ -159,7 +351,7 @@
     "message": "Отмена"
   },
   "pdfSignerGroupVnProviders": {
-    "message": "Провайдеры вьетнама"
+    "message": "Провайдеры Вьетнама"
   },
   "pdfSignerGroupGlobalProviders": {
     "message": "Глобальные провайдеры"

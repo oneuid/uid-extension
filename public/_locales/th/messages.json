@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "ชั้นข้อมูลระบุตัวตนแบบอธิปไตย"
   },
+  "signButton": {
+    "message": "ลงชื่อ UID"
+  },
+  "signedButton": {
+    "message": "ลงชื่อแล้ว"
+  },
+  "signingButton": {
+    "message": "กำลังลงชื่อ..."
+  },
+  "dialogTitle": {
+    "message": "การยืนยันลายมือชื่อดิจิทัล"
+  },
+  "dialogDesc": {
+    "message": "โปรดเปิดแอปมือถือ UID.one หรือไปที่ <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> เพื่อเลือกหมายเลขที่ตรงกัน"
+  },
+  "dialogCancel": {
+    "message": "ยกเลิกคำขอ"
+  },
+  "dialogApprove": {
+    "message": "อนุมัติลายมือชื่อ"
+  },
+  "dialogApproving": {
+    "message": "กำลังอนุมัติ..."
+  },
+  "dialogSigner": {
+    "message": "ผู้ลงนาม"
+  },
+  "dialogDomain": {
+    "message": "โดเมน"
+  },
+  "signatureTitle": {
+    "message": "อีเมลนี้ลงลายมือชื่อดิจิทัลโดย UID.one"
+  },
+  "signatureSigner": {
+    "message": "ผู้ลงนาม"
+  },
+  "signatureTime": {
+    "message": "เวลาที่ลงนาม"
+  },
+  "signatureVerify": {
+    "message": "ยืนยันตัวตน →"
+  },
+  "alertLinkFirst": {
+    "message": "โปรดเชื่อมโยงบัญชี UID.one ของคุณก่อนทำการลงลายมือชื่อดิจิทัล"
+  },
+  "alertEnterContent": {
+    "message": "โปรดกรอกเนื้อหาก่อนลงลายมือชื่อ"
+  },
+  "alertRejected": {
+    "message": "คำขอลงลายมือชื่อถูกปฏิเสธหรือหมดอายุแล้ว"
+  },
+  "contextMenuTitle": {
+    "message": "ลงลายมือชื่อข้อความด้วย UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "ลงลายมือชื่อ PDF ด้วย UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "ข้อผิดพลาดในการลงนาม PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "ไม่สามารถลงลายมือชื่อ PDF ได้โดยตรงในโปรแกรมดู PDF ของเบราว์เซอร์ โปรดคลิกขวาที่ลิงก์ PDF แทน"
+  },
   "pdfSignerTitle": {
     "message": "UID เครื่องมือลงลายมือชื่อดิจิทัล"
+  },
+  "pdfSignerLoadError": {
+    "message": "ไม่สามารถโหลดไฟล์ PDF ได้ โปรดตรวจสอบว่าสามารถเข้าถึงไฟล์ได้หรือไม่"
+  },
+  "pdfSignerPageLabel": {
+    "message": "หน้า"
+  },
+  "pdfSignerOfLabel": {
+    "message": "จาก"
+  },
+  "pdfSignerButtonSign": {
+    "message": "ลงนามในเอกสาร"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "กำลังลงนาม PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "ดาวน์โหลด PDF ที่ลงนามแล้ว"
+  },
+  "otpPromptTitle": {
+    "message": "Google Authenticator"
+  },
+  "otpPromptDesc": {
+    "message": "โปรดป้อนรหัส OTP 6 หลักเพื่อยืนยันลายมือชื่อดิจิทัลของคุณ:"
+  },
+  "otpCancel": {
+    "message": "ยกเลิก"
+  },
+  "otpConfirm": {
+    "message": "ลงนาม"
+  },
+  "otpErrorLength": {
+    "message": "รหัส OTP ต้องมีความยาว 6 หลักพอดี"
+  },
+  "alertSessionExpired": {
+    "message": "เซสชันหมดอายุหรือยังไม่ได้เชื่อมโยง โปรดเข้าสู่ระบบ UID.one และคลิก 'เชื่อมโยงส่วนขยาย' เพื่อดำเนินการต่อ"
+  },
+  "errorVerification": {
+    "message": "ข้อผิดพลาดในการตรวจสอบ: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "ลายมือชื่อไม่ถูกต้องหรืออีเมลถูกดัดแปลง"
+  },
+  "warningPublicKeyFailed": {
+    "message": "ไม่สามารถโหลดพับลิกคีย์ของผู้ส่ง: $1"
+  },
+  "warningContentTampered": {
+    "message": "ลายมือชื่อดิจิทัลไม่ตรงกับเนื้อหาอีเมล (เนื้อหาถูกแก้ไข)"
+  },
+  "warningVerifyError": {
+    "message": "ข้อผิดพลาดทางเทคนิคขณะตรวจสอบลายมือชื่อ: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "การตรวจสอบลายมือชื่อดิจิทัลล้มเหลว"
+  },
+  "warningLabel": {
+    "message": "คำเตือน"
+  },
+  "alertVerifiedSender": {
+    "message": "อีเมลนี้ลงลายมือชื่อดิจิทัลและยืนยันโดย UID.one สำหรับผู้ส่ง: $1"
+  },
+  "filterFocus": {
+    "message": "เกราะความน่าเชื่อถือ UID: ลำดับความสำคัญ ($1)"
+  },
+  "filterWarning": {
+    "message": "เกราะความน่าเชื่อถือ UID: คำเตือน ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "อีเมลที่ไม่ได้ลงนามมีคำสำคัญทางการเงินที่ละเอียดอ่อน"
+  },
+  "reasonUnsigned": {
+    "message": "อีเมลยังไม่ได้ลงลายมือชื่อดิจิทัล"
+  },
+  "reasonSignedImportant": {
+    "message": "อีเมลจากพาร์ทเนอร์ที่เชื่อถือได้มีคำขอดำเนินการที่สำคัญ"
+  },
+  "reasonSignedSafe": {
+    "message": "อีเมลที่ปลอดภัยจากพาร์ทเนอร์"
+  },
+  "reasonTrustedVerified": {
+    "message": "ยืนยันแหล่งที่มาที่เชื่อถือได้แล้ว"
+  },
+  "reasonNotSigned": {
+    "message": "ผู้ส่งยังไม่ได้ลงลายมือชื่อ"
+  },
+  "filterSafe": {
+    "message": "ตัวกรองความน่าเชื่อถือ AI: เชื่อถือได้ ($1)"
+  },
+  "verifiedSender": {
+    "message": "ผู้ส่งที่ยืนยันแล้ว"
+  },
+  "floatingTooltipSign": {
+    "message": "ลงลายมือชื่ออีเมลนี้ด้วย UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "อีเมลผู้ส่ง ($1) ไม่ตรงกับตัวตน UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "ไม่สามารถดึงข้อมูลหรือแฮชไฟล์ PDF ได้ โปรดตรวจสอบว่าลิงก์สามารถเข้าถึงได้"
+  },
+  "pdfSignedSuccess": {
+    "message": "ลงลายมือชื่อดิจิทัลใน PDF สำเร็จแล้ว!"
   },
   "pdfSignerSubtitle": {
     "message": "การตรวจสอบความถูกต้องเข้ารหัส PDF แบบ Zero-Trust และตราประทับดิจิทัล"
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "อัปโหลดไฟล์ใบรับรอง (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "แอปไคลเอนต์ CA:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "กำลังตรวจสอบ..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "ออฟไลน์"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "กำลังทำงาน"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "สถานะ USB Token:"
   },
   "pdfSignerUsbChecking": {
     "message": "กำลังตรวจสอบ..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "ไม่ทราบ"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "ไม่พบ"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "ตรวจพบแล้ว"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "ไม่พบ USB Token โปรดเสียบ USB ของคุณแล้วคลิกตรวจหา"
   },
   "pdfSignerButtonDetect": {
     "message": "ตรวจหา USB Token"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "แอปพลิเคชันไคลเอนต์ CA ไม่ได้ทำงานอยู่หรือไม่ได้ติดตั้งในคอมพิวเตอร์เครื่องนี้"
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "แอปไคลเอนต์ CA ทำงานอยู่ แต่ไม่พบ USB Token หรือสมาร์ทการ์ด โปรดเสียบ USB Token ของคุณ"
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "เชื่อมต่อแล้ว ใบรับรองใน USB Token พร้อมใช้งาน"
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "กำลังเชื่อมต่อกับแอปพลิเคชันลงลายมือชื่อ CA ในเครื่อง..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "เลือกใบรับรอง:"
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "เลือกหน้าเป้าหมายและลากกล่องสีเขียวเพื่อกำหนดตำแหน่งตราประทับลายเซ็นของคุณ คลิกปุ่มด้านล่างเพื่อลงชื่อใน PDF"
-  },
-  "pdfSignerButtonSign": {
-    "message": "ลงนามในเอกสาร"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "ดาวน์โหลด PDF ที่ลงนามแล้ว"
   },
   "pdfSignerLinkDashboard": {
     "message": "ไปที่แดชบอร์ด UID.one"

@@ -28,7 +28,7 @@ Never repeat the primary CTA verb inside adjacent card headings, subtitles, or b
   - Primary CTA: `[Download (DING-OS-Setup.exe)]`
 - **Good (Crisp Product Noun + Distinct Action)**:
   - Heading: `DING OS for Windows` (`DING OS cho Windows`)
-  - Primary CTA: `[Download]` (`DING-OS-Setup-2.4.0.exe`)
+  - Primary CTA: `[Download]` (`DING-OS-Setup-2.5.0.exe`)
   - Format Rows: `[.EXE]`, `[.ZIP]`, `[ARM64]`, `[x64]`, `[.DEB]`, `[AppImage]`
 - **Rule**: Card titles name the **entity or edition** (`DING OS for macOS`, `Business Plan`, `Counter Terminal`). Buttons name the **action or target format** (`Download`, `App Store`, `Google Play`, `Save`, `Verify`).
 
@@ -78,3 +78,16 @@ Overusing Title Case (`Capitalizing Every Single Word In Headings, Cards, And Po
    - Reserve `UPPERCASE` strictly for: (a) genuine acronyms and ISO currency/country codes (`USD`, `VND`, `EUR`, `AI`, `QR`, `VIP`, `API`, `SSO`, `SLA`, `FAQ`, `VAT`, `MST`); and (b) short 1–2 word muted structural footer column headers or compact `10px–11px` eyebrow micro-labels where dictated by the brand's typographic scale.
 4. **Unboxed Fine-Print Footer Legal Disclosures (Zero Boxed Footer Cards)**:
    - Never place corporate ownership disclosures, tax IDs (`0402217820`), or registration licenses inside bordered/shaded card boxes (`bg-[#161618] rounded-xl p-4`, `bg-muted/30 border rounded-lg`) in the footer columns. Render statutory corporate disclosures cleanly as unboxed muted fine print (`text-[11px] text-zinc-500`) in the bottom copyright bar.
+
+---
+
+## 7. Mandatory 14-Locale Exhaustive i18n Synchronization Law (Zero `en`/`vi`-Only Edits)
+The entire ecosystem (`DING OS`, `Trip Express`, `OneUID`, and `SHAN`) operates on **14 canonical locales**: `ar`, `de`, `en`, `es`, `fr`, `it`, `ja`, `ko`, `pt`, `ru`, `th`, `vi`, `zh-hans`, `zh-hant`.
+1. **Strict Prohibition on `en`/`vi`-Only Edits**:
+   - Agents and subagents **MUST NEVER** update only `en.json` and `vi.json` when adding, editing, or deleting translation keys, pricing numbers, tier features, or UI strings.
+   - Any task that touches `en` or `vi` locale files **MUST** synchronously update the remaining **12 locales** (`ar`, `de`, `es`, `fr`, `it`, `ja`, `ko`, `pt`, `ru`, `th`, `zh-hans`, `zh-hant`) in the same turn.
+2. **Zero Untranslated English Fallbacks in Non-English Locales**:
+   - Do not copy raw English sentences into `ar`, `de`, `es`, `fr`, `it`, `ja`, `ko`, `pt`, `ru`, `th`, `vi`, `zh-hans`, or `zh-hant` files as placeholders. Every locale must receive accurate, native translations.
+3. **100% Key Parity Verification Gate**:
+   - Before completing any frontend task, verify that all 14 locale files in `messages/` or `locales/` have identical leaf key sets (`0 missing keys`, `0 stale extra keys`).
+

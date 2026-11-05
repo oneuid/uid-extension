@@ -56,8 +56,173 @@
   "sovereignIdentityLayer": {
     "message": "طبقة الهوية السيادية"
   },
+  "signButton": {
+    "message": "توقيع UID"
+  },
+  "signedButton": {
+    "message": "تم التوقيع"
+  },
+  "signingButton": {
+    "message": "جاري التوقيع..."
+  },
+  "dialogTitle": {
+    "message": "التحقق من التوقيع الرقمي"
+  },
+  "dialogDesc": {
+    "message": "يرجى فتح تطبيق الجوال UID.one أو زيارة <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> لاختيار الرقم المطابق."
+  },
+  "dialogCancel": {
+    "message": "إلغاء الطلب"
+  },
+  "dialogApprove": {
+    "message": "الموافقة على التوقيع"
+  },
+  "dialogApproving": {
+    "message": "جاري الموافقة..."
+  },
+  "dialogSigner": {
+    "message": "الموقّع"
+  },
+  "dialogDomain": {
+    "message": "النطاق"
+  },
+  "signatureTitle": {
+    "message": "هذا البريد الإلكتروني موقّع رقميًا بواسطة UID.one"
+  },
+  "signatureSigner": {
+    "message": "الموقّع"
+  },
+  "signatureTime": {
+    "message": "وقت التوقيع"
+  },
+  "signatureVerify": {
+    "message": "التحقق من الهوية ←"
+  },
+  "alertLinkFirst": {
+    "message": "يرجى ربط حساب UID.one الخاص بك قبل إجراء التوقيع الرقمي."
+  },
+  "alertEnterContent": {
+    "message": "يرجى إدخال المحتوى قبل التوقيع."
+  },
+  "alertRejected": {
+    "message": "تم رفض طلب التوقيع أو انتهت صلاحيته."
+  },
+  "contextMenuTitle": {
+    "message": "توقيع النص باستخدام UID.one"
+  },
+  "contextMenuSignPdf": {
+    "message": "توقيع ملف PDF باستخدام UID.one"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "خطأ في توقيع PDF"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "لا يمكن توقيع ملف PDF مباشرة داخل عارض PDF في المتصفح. يرجى النقر بزر الماوس الأيمن على رابط ملف PDF بدلاً من ذلك."
+  },
   "pdfSignerTitle": {
     "message": "موقّع المستندات الرقمي UID"
+  },
+  "pdfSignerLoadError": {
+    "message": "فشل تحميل ملف PDF. يرجى التحقق من إمكانية الوصول إلى الملف."
+  },
+  "pdfSignerPageLabel": {
+    "message": "صفحة"
+  },
+  "pdfSignerOfLabel": {
+    "message": "من"
+  },
+  "pdfSignerButtonSign": {
+    "message": "توقيع المستند"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "جاري توقيع PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "تنزيل ملف PDF الموقع"
+  },
+  "otpPromptTitle": {
+    "message": "مصادق Google"
+  },
+  "otpPromptDesc": {
+    "message": "يرجى إدخال رمز OTP المكون من 6 أرقام للتحقق من توقيعك الرقمي:"
+  },
+  "otpCancel": {
+    "message": "إلغاء"
+  },
+  "otpConfirm": {
+    "message": "توقيع"
+  },
+  "otpErrorLength": {
+    "message": "يجب أن يتكون رمز OTP من 6 أرقام بالضبط."
+  },
+  "alertSessionExpired": {
+    "message": "انتهت صلاحية الجلسة أو لم يتم ربطها. يرجى تسجيل الدخول إلى UID.one والنقر على 'Link Extension' للمتابعة."
+  },
+  "errorVerification": {
+    "message": "خطأ في التحقق: $1"
+  },
+  "warningInvalidSignature": {
+    "message": "توقيع غير صالح أو تم التلاعب بالبريد الإلكتروني."
+  },
+  "warningPublicKeyFailed": {
+    "message": "فشل تحميل المفتاح العام للمرسل: $1"
+  },
+  "warningContentTampered": {
+    "message": "التوقيع الرقمي لا يتطابق مع محتوى البريد الإلكتروني (تم تعديل المحتوى)."
+  },
+  "warningVerifyError": {
+    "message": "خطأ تقني أثناء التحقق من التوقيع: $1"
+  },
+  "warningVerificationFailed": {
+    "message": "فشل التحقق من التوقيع الرقمي."
+  },
+  "warningLabel": {
+    "message": "تحذير"
+  },
+  "alertVerifiedSender": {
+    "message": "هذا البريد الإلكتروني موقّع رقميًا وتم التحقق منه بواسطة UID.one للمرسل: $1"
+  },
+  "filterFocus": {
+    "message": "درع ثقة UID: أولوية ($1)"
+  },
+  "filterWarning": {
+    "message": "درع ثقة UID: تحذير ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "يحتوي البريد غير الموقّع على كلمات مفتاحية مالية حساسة."
+  },
+  "reasonUnsigned": {
+    "message": "البريد الإلكتروني غير موقّع."
+  },
+  "reasonSignedImportant": {
+    "message": "يحتوي البريد الوارد من شريك موثوق على طلب إجراء مهم."
+  },
+  "reasonSignedSafe": {
+    "message": "بريد إلكتروني آمن من شريك."
+  },
+  "reasonTrustedVerified": {
+    "message": "تم التحقق من المصدر الموثوق."
+  },
+  "reasonNotSigned": {
+    "message": "المرسل غير موقّع."
+  },
+  "filterSafe": {
+    "message": "فلتر ثقة الذكاء الاصطناعي: موثوق ($1)"
+  },
+  "verifiedSender": {
+    "message": "مرسل موثّق"
+  },
+  "floatingTooltipSign": {
+    "message": "توقيع هذا البريد الإلكتروني باستخدام UID.one"
+  },
+  "floatingTooltipMismatch": {
+    "message": "البريد الإلكتروني للمرسل ($1) لا يتطابق مع هوية UID ($2)"
+  },
+  "errorFetchPdf": {
+    "message": "فشل جلب ملف PDF أو تجزئته. يرجى التأكد من إمكانية الوصول إلى الرابط."
+  },
+  "pdfSignedSuccess": {
+    "message": "تم توقيع ملف PDF رقميًا بنجاح!"
   },
   "pdfSignerSubtitle": {
     "message": "التحقق التشفيري لملفات PDF بنظام Zero-Trust والأختام الرقمية."
@@ -89,17 +254,50 @@
   "pdfSignerMethodP12": {
     "message": "تحميل ملف الشهادة (.p12 / .pfx)"
   },
+  "pdfSignerLabelAgentStatus": {
+    "message": "تطبيق عميل CA:"
+  },
+  "pdfSignerAgentChecking": {
+    "message": "جاري التحقق..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "غير متصل"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "قيد التشغيل"
+  },
   "pdfSignerLabelUsbStatus": {
     "message": "حالة رمز USB:"
   },
   "pdfSignerUsbChecking": {
     "message": "جاري التحقق..."
   },
+  "pdfSignerUsbUnknown": {
+    "message": "غير معروف"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "غير موجود"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "تم الاكتشاف"
+  },
   "pdfSignerUsbNoDetect": {
     "message": "لم يتم اكتشاف رمز USB. قم بتوصيل رمز USB وانقر على الكشف."
   },
   "pdfSignerButtonDetect": {
     "message": "كشف رمز USB"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "تطبيق عميل CA غير قيد التشغيل أو غير مثبت على هذا الكمبيوتر."
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "تطبيق عميل CA نشط، ولكن لم يتم العثور على رمز USB أو بطاقة ذكية. يرجى إدخال رمز USB."
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "متصل. شهادات رمز USB جاهزة."
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "جاري الاستعلام عن تطبيق التوقيع المحلي CA..."
   },
   "pdfSignerLabelSelectCert": {
     "message": "اختر الشهادة:"
@@ -121,12 +319,6 @@
   },
   "pdfSignerInstructionsText": {
     "message": "حدد الصفحة المستهدفة واسحب الصندوق الأخضر لتحديد موضع ختم توقيعك. انقر فوق الزر أدناه لتوقيع ملف PDF."
-  },
-  "pdfSignerButtonSign": {
-    "message": "توقيع المستند"
-  },
-  "pdfSignerButtonDownload": {
-    "message": "تنزيل ملف PDF الموقع"
   },
   "pdfSignerLinkDashboard": {
     "message": "الانتقال إلى لوحة تحكم UID.one"

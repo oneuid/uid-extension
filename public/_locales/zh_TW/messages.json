@@ -1,0 +1,371 @@
+{
+  "extensionName": {
+    "message": "UID Link - security & identity"
+  },
+  "extensionDesc": {
+    "message": "UID.one 的主權用戶端安全與身分層。執行零信任 (Zero-Trust)、資料防洩漏 (DLP) 保護、工作階段綁定與 SSD 反追蹤。"
+  },
+  "iconTitle": {
+    "message": "使用 Passkey 登入 (UID.one)"
+  },
+  "errorVaultNotFound": {
+    "message": "錯誤：找不到該網站的安全保險箱。"
+  },
+  "errorDecryptionFailed": {
+    "message": "錯誤：解密憑證失敗。"
+  },
+  "errorNoUsernameProvided": {
+    "message": "請先輸入您的電子郵件或使用者名稱以使用 Passkey。"
+  },
+  "pickerHeader": {
+    "message": "選擇帳戶"
+  },
+  "setupGuidance": {
+    "message": "首次設定：請輸入您的信箱與密碼進行正常登入。系統將自動為您建立安全的 Passkey 保險箱！"
+  },
+  "vaultConnected": {
+    "message": "保險箱已連線"
+  },
+  "waitingForLogin": {
+    "message": "等待登入"
+  },
+  "vaultConnectedDesc": {
+    "message": "Zero-Trust 安全防禦已啟用。通行密鑰與憑證已安全同步至保險箱。"
+  },
+  "waitingForLoginDesc": {
+    "message": "請登入您的 <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 網頁帳戶。瀏覽器擴充功能將自動進行同步與配對。"
+  },
+  "cookiesGuard": {
+    "message": "Cookie 防護"
+  },
+  "exifStripped": {
+    "message": "清除 EXIF"
+  },
+  "inputsWiped": {
+    "message": "擦除輸入"
+  },
+  "engineControl": {
+    "message": "引擎控制"
+  },
+  "activeDlpInterceptor": {
+    "message": "啟用 DLP 攔截器"
+  },
+  "activeDlpInterceptorDesc": {
+    "message": "分析上傳、複製與表單提交行為"
+  },
+  "sovereignIdentityLayer": {
+    "message": "主權身分安全層"
+  },
+  "signButton": {
+    "message": "UID 簽署"
+  },
+  "signedButton": {
+    "message": "已簽署"
+  },
+  "signingButton": {
+    "message": "正在簽署..."
+  },
+  "dialogTitle": {
+    "message": "數位簽章驗證"
+  },
+  "dialogDesc": {
+    "message": "請開啟 UID.one 行動應用程式或造訪 <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> 選擇相符的數字。"
+  },
+  "dialogCancel": {
+    "message": "取消請求"
+  },
+  "dialogApprove": {
+    "message": "核准簽章"
+  },
+  "dialogApproving": {
+    "message": "正在核准..."
+  },
+  "dialogSigner": {
+    "message": "簽署人"
+  },
+  "dialogDomain": {
+    "message": "網域"
+  },
+  "signatureTitle": {
+    "message": "此郵件已由 UID.one 進行數位簽章"
+  },
+  "signatureSigner": {
+    "message": "簽署人"
+  },
+  "signatureTime": {
+    "message": "簽署時間"
+  },
+  "signatureVerify": {
+    "message": "驗證身分 →"
+  },
+  "alertLinkFirst": {
+    "message": "請先連結您的 UID.one 帳戶後再執行數位簽章。"
+  },
+  "alertEnterContent": {
+    "message": "請在簽署前輸入內容。"
+  },
+  "alertRejected": {
+    "message": "簽署請求已被拒絕或已過期。"
+  },
+  "contextMenuTitle": {
+    "message": "使用 UID.one 簽署文字"
+  },
+  "contextMenuSignPdf": {
+    "message": "使用 UID.one 簽署 PDF"
+  },
+  "notificationSignPdfErrorTitle": {
+    "message": "PDF 簽署錯誤"
+  },
+  "notificationSignPdfErrorMsg": {
+    "message": "無法在瀏覽器內建 PDF 檢視器中直接簽署。請改為對 PDF 連結按一下滑鼠右鍵。"
+  },
+  "pdfSignerTitle": {
+    "message": "UID 電子簽章"
+  },
+  "pdfSignerLoadError": {
+    "message": "載入 PDF 檔案失敗。請檢查檔案是否可存取。"
+  },
+  "pdfSignerPageLabel": {
+    "message": "第"
+  },
+  "pdfSignerOfLabel": {
+    "message": "頁 / 共"
+  },
+  "pdfSignerButtonSign": {
+    "message": "簽署文件"
+  },
+  "pdfSignerButtonSigning": {
+    "message": "正在簽署 PDF..."
+  },
+  "pdfSignerButtonDownload": {
+    "message": "下載已簽署的 PDF"
+  },
+  "otpPromptTitle": {
+    "message": "Google 驗證器"
+  },
+  "otpPromptDesc": {
+    "message": "請輸入 6 位數 OTP 驗證碼以驗證您的數位簽章："
+  },
+  "otpCancel": {
+    "message": "取消"
+  },
+  "otpConfirm": {
+    "message": "簽署"
+  },
+  "otpErrorLength": {
+    "message": "OTP 驗證碼必須為完整的 6 位數字。"
+  },
+  "alertSessionExpired": {
+    "message": "工作階段已過期或未連結。請登入 UID.one 並點擊「連結擴充功能」以繼續。"
+  },
+  "errorVerification": {
+    "message": "驗證錯誤：$1"
+  },
+  "warningInvalidSignature": {
+    "message": "簽章無效或郵件內容已被竄改。"
+  },
+  "warningPublicKeyFailed": {
+    "message": "無法載入寄件者公鑰：$1"
+  },
+  "warningContentTampered": {
+    "message": "數位簽章與郵件內容不符（內容已被修改）。"
+  },
+  "warningVerifyError": {
+    "message": "驗證簽章時發生技術錯誤：$1"
+  },
+  "warningVerificationFailed": {
+    "message": "數位簽章驗證失敗。"
+  },
+  "warningLabel": {
+    "message": "警告"
+  },
+  "alertVerifiedSender": {
+    "message": "此郵件已由 UID.one 為寄件者 $1 進行數位簽章並驗證"
+  },
+  "filterFocus": {
+    "message": "UID 信任護盾：重點 ($1)"
+  },
+  "filterWarning": {
+    "message": "UID 信任護盾：警告 ($1)"
+  },
+  "reasonUnsignedSensitive": {
+    "message": "未簽署的郵件包含敏感財務關鍵字。"
+  },
+  "reasonUnsigned": {
+    "message": "郵件未進行數位簽章。"
+  },
+  "reasonSignedImportant": {
+    "message": "來自可信合作夥伴的郵件包含重要操作請求。"
+  },
+  "reasonSignedSafe": {
+    "message": "來自合作夥伴的安全郵件。"
+  },
+  "reasonTrustedVerified": {
+    "message": "可信來源已通過驗證。"
+  },
+  "reasonNotSigned": {
+    "message": "寄件者未簽章。"
+  },
+  "filterSafe": {
+    "message": "AI 信任過濾：可信 ($1)"
+  },
+  "verifiedSender": {
+    "message": "已驗證寄件者"
+  },
+  "floatingTooltipSign": {
+    "message": "使用 UID.one 對此郵件簽章"
+  },
+  "floatingTooltipMismatch": {
+    "message": "寄件者信箱 ($1) 與 UID 身分 ($2) 不符"
+  },
+  "errorFetchPdf": {
+    "message": "取得或計算 PDF 雜湊值失敗。請確認連結可存取。"
+  },
+  "pdfSignedSuccess": {
+    "message": "PDF 數位簽章成功！"
+  },
+  "pdfSignerSubtitle": {
+    "message": "零信任 PDF 密碼學驗證與數位圖章。"
+  },
+  "pdfSignerPanelDocument": {
+    "message": "文件"
+  },
+  "pdfSignerLabelPage": {
+    "message": "選擇簽署頁面："
+  },
+  "pdfSignerPanelStamp": {
+    "message": "圖章外觀設定"
+  },
+  "pdfSignerLabelPosition": {
+    "message": "圖章顯示位置："
+  },
+  "pdfSignerPanelMethod": {
+    "message": "簽署方式"
+  },
+  "pdfSignerMethodUid": {
+    "message": "UID.one 密碼學受信簽章（預設）"
+  },
+  "pdfSignerMethodLocal": {
+    "message": "USB Token (智慧卡)"
+  },
+  "pdfSignerMethodRemote": {
+    "message": "雲端 CA 遠端簽署"
+  },
+  "pdfSignerMethodP12": {
+    "message": "上傳憑證檔案 (.p12 / .pfx)"
+  },
+  "pdfSignerLabelAgentStatus": {
+    "message": "CA 用戶端程式："
+  },
+  "pdfSignerAgentChecking": {
+    "message": "正在偵測..."
+  },
+  "pdfSignerAgentOffline": {
+    "message": "未執行"
+  },
+  "pdfSignerAgentRunning": {
+    "message": "執行中"
+  },
+  "pdfSignerLabelUsbStatus": {
+    "message": "USB Key 狀態："
+  },
+  "pdfSignerUsbChecking": {
+    "message": "正在偵測..."
+  },
+  "pdfSignerUsbUnknown": {
+    "message": "未知"
+  },
+  "pdfSignerUsbNotFound": {
+    "message": "找不到"
+  },
+  "pdfSignerUsbDetected": {
+    "message": "已識別"
+  },
+  "pdfSignerUsbNoDetect": {
+    "message": "未偵測到 USB Key，請插入 USB 後點擊偵測。"
+  },
+  "pdfSignerButtonDetect": {
+    "message": "偵測 USB Token"
+  },
+  "pdfSignerAgentOfflineDesc": {
+    "message": "CA 用戶端程式未執行或未安裝於此電腦。"
+  },
+  "pdfSignerUsbNotFoundDesc": {
+    "message": "CA 用戶端程式已啟動，但找不到 USB Token 或智慧卡。請插入您的 USB Token。"
+  },
+  "pdfSignerUsbSuccessDesc": {
+    "message": "已連線。USB Token 中的數位憑證已就緒。"
+  },
+  "pdfSignerAgentCheckingDesc": {
+    "message": "正在連線至本機 CA 簽章服務程式..."
+  },
+  "pdfSignerLabelSelectCert": {
+    "message": "選擇憑證："
+  },
+  "pdfSignerLabelCloudProvider": {
+    "message": "雲端 CA 服務商："
+  },
+  "pdfSignerLabelPersonalId": {
+    "message": "使用者名稱："
+  },
+  "pdfSignerLabelUploadP12": {
+    "message": "上傳 PFX/P12 檔案："
+  },
+  "pdfSignerLabelCertPassword": {
+    "message": "憑證密碼："
+  },
+  "pdfSignerPanelInstructions": {
+    "message": "使用說明"
+  },
+  "pdfSignerInstructionsText": {
+    "message": "選擇目標頁面並拖曳綠色方框以調整圖章位置，然後點擊下方按鈕完成 PDF 簽署。"
+  },
+  "pdfSignerLinkDashboard": {
+    "message": "前往 UID.one 控制台"
+  },
+  "pdfSignerPanelNavigation": {
+    "message": "頁面導覽"
+  },
+  "pdfSignerPlaceholderPersonalId": {
+    "message": "請輸入您的使用者名稱"
+  },
+  "pdfSignerPlaceholderPassword": {
+    "message": "請輸入憑證密碼"
+  },
+  "pdfSignerPinTitle": {
+    "message": "USB Token PIN 碼驗證"
+  },
+  "pdfSignerPinDesc": {
+    "message": "請輸入您的 USB Key PIN 碼以授權電子簽署："
+  },
+  "pdfSignerPinError": {
+    "message": "USB PIN 碼必須為 4 至 8 位數字。"
+  },
+  "pdfSignerRemoteTitle": {
+    "message": "授權雲端 CA"
+  },
+  "pdfSignerRemoteDesc": {
+    "message": "推播通知已發送至您的 <strong>$1</strong> 行動應用程式（連結識別碼 <strong>$2</strong>）。請在手機上核准以完成簽署。"
+  },
+  "pdfSignerRemoteCancel": {
+    "message": "取消"
+  },
+  "pdfSignerGroupVnProviders": {
+    "message": "越南服務商"
+  },
+  "pdfSignerGroupGlobalProviders": {
+    "message": "全球服務商"
+  },
+  "pdfSignerLabelCloudPassword": {
+    "message": "密碼："
+  },
+  "pdfSignerPlaceholderCloudPassword": {
+    "message": "請輸入您的密碼"
+  },
+  "pdfSignerRemoteUserAlert": {
+    "message": "請輸入您的使用者名稱。"
+  },
+  "pdfSignerRemotePasswordAlert": {
+    "message": "請輸入您的密碼。"
+  }
+}
