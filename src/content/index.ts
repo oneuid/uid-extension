@@ -9,9 +9,10 @@ console.log('[uid.one] Content script loaded on', window.location.hostname);
 
 export let lastRightClickedElement: HTMLElement | null = null;
 
-export function setLastRightClickedElement(el: HTMLElement | null) {
+export function setContextElement(el: HTMLElement | null) {
   lastRightClickedElement = el;
 }
+export { setContextElement as setLastRightClickedElement };
 
 document.addEventListener('contextmenu', (e) => {
   if (!isContextValid()) return;
@@ -280,7 +281,7 @@ export async function handleTextSigning(text: string) {
         }, (res) => {
           clearInterval(heartbeatInterval);
           if (res && res.success) {
-            insertSignatureIntoElement(targetEl!, res.signature, userEmail, hashHex, res.signer);
+            insertSignature(targetEl!, res.signature, userEmail, hashHex, res.signer);
             showToast("Signature applied successfully!", "success");
           } else {
             const errorMsg = res?.error || chrome.i18n.getMessage("alertRejected") || "Signing request was rejected or expired.";
@@ -433,7 +434,7 @@ function injectComposeHeaderBadge(targetEl: HTMLElement) {
   header.appendChild(badge);
 }
 
-function insertSignatureIntoElement(
+function insertSignature(
   targetEl: HTMLElement,
   signature: string,
   userEmail: string,

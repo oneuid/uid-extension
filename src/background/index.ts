@@ -341,7 +341,7 @@ async function handlePushRequest(request: any) {
 }
 
 // Initialize active token on start with retry to handle Chrome SW registration races
-async function initializeActiveTokenWithRetry(retries = 5, delay = 200): Promise<void> {
+async function initActiveToken(retries = 5, delay = 200): Promise<void> {
   try {
     const token = await getActiveSessionToken();
     if (token) {
@@ -354,13 +354,13 @@ async function initializeActiveTokenWithRetry(retries = 5, delay = 200): Promise
     if (retries > 0 && (errMsg.includes('No SW') || errMsg.includes('context invalidated') || errMsg.includes('invalidated'))) {
       console.warn(`[uid.one] Startup initialization failed (${errMsg}), retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
-      return initializeActiveTokenWithRetry(retries - 1, delay * 1.5);
+      return initActiveToken(retries - 1, delay * 1.5);
     }
     console.error('[uid.one] Failed to initialize active token on startup:', err);
   }
 }
 
-initializeActiveTokenWithRetry();
+initActiveToken();
 
 function waitForChallengeApproval(token: string): Promise<any> {
   return new Promise((resolve) => {
