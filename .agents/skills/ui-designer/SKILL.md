@@ -124,3 +124,22 @@ Before sign-off, the `UI DESIGNER` classifies the page's **Surface Mode** (`PERS
 7. **Pass 7 - Brand Cohesion & Goodwill Reservoir (`0-10`)**: Preserves user Goodwill `>= 85/100`.
 
 - **Mandatory Fix-to-10 Gate**: Every shipped screen must achieve an overall score **`>= 8.5/10`** with **no single pass `< 7/10`**. If any pass scores below `8/10`, the `UI DESIGNER` immediately fixes the CSS/JSX in the same turn to bring it to `9-10/10`.
+
+---
+
+## 8. Agent-Ready Micro-Craft, Layer Isolation & 14-Locale IME Guard (`meta/astryx`)
+
+Distilled from **Meta Astryx** (`Design-Conventions`, `AGENTS.md` `INV21`/`INV22`, and `IME_GUARD_DESIGN.md` — adapted to Tailwind CSS + `@/components/ui/*` + React Native):
+
+1. **Gestalt Monotonic Spacing & Two Structural Smells**:
+   - Gaps must step up monotonically with grouping order on the `4px` grid (`2px` half-steps for optical work only): **`label → input` < `field → field` < `group → group` < `section → section`**.
+   - **Ban Inverted Nesting**: An inner group's gap must never exceed its parent container's padding/gap (e.g., `gap-6` inside a `p-3` box reads inside-out).
+   - **Ban Monotonous Spacing**: Never use a single uniform `gap-4` across an entire view; vary spacing tiers intentionally so squinting reveals group hierarchy without adding nested borders.
+2. **Size × Density Baseline Synchronization**:
+   - Fixed-height controls (`size`: `h-7` `28px` / `h-8` `32px` / `h-9` `36px` / `h-10` `40px`) and variable-height inputs, `MultiSelect` tag pills, or list rows (`density` padding) sharing a horizontal row MUST land on the **same resting height, optical baseline, and concentric horizontal/vertical clearance** ($R_{\text{inner}} = R_{\text{outer}} - \text{gap}$). Visual compactness never excuses sub-`44px` touch hit areas on coarse pointers.
+3. **Edge Commitment, Trigger-Only Press Scale (`INV21`/`INV22`) & Named Hover Groups**:
+   - **Edge Commitment**: Commit each surface either to a defined `1px` hairline border (`shadow-2xs` max) for in-flow cards OR soft elevation (`shadow-lg`/`shadow-xl` + `1px` ring) for floating layers (`base < dropdown < sticky < modal < toast < tooltip`) — never combine a visible hairline border with a wide diffuse shadow on resting cards.
+   - **Press-Transform Layer Isolation (`INV22`)**: Apply `:active` press scale (`active:scale-[0.98]`) strictly to the trigger's own visual element — never wrap an anchored `Popover`, `DropdownMenu`, or `Tooltip` inside a transformed box (which warps anchor coordinates and blurs subpixel text).
+   - **Scoped Hover Markers (`group/<scope>`)**: Never place an unscoped Tailwind `group` on an outer `Card`, `Popover`, or `Table` row when inner form controls or chips also use `group-hover:` / `group-focus-within:`; always use named markers (`group/row`, `group/chip`) so outer hover/focus never leaks into child controls.
+4. **Dual-Signal 14-Locale IME Composition Guard (`isImeKeyEvent`)**:
+   - Across Vietnamese (Telex/VNI) and CJK (`ja`, `ko`, `zh-hans`, `zh-hant`), `Enter` commits a composed syllable and `Escape` cancels IME candidates. Every `keydown` / `onKeyDown` handler intercepting `Enter`, `Escape`, or `Arrow` keys (in `SearchBar`, `Chat` composers, `Command`/comboboxes, inline editors, and `Dialog`/`Popover` dismissal) MUST return early when `Boolean(e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229)` (keeping `keyCode === 229` for Safari and IMEs that fire composing `keydown` before `isComposing` flips `true`).

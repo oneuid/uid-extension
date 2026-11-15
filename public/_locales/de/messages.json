@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link · Sicherheit und Identität"
   },
   "extensionDesc": {
     "message": "Zero-Trust-Sicherheitsebene für UID.one. Bietet DLP-Schutz, Sitzungsbindung und SSD-Anti-Tracking."
@@ -66,10 +66,10 @@
     "message": "Wird signiert..."
   },
   "dialogTitle": {
-    "message": "PRÜFUNG DER DIGITALEN SIGNATUR"
+    "message": "Prüfung der digitalen Signatur"
   },
   "dialogDesc": {
-    "message": "Bitte öffnen Sie Ihre UID.one Mobile-App oder besuchen Sie <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a>, um die übereinstimmende Nummer auszuwählen."
+    "message": "Bitte öffnen Sie Ihre UID.one Mobile-App oder besuchen Sie <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>, um die übereinstimmende Nummer auszuwählen."
   },
   "dialogCancel": {
     "message": "Anfrage abbrechen"
@@ -96,7 +96,7 @@
     "message": "Signaturzeitpunkt"
   },
   "signatureVerify": {
-    "message": "Identität prüfen →"
+    "message": "Identität prüfen"
   },
   "alertLinkFirst": {
     "message": "Bitte verknüpfen Sie Ihr UID.one-Konto, bevor Sie eine digitale Signatur durchführen."
@@ -225,7 +225,7 @@
     "message": "PDF erfolgreich digital signiert!"
   },
   "pdfSignerSubtitle": {
-    "message": "Zero-Trust PDF-Kryptografieprüfung & digitale Stempel."
+    "message": "Zero-Trust PDF-Kryptografieprüfung und digitale Stempel."
   },
   "pdfSignerPanelDocument": {
     "message": "Dokument"
@@ -252,7 +252,7 @@
     "message": "Remote Cloud CA"
   },
   "pdfSignerMethodP12": {
-    "message": "Zertifikatsdatei hochladen (.p12 / .pfx)"
+    "message": "Zertifikatsdatei hochladen (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA-Client-App:"
@@ -309,7 +309,7 @@
     "message": "Benutzername:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "PFX/P12-Datei hochladen:"
+    "message": "PKCS#12-Datei hochladen:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Zertifikatskennwort:"
@@ -318,7 +318,7 @@
     "message": "Anleitung"
   },
   "pdfSignerInstructionsText": {
-    "message": "Wählen Sie die Zielseite aus und ziehen Sie das grüne Feld, um Ihren Signaturstempel zu positionieren. Klicken Sie unten auf die Schaltfläche, um die PDF-Datei zu signieren."
+    "message": "Wählen Sie die Zielseite aus und ziehen Sie den Signaturrahmen an die gewünschte Position. Klicken Sie unten auf die Schaltfläche, um die PDF-Datei zu signieren."
   },
   "pdfSignerLinkDashboard": {
     "message": "Gehe zum UID.one Dashboard"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Bitte geben Sie Ihr Passwort ein."
+  },
+  "viewWebProfile": {
+    "message": "Web-Tresor öffnen"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Vorherige Seite"
+  },
+  "pdfSignerNextPage": {
+    "message": "Nächste Seite"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "PIN eingeben"
   }
 }

@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · 安全與身分防護"
   },
   "extensionDesc": {
     "message": "UID.one 的主權用戶端安全與身分層。執行零信任 (Zero-Trust)、資料防洩漏 (DLP) 保護、工作階段綁定與 SSD 反追蹤。"
@@ -69,7 +69,7 @@
     "message": "數位簽章驗證"
   },
   "dialogDesc": {
-    "message": "請開啟 UID.one 行動應用程式或造訪 <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> 選擇相符的數字。"
+    "message": "請開啟 UID.one 行動應用程式或造訪 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> 選擇相符的數字。"
   },
   "dialogCancel": {
     "message": "取消請求"
@@ -96,7 +96,7 @@
     "message": "簽署時間"
   },
   "signatureVerify": {
-    "message": "驗證身分 →"
+    "message": "驗證身分"
   },
   "alertLinkFirst": {
     "message": "請先連結您的 UID.one 帳戶後再執行數位簽章。"
@@ -129,7 +129,7 @@
     "message": "第"
   },
   "pdfSignerOfLabel": {
-    "message": "頁 / 共"
+    "message": "頁，共"
   },
   "pdfSignerButtonSign": {
     "message": "簽署文件"
@@ -252,7 +252,7 @@
     "message": "雲端 CA 遠端簽署"
   },
   "pdfSignerMethodP12": {
-    "message": "上傳憑證檔案 (.p12 / .pfx)"
+    "message": "上傳憑證檔案 (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA 用戶端程式："
@@ -309,7 +309,7 @@
     "message": "使用者名稱："
   },
   "pdfSignerLabelUploadP12": {
-    "message": "上傳 PFX/P12 檔案："
+    "message": "上傳 PKCS#12 檔案："
   },
   "pdfSignerLabelCertPassword": {
     "message": "憑證密碼："
@@ -318,7 +318,7 @@
     "message": "使用說明"
   },
   "pdfSignerInstructionsText": {
-    "message": "選擇目標頁面並拖曳綠色方框以調整圖章位置，然後點擊下方按鈕完成 PDF 簽署。"
+    "message": "選擇目標頁面並拖曳簽章方框以調整圖章位置，然後點擊下方按鈕完成 PDF 簽署。"
   },
   "pdfSignerLinkDashboard": {
     "message": "前往 UID.one 控制台"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "請輸入您的密碼。"
+  },
+  "viewWebProfile": {
+    "message": "開啟網頁保險庫"
+  },
+  "pdfSignerPrevPage": {
+    "message": "上一頁"
+  },
+  "pdfSignerNextPage": {
+    "message": "下一頁"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "輸入 PIN 碼"
   }
 }

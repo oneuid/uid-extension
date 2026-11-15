@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · ความปลอดภัยและตัวตน"
   },
   "extensionDesc": {
     "message": "ชั้นความปลอดภัยสำหรับ UID.one บังคับใช้ Zero-Trust, การป้องกัน DLP และการป้องกันการติดตาม SSD"
@@ -69,7 +69,7 @@
     "message": "การยืนยันลายมือชื่อดิจิทัล"
   },
   "dialogDesc": {
-    "message": "โปรดเปิดแอปมือถือ UID.one หรือไปที่ <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> เพื่อเลือกหมายเลขที่ตรงกัน"
+    "message": "โปรดเปิดแอปมือถือ UID.one หรือไปที่ <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> เพื่อเลือกหมายเลขที่ตรงกัน"
   },
   "dialogCancel": {
     "message": "ยกเลิกคำขอ"
@@ -96,7 +96,7 @@
     "message": "เวลาที่ลงนาม"
   },
   "signatureVerify": {
-    "message": "ยืนยันตัวตน →"
+    "message": "ยืนยันตัวตน"
   },
   "alertLinkFirst": {
     "message": "โปรดเชื่อมโยงบัญชี UID.one ของคุณก่อนทำการลงลายมือชื่อดิจิทัล"
@@ -252,7 +252,7 @@
     "message": "ระบบคลาวด์ CA ระยะไกล"
   },
   "pdfSignerMethodP12": {
-    "message": "อัปโหลดไฟล์ใบรับรอง (.p12 / .pfx)"
+    "message": "อัปโหลดไฟล์ใบรับรอง (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "แอปไคลเอนต์ CA:"
@@ -309,7 +309,7 @@
     "message": "ชื่อผู้ใช้:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "อัปโหลดไฟล์ PFX/P12:"
+    "message": "อัปโหลดไฟล์ PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "รหัสผ่านใบรับรอง:"
@@ -318,7 +318,7 @@
     "message": "คำแนะนำ"
   },
   "pdfSignerInstructionsText": {
-    "message": "เลือกหน้าเป้าหมายและลากกล่องสีเขียวเพื่อกำหนดตำแหน่งตราประทับลายเซ็นของคุณ คลิกปุ่มด้านล่างเพื่อลงชื่อใน PDF"
+    "message": "เลือกหน้าเป้าหมายและลากกรอบลายเซ็นเพื่อกำหนดตำแหน่งตราประทับดิจิทัล คลิกปุ่มด้านล่างเพื่อลงนามใน PDF"
   },
   "pdfSignerLinkDashboard": {
     "message": "ไปที่แดชบอร์ด UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "โปรดป้อนรหัสผ่านของคุณ"
+  },
+  "viewWebProfile": {
+    "message": "เปิดตู้นิรภัยบนเว็บ"
+  },
+  "pdfSignerPrevPage": {
+    "message": "หน้าก่อนหน้า"
+  },
+  "pdfSignerNextPage": {
+    "message": "หน้าถัดไป"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "ป้อนรหัส PIN"
   }
 }

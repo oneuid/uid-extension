@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · 安全与身份防护"
   },
   "extensionDesc": {
     "message": "UID.one 的主权客户端安全与身份层。执行零信任 (Zero-Trust)、数据防泄漏 (DLP) 保护、会话绑定和 SSD 反跟踪。"
@@ -69,7 +69,7 @@
     "message": "数字签名验证"
   },
   "dialogDesc": {
-    "message": "请打开 UID.one 移动应用或访问 <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> 选择匹配的数字。"
+    "message": "请打开 UID.one 移动应用或访问 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> 选择匹配的数字。"
   },
   "dialogCancel": {
     "message": "取消请求"
@@ -96,7 +96,7 @@
     "message": "签名时间"
   },
   "signatureVerify": {
-    "message": "验证身份 →"
+    "message": "验证身份"
   },
   "alertLinkFirst": {
     "message": "请先绑定您的 UID.one 账户后再进行数字签名。"
@@ -129,7 +129,7 @@
     "message": "第"
   },
   "pdfSignerOfLabel": {
-    "message": "页 / 共"
+    "message": "页，共"
   },
   "pdfSignerButtonSign": {
     "message": "签署文档"
@@ -252,7 +252,7 @@
     "message": "云端 CA 远程签署"
   },
   "pdfSignerMethodP12": {
-    "message": "上传证书文件 (.p12 / .pfx)"
+    "message": "上传证书文件 (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA 客户端程序："
@@ -309,7 +309,7 @@
     "message": "用户名："
   },
   "pdfSignerLabelUploadP12": {
-    "message": "上传 PFX/P12 文件："
+    "message": "上传 PKCS#12 文件："
   },
   "pdfSignerLabelCertPassword": {
     "message": "证书密码："
@@ -318,7 +318,7 @@
     "message": "使用说明"
   },
   "pdfSignerInstructionsText": {
-    "message": "选择目标页面并拖动绿色框以调整签章位置，然后点击下方按钮完成 PDF 签署。"
+    "message": "选择目标页面并拖动签名框以调整签章位置，然后点击下方按钮完成 PDF 签署。"
   },
   "pdfSignerLinkDashboard": {
     "message": "前往 UID.one 控制台"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "请输入您的密码。"
+  },
+  "viewWebProfile": {
+    "message": "打开网页保险库"
+  },
+  "pdfSignerPrevPage": {
+    "message": "上一页"
+  },
+  "pdfSignerNextPage": {
+    "message": "下一页"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "输入 PIN 码"
   }
 }

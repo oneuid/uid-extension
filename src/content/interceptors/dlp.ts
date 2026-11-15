@@ -111,15 +111,21 @@ export interface DLPWarningOptions {
 export async function showDLPWarning(options: DLPWarningOptions): Promise<void> {
   return new Promise((resolve) => {
     const overlay = document.createElement('div');
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Sensitive data detected');
     overlay.style.cssText = `
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      min-height: 100dvh;
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       z-index: 2147483647;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     `;
 
     const contextLabel = {
@@ -133,78 +139,93 @@ export async function showDLPWarning(options: DLPWarningOptions): Promise<void> 
       critical: '#dc2626',
       high: '#ea580c',
       medium: '#d97706',
-      low: '#2563eb',
+      low: '#2563EB',
     }[options.result.riskLevel];
 
     overlay.innerHTML = `
       <div style="
-        background: white;
-        border-radius: 12px;
+        background: #ffffff;
+        border-radius: 16px;
         padding: 24px;
         max-width: 480px;
         width: 90%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28);
       ">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="
-            width:40px;height:40px;border-radius:8px;
+            width:40px;height:40px;border-radius:10px;
             background:${riskColor};display:flex;
             align-items:center;justify-content:center;
-            color:white;font-size:20px;flex-shrink:0
+            color:#ffffff;font-size:20px;flex-shrink:0
           ">⚠</div>
           <div>
-            <div style="font-weight:600;font-size:15px;color:#111827;">
+            <div style="font-weight:600;font-size:15px;color:#0F172A;">
               Sensitive data detected
             </div>
-            <div style="color:#6b7280;font-size:13px">
-              ${contextLabel}${options.filename ? ` — ${options.filename}` : ''}
+            <div style="color:#64748B;font-size:13px">
+              ${contextLabel}${options.filename ? ` · ${options.filename}` : ''}
             </div>
           </div>
         </div>
 
-        <p style="color:#374151;font-size:14px;line-height:1.5;margin:0 0 16px">
+        <p style="color:#334155;font-size:14px;line-height:1.5;margin:0 0 16px">
           ${options.result.recommendation}
         </p>
 
         <div style="
-          background:#f9fafb;border-radius:8px;
+          background:#F8FAFC;border-radius:10px;
           padding:12px;margin-bottom:20px;
-          border:1px solid #e5e7eb
+          border:1px solid #E2E8F0;
+          font-variant-numeric:tabular-nums;
         ">
           ${options.result.findings.map(f => `
-            <div style="font-size:13px;color:#374151;padding:2px 0">
+            <div style="font-size:13px;color:#334155;padding:2px 0">
               <strong>${f.type}</strong>
               ${f.count > 1 ? `× ${f.count}` : ''}
-              — <code style="color:#dc2626">${f.sample}</code>
+              · <code style="color:#dc2626;font-family:'JetBrains Mono',ui-monospace,monospace;">${f.sample}</code>
             </div>
           `).join('')}
         </div>
 
         <div style="display:flex;gap:8px;justify-content:flex-end">
           ${options.onAllow ? `
-            <button id="uid-dlp-allow" style="
-              background:none;border:1px solid #d1d5db;
-              color:#374151;padding:8px 16px;border-radius:6px;
-              cursor:pointer;font-size:14px
+            <button type="button" id="uid-dlp-allow" style="
+              background:#ffffff;border:1px solid #CBD5E1;
+              color:#334155;padding:8px 16px;border-radius:8px;
+              cursor:pointer;font-size:13px;font-weight:600
             ">Send anyway</button>
           ` : ''}
-          <button id="uid-dlp-block" style="
-            background:#111827;color:white;
-            border:none;padding:8px 20px;border-radius:6px;
-            cursor:pointer;font-size:14px;font-weight:500
-          ">Don't send</button>
+          <button type="button" id="uid-dlp-block" style="
+            background:#2563EB;color:#ffffff;
+            border:none;padding:8px 20px;border-radius:8px;
+            cursor:pointer;font-size:13px;font-weight:600
+          ">Do not send</button>
         </div>
       </div>
     `;
 
     document.body.appendChild(overlay);
 
-    overlay.querySelector('#uid-dlp-block')?.addEventListener('click', () => {
+    const dismissBlock = () => {
+      document.removeEventListener('keydown', onDlpEsc, true);
       overlay.remove();
       resolve();
-    });
+    };
+
+    const onDlpEsc = (e: KeyboardEvent) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        dismissBlock();
+      }
+    };
+    document.addEventListener('keydown', onDlpEsc, true);
+
+    overlay.querySelector('#uid-dlp-block')?.addEventListener('click', dismissBlock);
 
     overlay.querySelector('#uid-dlp-allow')?.addEventListener('click', () => {
+      document.removeEventListener('keydown', onDlpEsc, true);
       overlay.remove();
       options.onAllow?.();
       resolve();
@@ -399,7 +420,7 @@ export class FileUploadInterceptor {
         blocked: false,
         riskLevel: 'medium',
         findings: [{ type: 'large_file', count: 1, sample: `${(file.size / 1024 / 1024).toFixed(1)}MB` }],
-        recommendation: 'Large file — please verify it does not contain sensitive data.',
+        recommendation: 'Large file · please verify it does not contain sensitive data.',
       };
     }
 
@@ -1015,7 +1036,7 @@ export class PresentationModeController {
       span.className = 'uid-presentation-blur';
       span.dataset.uidType = earliestMatch.type;
       span.textContent = placeholder;
-      span.title = "Click to reveal & copy";
+      span.title = "Click to reveal and copy";
 
       let isRevealed = false;
 
@@ -1064,7 +1085,7 @@ export class PresentationModeController {
           if (placeholderVal !== undefined) {
             span.textContent = placeholderVal;
             span.classList.add('uid-presentation-blur');
-            span.title = "Click to reveal & copy";
+            span.title = "Click to reveal and copy";
           }
         }
       }, true);

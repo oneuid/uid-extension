@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Безопасность и идентификация"
   },
   "extensionDesc": {
     "message": "Безопасность Zero-Trust для UID.one. Обеспечивает защиту DLP, привязку сессий и защиту от отслеживания."
@@ -66,10 +66,10 @@
     "message": "Подписание..."
   },
   "dialogTitle": {
-    "message": "ПРОВЕРКА ЦИФРОВОЙ ПОДПИСИ"
+    "message": "Проверка цифровой подписи"
   },
   "dialogDesc": {
-    "message": "Откройте мобильное приложение UID.one или перейдите на <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a>, чтобы выбрать совпадающее число."
+    "message": "Откройте мобильное приложение UID.one или перейдите на <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>, чтобы выбрать совпадающее число."
   },
   "dialogCancel": {
     "message": "Отменить запрос"
@@ -96,7 +96,7 @@
     "message": "Время подписи"
   },
   "signatureVerify": {
-    "message": "Проверить личность →"
+    "message": "Проверить личность"
   },
   "alertLinkFirst": {
     "message": "Привяжите учетную запись UID.one перед выполнением цифровой подписи."
@@ -252,7 +252,7 @@
     "message": "Облачный CA (Remote)"
   },
   "pdfSignerMethodP12": {
-    "message": "Загрузить файл сертификата (.p12 / .pfx)"
+    "message": "Загрузить файл сертификата (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "Клиентское приложение CA:"
@@ -309,7 +309,7 @@
     "message": "Имя пользователя:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Загрузить файл PFX/P12:"
+    "message": "Загрузить файл PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Пароль сертификата:"
@@ -318,7 +318,7 @@
     "message": "Инструкция"
   },
   "pdfSignerInstructionsText": {
-    "message": "Выберите нужную страницу и перетащите зеленый прямоугольник для размещения штампа подписи. Нажмите кнопку ниже для подписания PDF."
+    "message": "Выберите нужную страницу и перетащите рамку подписи для размещения цифрового штампа. Нажмите кнопку ниже для подписания PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Перейти в личный кабинет UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Пожалуйста, введите пароль."
+  },
+  "viewWebProfile": {
+    "message": "Открыть веб-хранилище"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Предыдущая страница"
+  },
+  "pdfSignerNextPage": {
+    "message": "Следующая страница"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Введите PIN"
   }
 }

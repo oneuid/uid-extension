@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       .catch(err => {
         sendResponse({ success: false, error: err.message });
       });
-    return true; // keep channel open for async response
+    return true;
   }
 });
 
@@ -88,83 +88,86 @@ function showToast(msg: string, type: string) {
 }
 
 function showOtpPromptModal(callback: (otp: string) => void, cancelCallback: () => void): void {
+  const titleText = chrome.i18n.getMessage("otpPromptTitle") || "Authenticator code";
   const overlay = document.createElement('div');
   overlay.className = 'uid-otp-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', titleText);
   overlay.style.cssText = `
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
+    inset: 0;
+    min-height: 100dvh;
+    background: rgba(2, 6, 23, 0.72);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999999;
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #e4e4e7;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #F8FAFC;
   `;
 
   const modal = document.createElement('div');
   modal.style.cssText = `
-    background: rgba(10, 10, 10, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
+    background: #0B1220;
+    border: 1px solid rgba(51, 65, 85, 0.7);
+    border-radius: 20px;
     width: 90%;
     max-width: 400px;
     padding: 32px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
     text-align: center;
   `;
 
   modal.innerHTML = `
     <div style="margin-bottom: 20px;">
-      <div style="display: inline-flex; width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <div style="display: inline-flex; width: 52px; height: 52px; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
       </div>
-      <h3 style="font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 6px 0;">${chrome.i18n.getMessage("otpPromptTitle") || "Google Authenticator"}</h3>
-      <p style="font-size: 13px; color: #a1a1aa; margin: 0; line-height: 1.5;">${chrome.i18n.getMessage("otpPromptDesc") || "Please enter the 6-digit OTP code to verify your digital signature:"}</p>
+      <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC; margin: 0 0 6px 0;">${titleText}</h3>
+      <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.5;">${chrome.i18n.getMessage("otpPromptDesc") || "Enter the 6-digit authenticator code to authorize your digital signature:"}</p>
     </div>
 
     <div style="margin-bottom: 24px;">
       <input type="text" id="uid-otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="000000" style="
         width: 80%;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #111A2E;
+        border: 1px solid rgba(51, 65, 85, 0.8);
         border-radius: 12px;
         padding: 12px;
-        font-size: 28px;
+        font-size: 26px;
         letter-spacing: 6px;
         text-align: center;
-        color: #fff;
-        font-family: monospace;
+        color: #F8FAFC;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-variant-numeric: tabular-nums;
         outline: none;
         box-sizing: border-box;
       ">
     </div>
 
     <div style="display: flex; gap: 12px; justify-content: center;">
-      <button id="uid-otp-cancel" style="
+      <button type="button" id="uid-otp-cancel" style="
         flex: 1;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #a1a1aa;
+        background: #111A2E;
+        border: 1px solid rgba(51, 65, 85, 0.7);
+        color: #CBD5E1;
         padding: 10px 16px;
         border-radius: 10px;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
       ">${chrome.i18n.getMessage("otpCancel") || "Cancel"}</button>
-      <button id="uid-otp-confirm" style="
+      <button type="button" id="uid-otp-confirm" style="
         flex: 1;
-        background: #10b981;
+        background: #2563EB;
         border: none;
-        color: #fff;
+        color: #FFFFFF;
         padding: 10px 16px;
         border-radius: 10px;
         font-size: 13px;
@@ -177,43 +180,57 @@ function showOtpPromptModal(callback: (otp: string) => void, cancelCallback: () 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
+  const cleanup = () => {
+    document.removeEventListener('keydown', onEsc, true);
+    overlay.remove();
+  };
+
+  const cancel = () => {
+    cleanup();
+    cancelCallback();
+  };
+
+  const onEsc = (e: KeyboardEvent) => {
+    if (e.isComposing || e.keyCode === 229) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      cancel();
+    }
+  };
+  document.addEventListener('keydown', onEsc, true);
+
   const otpInput = overlay.querySelector('#uid-otp-input') as HTMLInputElement;
+  const confirm = () => {
+    const val = otpInput?.value || '';
+    if (val.length !== 6) {
+      alert(chrome.i18n.getMessage("otpErrorLength") || 'The OTP code must be 6 digits.');
+      return;
+    }
+    cleanup();
+    callback(val);
+  };
+
   if (otpInput) {
     otpInput.focus();
-    
     otpInput.addEventListener('focus', () => {
-      otpInput.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+      otpInput.style.borderColor = '#2563EB';
     });
     otpInput.addEventListener('blur', () => {
-      otpInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      otpInput.style.borderColor = 'rgba(51, 65, 85, 0.8)';
     });
-
     otpInput.addEventListener('input', () => {
       otpInput.value = otpInput.value.replace(/[^0-9]/g, '');
     });
-
     otpInput.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === 'Enter') {
         confirm();
       }
     });
   }
 
-  const confirm = () => {
-    const val = otpInput?.value || '';
-    if (val.length !== 6) {
-      alert(chrome.i18n.getMessage("otpErrorLength") || 'The OTP code must be exactly 6 digits.');
-      return;
-    }
-    overlay.remove();
-    callback(val);
-  };
-
-  overlay.querySelector('#uid-otp-cancel')?.addEventListener('click', () => {
-    overlay.remove();
-    cancelCallback();
-  });
-
+  overlay.querySelector('#uid-otp-cancel')?.addEventListener('click', cancel);
   overlay.querySelector('#uid-otp-confirm')?.addEventListener('click', confirm);
 }
 
@@ -328,7 +345,7 @@ async function handlePdfSigning(pdfUrl: string) {
           otp_code: otpCode,
           metadata: {
             pdf_hash: hashHex,
-            text_hash: hashHex, // fallback for legacy backend compatibility
+            text_hash: hashHex,
             document_url: pdfUrl
           }
         }, (res) => {
@@ -347,7 +364,6 @@ async function handlePdfSigning(pdfUrl: string) {
       });
     };
 
-    // Try to fetch and hash locally within the content script to bypass extension CORS
     fetch(pdfUrl)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
@@ -385,7 +401,7 @@ function injectComposeHeaderBadge(targetEl: HTMLElement) {
           break;
         }
       }
-    } catch (e) {}
+    } catch {}
   }
 
   if (!composeWindow) {
@@ -394,7 +410,7 @@ function injectComposeHeaderBadge(targetEl: HTMLElement) {
     if (!composeWindow && window.parent && window.parent !== window) {
       try {
         composeWindow = window.parent.document.querySelector('.zmCompose, .compose-box, [role="dialog"]') as HTMLElement;
-      } catch (e) {}
+      } catch {}
     }
   }
 
@@ -443,7 +459,7 @@ function insertSignature(
 ) {
   const now = new Date();
   const locale = chrome.i18n.getUILanguage() || 'en-US';
-  const formattedTime = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) + ' — ' + now.toLocaleDateString(locale);
+  const formattedTime = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) + ' · ' + now.toLocaleDateString(locale);
   
   const finalSigner = signerDid || `did:uid:${userEmail}`;
 
@@ -509,9 +525,9 @@ function insertSignature(
           ${chrome.i18n.getMessage("signatureTitle") || "This email is digitally signed by UID.one"}
         </a>
       </div>
-      <div style="font-size: 11px; color: #64748b; line-height: 1.5; position: relative; z-index: 1; padding-left: 0;">
+      <div style="font-size: 11px; color: #64748b; line-height: 1.5; position: relative; z-index: 1; padding-left: 0; font-variant-numeric: tabular-nums;">
         ${chrome.i18n.getMessage("signatureSigner") || "Signer"}: <span style="font-family: monospace; color: #0f172a; font-weight: 500;">${finalSigner}</span><br>
-        ${chrome.i18n.getMessage("signatureTime") || "Signing Time"}: ${formattedTime}
+        ${chrome.i18n.getMessage("signatureTime") || "Signing time"}: ${formattedTime}
         <a href="${verifyUrl}" class="uid-verify-link" style="display:none !important; width:0; height:0; opacity:0; visibility:hidden;" aria-hidden="true"></a>
       </div>
     `;

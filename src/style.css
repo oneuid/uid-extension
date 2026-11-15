@@ -17,6 +17,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -58,8 +62,8 @@ body {
   gap: 8px;
   font-weight: 700;
   font-size: 16px;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #60A5FA, #2563EB);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -73,7 +77,7 @@ body {
   animation: pulse-dot 2s infinite;
 }
 
-/* Premium Card & Row Layouts */
+/* Card & Row Layouts */
 .premium-card {
   background: var(--card-bg);
   backdrop-filter: blur(20px);
@@ -166,7 +170,9 @@ body {
   border-radius: var(--radius-md);
   padding: 12px 8px;
   text-align: center;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .stat-box:hover {
@@ -187,39 +193,34 @@ body {
 }
 
 .stat-label {
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .section-title {
-  font-size: 10px;
-  text-transform: uppercase;
+  font-size: 11px;
   color: var(--text-muted);
-  letter-spacing: 0.8px;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 2px;
 }
 
 .text-link {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--primary-glow);
+  font-size: 12px;
+  font-weight: 600;
+  color: #60A5FA;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: color 0.2s;
+  transition: color 0.15s ease;
 }
 
 .text-link:hover {
-  color: #3B82F6;
+  color: #93C5FD;
 }
 
-/* Switch Styles (custom premium toggles) */
+/* Switch Styles */
 .switch {
   position: relative;
   display: inline-block;
@@ -239,7 +240,7 @@ body {
   cursor: pointer;
   inset: 0;
   background-color: rgba(255, 255, 255, 0.15);
-  transition: .3s;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -252,9 +253,14 @@ body {
   left: 2px;
   bottom: 2px;
   background-color: white;
-  transition: .3s;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[dir="rtl"] .slider:before {
+  left: auto;
+  right: 2px;
 }
 
 input:checked + .slider {
@@ -265,9 +271,13 @@ input:checked + .slider:before {
   transform: translateX(16px);
 }
 
-/* Custom premium button */
+[dir="rtl"] input:checked + .slider:before {
+  transform: translateX(-16px);
+}
+
+/* Action buttons */
 .btn-premium {
-  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  background: #2563EB;
   color: #ffffff;
   border: none;
   font-weight: 600;
@@ -275,7 +285,7 @@ input:checked + .slider:before {
   padding: 8px 16px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -287,7 +297,7 @@ input:checked + .slider:before {
 .btn-premium:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
-  background: linear-gradient(135deg, #60A5FA, #3B82F6);
+  background: #3B82F6;
 }
 
 .btn-premium-outline {
@@ -299,7 +309,7 @@ input:checked + .slider:before {
   padding: 6px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -343,5 +353,13 @@ input:checked + .slider:before {
   }
   100% {
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

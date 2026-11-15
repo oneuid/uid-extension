@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.3.5",
+  "version": "2.5.5",
   "name": "__MSG_extensionName__",
   "default_locale": "en",
   "description": "__MSG_extensionDesc__",
@@ -33,14 +33,22 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "<all_urls>"
+      ],
       "all_frames": true,
-      "js": ["src/content/index.ts"]
+      "js": [
+        "src/content/index.ts"
+      ]
     },
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "<all_urls>"
+      ],
       "all_frames": true,
-      "js": ["src/main-world.ts"],
+      "js": [
+        "src/world.ts"
+      ],
       "world": "MAIN",
       "run_at": "document_start"
     }
@@ -59,7 +67,9 @@
       "id": "passkey@uid.one",
       "strict_min_version": "109.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "none"
+        ]
       }
     }
   },
@@ -70,7 +80,9 @@
         "fonts/Roboto-Bold.ttf",
         "icon.png"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

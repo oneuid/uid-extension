@@ -36,8 +36,8 @@ Before invoking BA or writing code, the PM answers 4 framing questions:
 4. **Reuse vs. Build Decision (`Clone First`)**:
    - Check `FEATURES.md`, `@/components/ui/*`, and sister repositories (`trip.express/web`, `getding.io`, `uid.one`) first. Never invent a custom widget when a proven ecosystem primitive already exists.
 
-### Movement 2: Conducting the Executive Council (`Điều phối Hội đồng Chuyên gia`)
-The PM conducts the 8 specialist roles in strict harmony so they reinforce rather than contradict each other:
+### Movement 2: Conducting the Executive Council (`Điều phối Hội đồng 14 Vai trò`)
+The PM (`0. MAESTRO`) conducts the 13 specialist roles in strict harmony so they reinforce rather than contradict each other:
 
 | Order | Specialist Role | Skill Reference | What the PM Demands from This Role |
 | :--- | :--- | :--- | :--- |
@@ -46,9 +46,14 @@ The PM conducts the 8 specialist roles in strict harmony so they reinforce rathe
 | **3** | **SYSTEM DESIGNER (IA, Design Systems & State Topology)** | `system-designer/SKILL.md` | Enforce the **5 Hard Structural Veto Gates**: (1) Single Primary Nav (`Logo \| View ▾`, zero stacked nav bars/orphan footers), (2) `375px` 2-Tier Mobile Toolbar Budget, (3) `1-Primary / N-Contextual` Progressive Disclosure, (4) `0ms` Optimistic UI + Top-N/Hover Prefetching, (5) `@/components/ui/*` primitive contracts, Accessibility-Tree identity, and `break-ui` structural stress resilience. |
 | **4** | **UI DESIGNER (Visual Craft, Motion Physics & Anti-Slop)** | `ui-designer/SKILL.md` + `design-language/SKILL.md` + `app-store-design/SKILL.md` | Enforce Brand Visual DNA (`Tactile Precision`, `Kinetic Horizon`, `Cryptographic Minimal`, `Quiet Architectural Luxury`), Concentric Radii & Optical Typography (`tabular-nums`, Sentence case, zero `/` or `&`, zero `...`), Anthropic `frontend-design` **Two-Pass Plan & Chanel's Subtraction Rule**, Emil Kowalski **`120fps` Motion Physics**, Garry Tan **`gstack` 7-Pass `0-10` Visual Review (`>= 8.5/10`)**, and `app-store-design` (`160px` Squint Test). |
 | **5** | **OPERATOR (Principal Eng)** | `backend-architecture/SKILL.md` | Atomic DB transactions (`select_for_update`), `organization_id` RLS, `select_related`/`prefetch_related` query hygiene, and 3-tier API + Web + Mobile wiring. |
-| **6** | **SENTINEL (AppSec & AI Red-Team)** | `security-redteam/SKILL.md` | Shift-left BOLA/IDOR audit, no `__all__` write serializers, `<untrusted_input>` prompt fencing, and zero PII/secret exposure (without adding noisy UI clutter). |
-| **7** | **COUNSEL (Legal & Policy)** | `legal-compliance/SKILL.md` | Nominative Fair Use, substantiated `"up to 30%"` qualifiers, IFRS 15 Agent vs. Principal tax invoice separation, and 14-locale policy parity. |
-| **8** | **VERIFIER & RELEASE** | `qa-testing/SKILL.md` + `release-manager/SKILL.md` | Compiler/AST gates (`tsc --noEmit`, `lint`, `flake8`), mobile/RTL viewport verification, `FEATURES.md` update, and SemVer sync via `scripts/release.py`. |
+| **6** | **LEXICON (Naming Architect)** | `naming-architect/SKILL.md` | 1-word file names, 1–2 word function/type names (`isInline`, `isSelfMail`, `parseContact`), zero conjunctions (`Or`/`And`), and AST naming verification. |
+| **7** | **INFRA (SRE, DevOps & Edge)** | `sre-infra/SKILL.md` | Cloudflare Worker $\leftrightarrow$ Django payload/timeout alignment (preventing `421`/`502`), R2 `is_inline` junk filtering, Docker `static/` vs. `staticfiles/` parity, `?v=N` CDN cache-busting, and sequential multi-repo deployment. |
+| **8** | **FINOPS (CFO & Ledger)** | `folio-accounting/SKILL.md` | Double-entry ledger balance (`debit == credit`), multi-currency `Decimal` precision, e-invoice tax rules, SHAN 4-stage escrow, and `UsageMiddleware` margin protection. |
+| **9** | **AI EVAL (AI Systems & Telemetry)** | `agentic-commerce/SKILL.md` | `< 50ms` deterministic regex/heuristic fallback when LLMs timeout/fail, token-budget caps, zero price hallucination, and golden-dataset precision/recall. |
+| **10** | **GROWTH (CMO, PLG & SEO/GEO)** | `seo-geo/SKILL.md` + `writing-guidelines/SKILL.md` + `stageshow/SKILL.md` | PLG viral loops on QR receipts/vouchers/emails, 14-locale BCP-47 hreflang, Schema.org Rich Results, `llms.txt` Answer Engine readiness, and human-written CRO copy. |
+| **11** | **SENTINEL (AppSec & AI Red-Team)** | `security-redteam/SKILL.md` | Shift-left BOLA/IDOR audit, no `__all__` write serializers, `<untrusted_input>` prompt fencing, and zero PII/secret exposure (without adding noisy UI clutter). |
+| **12** | **COUNSEL (Legal & Policy)** | `legal-compliance/SKILL.md` | Nominative Fair Use, substantiated `"up to 30%"` qualifiers, IFRS 15 Agent vs. Principal tax invoice separation, and 14-locale policy parity. |
+| **13** | **VERIFIER & RELEASE** | `qa-testing/SKILL.md` + `release-manager/SKILL.md` | Compiler/AST gates (`tsc --noEmit`, `lint`, `flake8`), mobile/RTL viewport verification, `FEATURES.md` update, and SemVer sync via `scripts/release.py`. |
 
 ### Movement 3: Anti-Silo & Zero-Mock Execution Baton (`Chống Tính năng Ốc đảo & Giao diện Giả`)
 During implementation, the PM enforces 3 non-negotiable integration laws:
@@ -66,10 +71,10 @@ When specialist goals collide, the PM resolves the conflict immediately using de
 ### Movement 5: Definition of Done (`DoD`) & Release Sign-Off (`Nghiệm thu Tổng thể`)
 The PM blocks task completion until all 6 DoD gates are green:
 - [ ] **1. User Journey Complete & `gstack` `8.5+/10` Design Gate**: Happy path and primary exception paths work end-to-end in `< 2 taps` without layout jumps or `...` text truncation, passing Garry Tan's 7-Pass Design Review (`>= 8.5/10` overall, zero pass `< 7/10`) and Emil Kowalski's `break-ui` adversarial data stress test (`0`, `999,999,999`, 80-char names, rapid double-tap lock).
-- [ ] **2. 3-Tier Cross-Platform Sync**: Backend API + Web + Mobile App (and Desktop Kiosk where applicable) are updated in lockstep.
+- [ ] **2. Role-Scoped Cross-Platform Sync (Anti-Blind-Clone Gate)**: Shared API contracts, auth, and core math (`calculateFolio`) stay in sync across Backend + Web + Mobile, while UI modules strictly respect **Persona & Physical Context Boundaries** (never blindly clone back-office Web modules like `Vendor Bills` / `Tax Authority Sync` onto frontline `app.getding.io`).
 - [ ] **3. 14-Locale & Typography Parity**: 100% key parity across 14 locales; strict Sentence case; zero `/` or `&` in headings/labels; zero em-dashes (`-` only); Verb-Toast symmetry (`"Save card"` -> `"Card saved"`).
 - [ ] **4. Quality & Security Gates**: `npx tsc --noEmit`, `pnpm lint`, `flake8` (`E9,F63,F7,F821`), and `security_audit.py` pass with `0` errors.
-- [ ] **5. Living Documentation**: `FEATURES.md` is updated with any new route, store, endpoint, or AI tool.
+- [ ] **5. Living Governance & Registry Update (`.agents` & `FEATURES.md`)**: Whenever any module or feature is added, removed, or re-scoped, update `.agents/GEMINI.md`, the relevant `.agents/skills/*/SKILL.md`, and `FEATURES.md` in the same turn so future sessions never auto-sync or regress removed features.
 - [ ] **6. Version Manifest Sync**: When shipping code changes, `scripts/release.py --target <ding|trip|shan|uid> --bump <patch|minor|major>` is executed so Web, Desktop, Mobile, and API versions match 100%.
 
 ---
@@ -85,6 +90,9 @@ Each project in our ecosystem has its own distinct business model, customer pers
   3. Mobile Native App: `/home/s/Projects/app.getding.io` (iOS & Android)
 - **North-Star Product Identity**: **AI commerce and operations OS** replacing 4 fragmented tools in one workspace: **(1) AI Sales & Universal Ingest** $\rightarrow$ **(2) Direct Commerce & Counter (`0%` direct fee)** $\rightarrow$ **(3) First-Party CRM & Member Loyalty (`100%` data ownership)** $\rightarrow$ **(4) Kanban Tasks, OKR/KPI & Staff Attribution (`booking.owner`)**.
 - **DING PM Guardrails**:
+  - **Strict Web vs. Mobile Persona Split (Zero Back-Office Bloat on `app.getding.io`)**:
+    - **`getding.io` (Web Desktop/Tablet)**: Serves both Front-Desk and Back-Office (`Owner`, `Manager`, `Accountant`), hosting `Finance -> Bills` (Global 11-Jurisdiction / 50-State Tax Authority Connection, SVG Captcha Auto-Solver, XML E-Invoice Audit, 3-Way Dossier), `Finance -> Invoices`, `Goals`, `AI Studio`, and `Billing`.
+    - **`app.getding.io` (Mobile App)**: Serves **100% Frontline Staff** (`Orders/Counter`, `Units`, `Scan`, `Inbox`, `Account`). Never clone back-office `Vendor Bills`, `Tax Authority Sync`, `XML E-Invoice Audit`, or third-party `Accounting EDI` selectors onto `app.getding.io`.
   - **Anti-POS-Commoditization & Anti-F&B-Bias**: Never label primary navigation as `"POS"` (use `"Counter"` / `"Orders"`), and serve all **13 Canonical Categories** (`spaces`, `realty`, `events`, `clinics`, `travel`, `mobility`, `retail`, `sports`, `spa`, `amenities`, `dining`, `drinks`, `takeaway`) equally via Archetypes A, B, and C.
   - **Unified 7-Tab Workspace Navigation (`UNIFIED_NAV_TABS`)**: Always preserve the canonical workspace order: `Orders -> Catalog -> Units -> Tasks -> Customers -> Finance -> Inbox` + App Launcher (`AI Studio`, `Integrations`, `Check-In`, `Kiosk`).
   - **Pure Operational Utility**: Zero marketing banners, zero fake scarcity meters, and zero non-interactive security explainer cards inside merchant workspace screens.

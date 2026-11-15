@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Security and identity"
   },
   "extensionDesc": {
     "message": "Zero-Trust client-side security layer for UID.one. Enforces DLP, session binding, and SSD anti-tracking."
@@ -66,10 +66,10 @@
     "message": "Signing..."
   },
   "dialogTitle": {
-    "message": "DIGITAL SIGNATURE VERIFICATION"
+    "message": "Digital signature verification"
   },
   "dialogDesc": {
-    "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> to select the matching number."
+    "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> to select the matching number."
   },
   "dialogCancel": {
     "message": "Cancel request"
@@ -96,7 +96,7 @@
     "message": "Signing time"
   },
   "signatureVerify": {
-    "message": "Verify identity →"
+    "message": "Verify identity"
   },
   "alertLinkFirst": {
     "message": "Please link your UID.one account before performing digital signature."
@@ -168,7 +168,7 @@
     "message": "Failed to load sender's public key: $1"
   },
   "warningContentTampered": {
-    "message": "Digital signature does not match email content (Content has been modified)."
+    "message": "Digital signature does not match email content (content has been modified)."
   },
   "warningVerifyError": {
     "message": "Technical error verifying signature: $1"
@@ -225,7 +225,7 @@
     "message": "PDF digitally signed successfully!"
   },
   "pdfSignerSubtitle": {
-    "message": "Zero-Trust PDF cryptographic verification & digital stamps."
+    "message": "Zero-Trust PDF cryptographic verification and digital stamps."
   },
   "pdfSignerPanelDocument": {
     "message": "Document"
@@ -243,16 +243,16 @@
     "message": "Signing method"
   },
   "pdfSignerMethodUid": {
-    "message": "UID.one cryptographic trust (Default)"
+    "message": "UID.one cryptographic trust (default)"
   },
   "pdfSignerMethodLocal": {
-    "message": "USB token (Smart card)"
+    "message": "USB token (smart card)"
   },
   "pdfSignerMethodRemote": {
     "message": "Remote cloud CA"
   },
   "pdfSignerMethodP12": {
-    "message": "Upload certificate file (.p12 / .pfx)"
+    "message": "Upload certificate file (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA client app:"
@@ -291,10 +291,10 @@
     "message": "CA client application is not running or not installed on this computer."
   },
   "pdfSignerUsbNotFoundDesc": {
-    "message": "CA client app is active, but no USB token or smart card is found. Please insert your USB Token."
+    "message": "CA client app is active, but no USB token or smart card is found. Please insert your USB token."
   },
   "pdfSignerUsbSuccessDesc": {
-    "message": "Connected. USB Token certificates are ready."
+    "message": "Connected. USB token certificates are ready."
   },
   "pdfSignerAgentCheckingDesc": {
     "message": "Querying local CA signing application..."
@@ -309,7 +309,7 @@
     "message": "Username:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Upload PFX/P12 file:"
+    "message": "Upload PKCS#12 file:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Certificate password:"
@@ -318,7 +318,7 @@
     "message": "Instructions"
   },
   "pdfSignerInstructionsText": {
-    "message": "Select the target page and drag the green box to position your signature stamp. Click the button below to sign the PDF."
+    "message": "Select the target page and drag the signature frame to position your digital stamp. Click the button below to sign the PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Go to UID.one dashboard"
@@ -336,7 +336,7 @@
     "message": "USB token PIN verification"
   },
   "pdfSignerPinDesc": {
-    "message": "Please enter your USB Token PIN to authorize the digital signature:"
+    "message": "Please enter your USB token PIN to authorize the digital signature:"
   },
   "pdfSignerPinError": {
     "message": "The USB PIN must be between 4 and 8 digits."
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Please enter your password."
+  },
+  "viewWebProfile": {
+    "message": "Open web vault"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Previous page"
+  },
+  "pdfSignerNextPage": {
+    "message": "Next page"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Enter PIN"
   }
 }

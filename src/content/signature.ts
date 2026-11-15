@@ -1,6 +1,6 @@
 import { isContextValid, isWebmailSite, getParentHostname } from './utils';
 import { findComposerSenderEmail, detectWebmailUserEmail, normalizeEmail } from './adapters/webmail';
-import { urgentKeywords, priorityKeywords } from '../data/urgentKeywords';
+import { urgentKeywords, priorityKeywords } from '../data/keywords';
 import { handleTextSigning, setLastRightClickedElement } from './index';
 
 export class EmailSignatureGuard {
@@ -82,73 +82,74 @@ export class EmailSignatureGuard {
 
       const overlay = document.createElement('div');
       overlay.className = 'uid-sig-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'Signature authenticated');
       overlay.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.7);
+        inset: 0;
+        min-height: 100dvh;
+        background: rgba(2, 6, 23, 0.72);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 999999;
-        font-family: system-ui, -apple-system, sans-serif;
-        color: #e4e4e7;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: #F8FAFC;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.2s ease;
       `;
 
       const modal = document.createElement('div');
       modal.style.cssText = `
-        background: rgba(10, 10, 10, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        width: 100%;
+        background: #0B1220;
+        border: 1px solid rgba(51, 65, 85, 0.7);
+        border-radius: 20px;
+        width: 90%;
         max-width: 500px;
         padding: 32px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
         position: relative;
-        transform: translateY(20px);
-        transition: transform 0.3s ease;
+        transform: translateY(12px);
+        transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
       `;
 
       modal.innerHTML = `
         <div style="text-align: center; margin-bottom: 24px;">
-          <div style="display: inline-flex; width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 16px; position: relative;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <div style="display: inline-flex; width: 60px; height: 60px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 14px; position: relative;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
           </div>
-          <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px 0; tracking: -0.025em;">Signature Authenticated</h3>
-          <span style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981;">Sovereign Verification System</span>
+          <h3 style="font-size: 20px; font-weight: 700; color: #F8FAFC; margin: 0 0 4px 0; letter-spacing: -0.02em;">Signature authenticated</h3>
+          <span style="font-size: 11px; font-weight: 600; color: #10b981;">Sovereign verification</span>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(51, 65, 85, 0.5); padding-top: 20px;">
           <div>
-            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Signer Identity (DID)</div>
-            <div style="font-size: 13px; font-weight: 600; color: #fff; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px; word-break: break-all;">${signer}</div>
+            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Signer identity (DID)</div>
+            <div style="font-size: 13px; font-weight: 600; color: #F8FAFC; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px; word-break: break-all;">${signer}</div>
           </div>
 
           <div>
-            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Content Integrity Hash (SHA-256)</div>
-            <div style="font-size: 12px; font-family: monospace; color: #a1a1aa; background: #000; border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px; word-break: break-all; user-select: all;">${hash}</div>
+            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Content integrity hash (SHA-256)</div>
+            <div style="font-size: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; color: #CBD5E1; background: #060B14; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px; word-break: break-all; user-select: all;">${hash}</div>
           </div>
 
           <div id="uid-modal-key-section">
-            <div style="font-size: 11px; color: #71717a; font-weight: 500; margin-bottom: 4px;">Active Public Key (RSA 2048-bit)</div>
-            <div style="font-size: 11px; color: #a1a1aa; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 8px 12px; border-radius: 10px;" id="uid-modal-toggle-key">
-              <span>Show Sovereign Public Key PEM</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="uid-modal-arrow" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Active public key (RSA 2048-bit)</div>
+            <div style="font-size: 12px; color: #CBD5E1; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px;" id="uid-modal-toggle-key">
+              <span>Show public key PEM</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="uid-modal-arrow" style="transition: transform 0.15s ease;"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
-            <textarea readonly id="uid-modal-pubkey-text" style="display: none; width: 100%; height: 100px; background: #000; color: #52525b; font-family: monospace; font-size: 9px; border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 8px; margin-top: 8px; resize: none; box-sizing: border-box; outline: none;"></textarea>
+            <textarea readonly id="uid-modal-pubkey-text" style="display: none; width: 100%; height: 100px; background: #060B14; color: #94A3B8; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; border: 1px solid rgba(51, 65, 85, 0.6); border-radius: 10px; padding: 8px; margin-top: 8px; resize: none; box-sizing: border-box; outline: none;"></textarea>
           </div>
         </div>
 
         <div style="margin-top: 28px;">
-          <button id="uid-modal-close-btn" style="width: 100%; padding: 12px; border-radius: 12px; background: #27272a; border: 1px solid rgba(255, 255, 255, 0.04); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">Close</button>
+          <button type="button" id="uid-modal-close-btn" style="width: 100%; padding: 11px; border-radius: 10px; background: #2563EB; border: none; color: #FFFFFF; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease;">Close</button>
         </div>
       `;
 
@@ -158,7 +159,7 @@ export class EmailSignatureGuard {
       setTimeout(() => {
         overlay.style.opacity = '1';
         modal.style.transform = 'translateY(0)';
-      }, 50);
+      }, 20);
 
       chrome.runtime.sendMessage(
         { type: 'GET_USER_PUBKEY', identifier: email },
@@ -183,12 +184,23 @@ export class EmailSignatureGuard {
       }
 
       const closeModal = () => {
+        document.removeEventListener('keydown', onModalEsc, true);
         overlay.style.opacity = '0';
-        modal.style.transform = 'translateY(20px)';
+        modal.style.transform = 'translateY(12px)';
         setTimeout(() => {
           overlay.remove();
-        }, 300);
+        }, 200);
       };
+
+      const onModalEsc = (e: KeyboardEvent) => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        }
+      };
+      document.addEventListener('keydown', onModalEsc, true);
 
       const closeBtn = modal.querySelector('#uid-modal-close-btn');
       if (closeBtn) {
@@ -542,6 +554,7 @@ export class EmailSendInterceptor {
     }, true);
 
     document.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         this.cleanupLoadingBlocks();
       }
@@ -748,7 +761,7 @@ export class ComposerFloatingSignButton {
         height: 34px;
         border-radius: 50%;
         cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
         user-select: none;
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
         background: ${isMatch ? '#2563eb' : '#94a3b8'};

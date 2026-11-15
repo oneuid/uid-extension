@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Segurança e identidade"
   },
   "extensionDesc": {
     "message": "Camada de segurança cliente Zero-Trust para UID.one. Aplica proteção DLP, vinculação de sessão e antirastreamento SSD."
@@ -66,10 +66,10 @@
     "message": "Assinando..."
   },
   "dialogTitle": {
-    "message": "VERIFICAÇÃO DE ASSINATURA DIGITAL"
+    "message": "Verificação de assinatura digital"
   },
   "dialogDesc": {
-    "message": "Abra seu aplicativo móvel UID.one ou acesse <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> para selecionar o número correspondente."
+    "message": "Abra seu aplicativo móvel UID.one ou acesse <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> para selecionar o número correspondente."
   },
   "dialogCancel": {
     "message": "Cancelar solicitação"
@@ -96,7 +96,7 @@
     "message": "Horário da assinatura"
   },
   "signatureVerify": {
-    "message": "Verificar identidade →"
+    "message": "Verificar identidade"
   },
   "alertLinkFirst": {
     "message": "Vincule sua conta UID.one antes de realizar uma assinatura digital."
@@ -252,7 +252,7 @@
     "message": "Cloud CA remota"
   },
   "pdfSignerMethodP12": {
-    "message": "Enviar arquivo de certificado (.p12 / .pfx)"
+    "message": "Enviar arquivo de certificado (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "Aplicativo cliente CA:"
@@ -309,7 +309,7 @@
     "message": "Nome de usuário:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Enviar arquivo PFX/P12:"
+    "message": "Enviar arquivo PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Senha do certificado:"
@@ -318,7 +318,7 @@
     "message": "Instruções"
   },
   "pdfSignerInstructionsText": {
-    "message": "Selecione a página de destino e arraste a caixa verde para posicionar seu carimbo de assinatura. Clique no botão abaixo para assinar o PDF."
+    "message": "Selecione a página de destino e arraste a caixa de assinatura para posicionar seu carimbo digital. Clique no botão abaixo para assinar o PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Ir para o painel do UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Insira sua senha."
+  },
+  "viewWebProfile": {
+    "message": "Abrir cofre web"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Página anterior"
+  },
+  "pdfSignerNextPage": {
+    "message": "Próxima página"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Digite o PIN"
   }
 }

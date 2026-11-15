@@ -1,5 +1,25 @@
 # uid-link - Agent Rules & Typography Standards
 
+<!-- MULTI_CHAT_SYNC_START -->
+## Multi-Chat & Cross-Repo Synchronization Protocol (`.agents/SYNC.md`)
+- **Why This Exists**: The user runs multiple parallel chats across tabs and repositories for speed. Each chat has an isolated conversation context, and Antigravity only auto-inlines the first `24,000` bytes (`24 KB`) of `GEMINI.md`. Every chat MUST synchronize state via `.agents/SYNC.md` and `git status` on disk.
+- **1. Mandatory Session-Start Read (Zero-Prompt Sandbox Safe)**:
+  - Before editing code, schemas, APIs, or docs, ALWAYS run `git status -s` and `git log -n 3 --oneline` in the current repo, and read `.agents/SYNC.md` in the current workspace plus paired ecosystem repos:
+    - **DING OS**: `/home/s/Projects/getding.io/.agents/SYNC.md`, `/home/s/Projects/api.getding.io/.agents/SYNC.md`, `/home/s/Projects/app.getding.io/.agents/SYNC.md`
+    - **Trip Express**: `/home/s/Projects/trip.express/.agents/SYNC.md`, `/home/s/Projects/trip.express/web/.agents/SYNC.md`, `/home/s/Projects/trip.express/x/.agents/SYNC.md`, `/home/s/Projects/trip.express/mobile/.agents/SYNC.md`
+    - **OneUID**: `/home/s/Projects/uid.one/.agents/SYNC.md` and `/home/s/Projects/uid.one/*/.agents/SYNC.md`
+    - **SHAN**: `/home/s/Projects/shan/.agents/SYNC.md`, `/home/s/Projects/shan/shan.holdings/.agents/SYNC.md`, `/home/s/Projects/shan/shan.voyage/.agents/SYNC.md`
+    - **Daily Travel**: `/home/s/Projects/dailytravel/.agents/SYNC.md`
+- **2. Zero Cross-Chat File Collision**:
+  - NEVER overwrite, revert (`git checkout`, `git restore`, `git reset`), or bulk-stage (`git add .`, `git add -A`) dirty files belonging to another concurrent chat. Always stage only the exact files modified in the current chat (`git add <explicit-paths>`).
+  - Before starting multi-file edits, prepend an `[ACTIVE]` entry at the top of THIS workspace's `.agents/SYNC.md` listing timestamp, scope, and target files.
+- **3. Mandatory Handoff Write on Completion**:
+  - Write ONLY to the current workspace's `.agents/SYNC.md` (writable inside Standard Sandbox without approval prompts; peer repos read it directly).
+  - When completing a feature, bugfix, API/schema change, deployment, or policy doc, update the entry to `[DONE]` at the top of `.agents/SYNC.md` (keep rolling top 15 entries max) summarizing changed endpoints, types, env vars, or files.
+- **4. `24 KB` Inline Rule Cap Guard**:
+  - Keep universal cross-session laws within the first `24 KB` of `.agents/GEMINI.md`; store detailed domain playbooks inside `.agents/skills/<skill>/SKILL.md` so rules are never truncated.
+<!-- MULTI_CHAT_SYNC_END -->
+
 ## Strict Sentence Case & Anti-Title-Case / Anti-UPPERCASE Rule
 - **DEFAULT TO SENTENCE CASE EVERYWHERE**: Across all UI labels, headings (`h1`–`h6`), hero titles, subtitles, card titles, form labels, navigation links, buttons, badges, tabs, table headers (`th`), checklist bullets, FAQ questions, and **all legal/policy stores** (`content/**/*.md`, `policies.json`, `enterprise_policies_seed.json`, `seed_policies.py`, inline policy TSX), **ALWAYS use Sentence case** (capitalize only the first letter and genuine proper nouns).
 - **NEVER OVERUSE TITLE CASE**: **NEVER** capitalize every word in a heading, card title, button, bullet lead-in, or policy clause (e.g., write `"Save up to 30% in platform fees"` and `"Clause 4: The 4-step technical contract formation process"`, NEVER `"Save Up To 30% In Platform Fees"` or `"Clause 4: The 4-Step Technical Contract Formation Process"`). In Vietnamese and English prose, **NEVER** capitalize common legal or commercial nouns mid-sentence (write `"bên kiểm soát dữ liệu độc lập"`, `"chính sách bảo mật"`, `"điều khoản dịch vụ"`, `"nhà cung ứng"`, `"hội viên"`, `"data controller"` — NEVER `"Bên Kiểm Soát Dữ Liệu Độc Lập"` or `"Chính Sách Bảo Mật"`). In German (`de`), capitalize the first word and all German nouns (`Substantive`), never verbs, adjectives, or prepositions.

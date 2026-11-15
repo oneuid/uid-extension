@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · 보안 및 신원 보호"
   },
   "extensionDesc": {
     "message": "UID.one을 위한 자주적 클라이언트 사이드 보안 계층. Zero-Trust, DLP 보호, 세션 바인딩 및 SSD 추적 방지를 적용합니다."
@@ -69,7 +69,7 @@
     "message": "디지털 서명 인증"
   },
   "dialogDesc": {
-    "message": "UID.one 모바일 앱을 열거나 <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a>에 접속하여 일치하는 번호를 선택하세요."
+    "message": "UID.one 모바일 앱을 열거나 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>에 접속하여 일치하는 번호를 선택하세요."
   },
   "dialogCancel": {
     "message": "요청 취소"
@@ -96,7 +96,7 @@
     "message": "서명 시간"
   },
   "signatureVerify": {
-    "message": "신원 확인 →"
+    "message": "신원 확인"
   },
   "alertLinkFirst": {
     "message": "디지털 서명을 수행하기 전에 UID.one 계정을 연동해 주세요."
@@ -129,7 +129,7 @@
     "message": "페이지"
   },
   "pdfSignerOfLabel": {
-    "message": "/"
+    "message": "·"
   },
   "pdfSignerButtonSign": {
     "message": "문서 서명"
@@ -252,7 +252,7 @@
     "message": "원격 클라우드 CA"
   },
   "pdfSignerMethodP12": {
-    "message": "인증서 파일 업로드 (.p12 / .pfx)"
+    "message": "인증서 파일 업로드 (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA 클라이언트 앱:"
@@ -309,7 +309,7 @@
     "message": "사용자 이름:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "PFX/P12 파일 업로드:"
+    "message": "PKCS#12 파일 업로드:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "인증서 비밀번호:"
@@ -318,7 +318,7 @@
     "message": "이용 안내"
   },
   "pdfSignerInstructionsText": {
-    "message": "대상 페이지를 선택하고 초록색 상자를 드래그하여 서명 스탬프의 위치를 조정하세요. 아래 버튼을 클릭하여 PDF에 서명합니다."
+    "message": "대상 페이지를 선택하고 서명 상자를 드래그하여 스탬프 위치를 조정하세요. 아래 버튼을 클릭하여 PDF에 서명합니다."
   },
   "pdfSignerLinkDashboard": {
     "message": "UID.one 대시보드로 이동"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "비밀번호를 입력하십시오."
+  },
+  "viewWebProfile": {
+    "message": "웹 금고 열기"
+  },
+  "pdfSignerPrevPage": {
+    "message": "이전 페이지"
+  },
+  "pdfSignerNextPage": {
+    "message": "다음 페이지"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "PIN 입력"
   }
 }

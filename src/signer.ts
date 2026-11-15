@@ -569,7 +569,7 @@ function getLocaleString(key: string, fallback: string): string {
       pdfSignerStampNoUsb: 'CHƯA CÓ USB TOKEN',
       pdfSignerStampPlugUsb: 'Hãy cắm USB Token',
       pdfSignerStampNoCert: 'CHƯA CÓ CHỨNG THƯ',
-      pdfSignerStampUploadCert: 'Tải lên tệp P12/PFX'
+      pdfSignerStampUploadCert: 'Tải lên tệp PKCS#12'
     },
     zh: {
       pdfSignerStampSignedBy: '已签名',
@@ -579,7 +579,7 @@ function getLocaleString(key: string, fallback: string): string {
       pdfSignerStampNoUsb: '未检测到 USB Key',
       pdfSignerStampPlugUsb: '请插入 USB Key',
       pdfSignerStampNoCert: '无证书文件',
-      pdfSignerStampUploadCert: '上传 P12/PFX 文件'
+      pdfSignerStampUploadCert: '上传 PKCS#12 文件'
     },
     ja: {
       pdfSignerStampSignedBy: '署名者',
@@ -589,7 +589,7 @@ function getLocaleString(key: string, fallback: string): string {
       pdfSignerStampNoUsb: 'USBトークンなし',
       pdfSignerStampPlugUsb: 'USBトークンを挿入してください',
       pdfSignerStampNoCert: '証明書なし',
-      pdfSignerStampUploadCert: 'P12/PFXをアップロード'
+      pdfSignerStampUploadCert: 'PKCS#12をアップロード'
     },
     ko: {
       pdfSignerStampSignedBy: '서명자',
@@ -599,7 +599,7 @@ function getLocaleString(key: string, fallback: string): string {
       pdfSignerStampNoUsb: 'USB 토큰 없음',
       pdfSignerStampPlugUsb: 'USB 토큰을 삽입하세요',
       pdfSignerStampNoCert: '인증서 파일 없음',
-      pdfSignerStampUploadCert: 'P12/PFX 파일 업로드'
+      pdfSignerStampUploadCert: 'PKCS#12 파일 업로드'
     }
   };
   
@@ -663,7 +663,7 @@ function updateStampText() {
       stampHash.textContent = `${lblIssuer}: ${uploadedP12Details.issuer}`;
     } else {
       const lblNoCert = getLocaleString('pdfSignerStampNoCert', 'SIGNED BY: NO CERT FILE');
-      const lblUploadCert = getLocaleString('pdfSignerStampUploadCert', 'Signer: Upload P12/PFX file');
+      const lblUploadCert = getLocaleString('pdfSignerStampUploadCert', 'Signer: Upload PKCS#12 file');
       if (previewHeader) previewHeader.textContent = lblNoCert;
       stampSigner.textContent = lblUploadCert;
       stampTime.textContent = `${lblDate}: ${formattedTime}`;
@@ -1045,8 +1045,8 @@ manualFileInput.addEventListener('change', () => {
 
 // OTP & USB PIN Verification Modal
 function showOtpPromptModal(callback: (code: string) => void, cancelCallback: () => void, isPin: boolean = false): void {
-  const title = isPin ? (chrome.i18n.getMessage("pdfSignerPinTitle") || "USB Token PIN Verification") : (chrome.i18n.getMessage("otpPromptTitle") || "Google Authenticator");
-  const desc = isPin ? (chrome.i18n.getMessage("pdfSignerPinDesc") || "Please enter your USB Token PIN to authorize the digital signature:") : (chrome.i18n.getMessage("otpPromptDesc") || "Please enter the 6-digit OTP code to verify your digital signature:");
+  const title = isPin ? (chrome.i18n.getMessage("pdfSignerPinTitle") || "USB token PIN") : (chrome.i18n.getMessage("otpPromptTitle") || "Authenticator code");
+  const desc = isPin ? (chrome.i18n.getMessage("pdfSignerPinDesc") || "Enter your USB token PIN to authorize the digital signature:") : (chrome.i18n.getMessage("otpPromptDesc") || "Enter the 6-digit authenticator code to verify your digital signature:");
   const placeholder = isPin ? (chrome.i18n.getMessage("pdfSignerPinPlaceholder") || "Enter PIN") : "000000";
   const maxLength = isPin ? 32 : 6;
   const inputType = isPin ? 'password' : 'text';
@@ -1055,41 +1055,45 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
 
   const overlay = document.createElement('div');
   overlay.className = 'uid-otp-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', title);
   overlay.innerHTML = `
-    <div style="background: rgba(10, 10, 10, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; width: 90%; max-width: 400px; padding: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+    <div style="background: #0B1220; border: 1px solid rgba(51, 65, 85, 0.7); border-radius: 20px; width: 90%; max-width: 400px; padding: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);">
       <div style="margin-bottom: 20px;">
-        <div style="display: inline-flex; width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div style="display: inline-flex; width: 52px; height: 52px; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </div>
-        <h3 style="font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 6px 0;">${title}</h3>
-        <p style="font-size: 13px; color: #a1a1aa; margin: 0; line-height: 1.5;">${desc}</p>
+        <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC; margin: 0 0 6px 0;">${title}</h3>
+        <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.5;">${desc}</p>
       </div>
 
       <div style="margin-bottom: 24px;">
         <input type="${inputType}" id="uid-signer-otp-input" ${inputModeAttr} maxlength="${maxLength}" placeholder="${placeholder}" style="
           width: 80%;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: #111A2E;
+          border: 1px solid rgba(51, 65, 85, 0.8);
           border-radius: 12px;
           padding: 12px;
           font-size: 24px;
           letter-spacing: ${letterSpacing};
           text-align: center;
-          color: #fff;
-          font-family: monospace;
+          color: #F8FAFC;
+          font-family: 'JetBrains Mono', ui-monospace, monospace;
+          font-variant-numeric: tabular-nums;
           outline: none;
           box-sizing: border-box;
         ">
       </div>
 
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button id="uid-signer-otp-cancel" style="flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: #a1a1aa; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
+        <button type="button" id="uid-signer-otp-cancel" style="flex: 1; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.7); color: #CBD5E1; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
           ${chrome.i18n.getMessage("otpCancel") || "Cancel"}
         </button>
-        <button id="uid-signer-otp-confirm" style="flex: 1; background: #10b981; border: none; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
+        <button type="button" id="uid-signer-otp-confirm" style="flex: 1; background: #2563EB; border: none; color: #FFFFFF; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
           ${chrome.i18n.getMessage("otpConfirm") || "Sign"}
         </button>
       </div>
@@ -1098,21 +1102,27 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
 
   document.body.appendChild(overlay);
 
-  const otpInput = overlay.querySelector('#uid-signer-otp-input') as HTMLInputElement;
-  if (otpInput) {
-    otpInput.focus();
-    otpInput.addEventListener('input', () => {
-      if (!isPin) {
-        otpInput.value = otpInput.value.replace(/[^0-9]/g, '');
-      }
-    });
-    otpInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        confirm();
-      }
-    });
-  }
+  const cleanupOtp = () => {
+    document.removeEventListener('keydown', onOtpEsc, true);
+    overlay.remove();
+  };
 
+  const cancelOtp = () => {
+    cleanupOtp();
+    cancelCallback();
+  };
+
+  const onOtpEsc = (e: KeyboardEvent) => {
+    if (e.isComposing || e.keyCode === 229) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      cancelOtp();
+    }
+  };
+  document.addEventListener('keydown', onOtpEsc, true);
+
+  const otpInput = overlay.querySelector('#uid-signer-otp-input') as HTMLInputElement;
   const confirm = () => {
     const val = otpInput?.value || '';
     if (isPin) {
@@ -1122,19 +1132,30 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
       }
     } else {
       if (val.length !== 6) {
-        alert(chrome.i18n.getMessage("otpErrorLength") || 'The OTP code must be exactly 6 digits.');
+        alert(chrome.i18n.getMessage("otpErrorLength") || 'The OTP code must be 6 digits.');
         return;
       }
     }
-    overlay.remove();
+    cleanupOtp();
     callback(val);
   };
 
-  overlay.querySelector('#uid-signer-otp-cancel')?.addEventListener('click', () => {
-    overlay.remove();
-    cancelCallback();
-  });
+  if (otpInput) {
+    otpInput.focus();
+    otpInput.addEventListener('input', () => {
+      if (!isPin) {
+        otpInput.value = otpInput.value.replace(/[^0-9]/g, '');
+      }
+    });
+    otpInput.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === 'Enter') {
+        confirm();
+      }
+    });
+  }
 
+  overlay.querySelector('#uid-signer-otp-cancel')?.addEventListener('click', cancelOtp);
   overlay.querySelector('#uid-signer-otp-confirm')?.addEventListener('click', confirm);
 }
 
@@ -1143,29 +1164,32 @@ function showRemoteSigningModal(providerName: string, idNum: string, callback: (
   const overlay = document.createElement('div');
   overlay.className = 'uid-otp-overlay';
   
-  let timeLeft = 120; // 2 minutes countdown
+  let timeLeft = 120;
   
-  const title = chrome.i18n.getMessage("pdfSignerRemoteTitle") || "Authorize Cloud CA";
-  const descRaw = chrome.i18n.getMessage("pdfSignerRemoteDesc") || "A push notification has been sent to your <strong>$1</strong> mobile app linked with identifier <strong>$2</strong>. Please approve it on your phone to complete signing.";
+  const title = chrome.i18n.getMessage("pdfSignerRemoteTitle") || "Authorize cloud CA";
+  const descRaw = chrome.i18n.getMessage("pdfSignerRemoteDesc") || "A push notification has been sent to your <strong>$1</strong> mobile app linked with identifier <strong>$2</strong>. Approve it on your phone to complete signing.";
   const desc = descRaw.replace('$1', providerName).replace('$2', idNum);
   const cancelText = chrome.i18n.getMessage("pdfSignerRemoteCancel") || "Cancel";
-  
+
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', title);
   overlay.innerHTML = `
-    <div style="background: rgba(10, 10, 10, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; width: 90%; max-width: 400px; padding: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+    <div style="background: #0B1220; border: 1px solid rgba(51, 65, 85, 0.7); border-radius: 20px; width: 90%; max-width: 400px; padding: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);">
       <div style="margin-bottom: 24px;">
-        <div style="display: inline-flex; width: 56px; height: 56px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 16px;">
-          <span class="loading-spinner" style="border-top-color: #10b981; width: 28px; height: 28px; display: inline-block;"></span>
+        <div style="display: inline-flex; width: 52px; height: 52px; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <span class="loading-spinner" style="border-top-color: #3B82F6; width: 26px; height: 26px; display: inline-block;"></span>
         </div>
-        <h3 style="font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 8px 0;">${title}</h3>
-        <p style="font-size: 13px; color: #a1a1aa; margin: 0; line-height: 1.5;">${desc}</p>
+        <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC; margin: 0 0 8px 0;">${title}</h3>
+        <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.5;">${desc}</p>
       </div>
 
-      <div style="font-size: 24px; font-weight: 700; color: #fff; font-family: monospace; margin-bottom: 28px;" id="remote-signer-timer">
+      <div style="font-size: 24px; font-weight: 700; color: #F8FAFC; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; margin-bottom: 28px;" id="remote-signer-timer">
         02:00
       </div>
 
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button id="uid-remote-cancel" style="flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: #a1a1aa; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
+        <button type="button" id="uid-remote-cancel" style="flex: 1; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.7); color: #CBD5E1; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
           ${cancelText}
         </button>
       </div>
@@ -1175,33 +1199,50 @@ function showRemoteSigningModal(providerName: string, idNum: string, callback: (
   document.body.appendChild(overlay);
 
   const timerEl = overlay.querySelector('#remote-signer-timer')!;
-  const intervalId = setInterval(() => {
+  let intervalId: ReturnType<typeof setInterval>;
+  let timeoutId: ReturnType<typeof setTimeout>;
+
+  const cleanupRemote = () => {
+    clearInterval(intervalId);
+    clearTimeout(timeoutId);
+    document.removeEventListener('keydown', onRemoteEsc, true);
+    overlay.remove();
+  };
+
+  const cancelRemote = () => {
+    cleanupRemote();
+    cancelCallback();
+  };
+
+  const onRemoteEsc = (e: KeyboardEvent) => {
+    if (e.isComposing || e.keyCode === 229) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      cancelRemote();
+    }
+  };
+  document.addEventListener('keydown', onRemoteEsc, true);
+
+  intervalId = setInterval(() => {
     timeLeft--;
     const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
     const secs = String(timeLeft % 60).padStart(2, '0');
     timerEl.textContent = `${mins}:${secs}`;
     
     if (timeLeft <= 0) {
-      clearInterval(intervalId);
-      overlay.remove();
+      cleanupRemote();
       alert("Signature request timed out. Please try again.");
       cancelCallback();
     }
   }, 1000);
 
-  // Simulate remote push approval callback after 3.5 seconds
-  const timeoutId = setTimeout(() => {
-    clearInterval(intervalId);
-    overlay.remove();
+  timeoutId = setTimeout(() => {
+    cleanupRemote();
     callback();
   }, 3500);
 
-  overlay.querySelector('#uid-remote-cancel')?.addEventListener('click', () => {
-    clearInterval(intervalId);
-    clearTimeout(timeoutId);
-    overlay.remove();
-    cancelCallback();
-  });
+  overlay.querySelector('#uid-remote-cancel')?.addEventListener('click', cancelRemote);
 }
 
 // PDF SIGNING ACTION
@@ -1238,7 +1279,7 @@ btnSign.addEventListener('click', () => {
         ) => {
           if (!success) {
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign Document"}`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign document"}`;
             alert(errorMsg || chrome.i18n.getMessage("alertRejected") || "Signing request was rejected or expired.");
             return;
           }
@@ -1602,7 +1643,7 @@ btnSign.addEventListener('click', () => {
             signedPdfFileName = name;
             
             // Localize and display download button
-            btnDownload.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> ${chrome.i18n.getMessage("pdfSignerButtonDownload") || "Download Signed PDF"}`;
+            btnDownload.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> ${chrome.i18n.getMessage("pdfSignerButtonDownload") || "Download signed PDF"}`;
             btnDownload.style.display = 'flex';
 
             showToast("PDF signed and saved successfully!", "success");
@@ -1617,7 +1658,7 @@ btnSign.addEventListener('click', () => {
           } catch (err: any) {
             console.error('[uid.one] Visual signature stamp error:', err);
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign Document"}`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign document"}`;
             alert(`Error signing PDF: ${err.message}`);
           }
         };
@@ -1628,7 +1669,7 @@ btnSign.addEventListener('click', () => {
           if (!selectedCert) {
             alert('Please click "Detect USB Certificates" and select a valid certificate first.');
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
             return;
           }
 
@@ -1643,15 +1684,15 @@ btnSign.addEventListener('click', () => {
             const userAlertMsg = chrome.i18n.getMessage('pdfSignerRemoteUserAlert') || 'Please enter your Personal ID or Phone Number.';
             alert(userAlertMsg);
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
             return;
           }
 
           if (!pwdVal) {
-            const pwdAlertMsg = chrome.i18n.getMessage('pdfSignerRemotePasswordAlert') || 'Please enter your Service Password / Auth PIN.';
+            const pwdAlertMsg = chrome.i18n.getMessage('pdfSignerRemotePasswordAlert') || 'Please enter your service password or PIN.';
             alert(pwdAlertMsg);
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
             return;
           }
 
@@ -1659,19 +1700,19 @@ btnSign.addEventListener('click', () => {
             onSignatureAcquired(true);
           }, () => {
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
           });
         } else if (certType === 'p12_file') {
           if (!uploadedP12Details) {
-            alert('Please upload a PFX/P12 certificate file first.');
+            alert('Please upload a PKCS#12 certificate file first.');
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
             return;
           }
           if (!p12PasswordInput.value) {
             alert('Please enter the certificate password.');
             btnSign.disabled = false;
-            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign Document`;
+            btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Sign document`;
             return;
           }
 
@@ -1701,7 +1742,7 @@ btnSign.addEventListener('click', () => {
       } catch (err: any) {
         console.error('[uid.one] Hashing failed:', err);
         btnSign.disabled = false;
-        btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign Document"}`;
+        btnSign.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> ${chrome.i18n.getMessage("pdfSignerButtonSign") || "Sign document"}`;
         alert("Failed to compute PDF cryptographic hash.");
       }
     }, () => {
@@ -1737,9 +1778,12 @@ btnDownload.addEventListener('click', () => {
 });
 
 function localizeHtml() {
+  const uiLang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'en').trim();
+  document.documentElement.lang = uiLang;
+  document.documentElement.dir = uiLang.toLowerCase().startsWith('ar') ? 'rtl' : 'ltr';
+
   if (!chrome.i18n) return;
 
-  // Translate standard textContent elements
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.getAttribute('data-i18n')!;
     const message = chrome.i18n.getMessage(key);
@@ -1748,7 +1792,6 @@ function localizeHtml() {
     }
   });
 
-  // Translate placeholders for inputs
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     const key = el.getAttribute('data-i18n-placeholder')!;
     const message = chrome.i18n.getMessage(key);
@@ -1757,12 +1800,20 @@ function localizeHtml() {
     }
   });
 
-  // Translate optgroup labels
   document.querySelectorAll('[data-i18n-label]').forEach((el) => {
     const key = el.getAttribute('data-i18n-label')!;
     const message = chrome.i18n.getMessage(key);
     if (message && el instanceof HTMLOptGroupElement) {
       el.label = message;
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria')!;
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      el.setAttribute('aria-label', message);
+      el.setAttribute('title', message);
     }
   });
 }

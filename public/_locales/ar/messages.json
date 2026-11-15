@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · الأمان والهوية"
   },
   "extensionDesc": {
     "message": "طبقة الأمن والهوية السيادية لنظام UID.one. تفرض سياسات Zero-Trust، وحماية البيانات (DLP)، ومكافحة تتبع SSD."
@@ -69,7 +69,7 @@
     "message": "التحقق من التوقيع الرقمي"
   },
   "dialogDesc": {
-    "message": "يرجى فتح تطبيق الجوال UID.one أو زيارة <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> لاختيار الرقم المطابق."
+    "message": "يرجى فتح تطبيق الجوال UID.one أو زيارة <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> لاختيار الرقم المطابق."
   },
   "dialogCancel": {
     "message": "إلغاء الطلب"
@@ -96,7 +96,7 @@
     "message": "وقت التوقيع"
   },
   "signatureVerify": {
-    "message": "التحقق من الهوية ←"
+    "message": "التحقق من الهوية"
   },
   "alertLinkFirst": {
     "message": "يرجى ربط حساب UID.one الخاص بك قبل إجراء التوقيع الرقمي."
@@ -252,7 +252,7 @@
     "message": "سلطة تصديق سحابية خارجية (Cloud CA)"
   },
   "pdfSignerMethodP12": {
-    "message": "تحميل ملف الشهادة (.p12 / .pfx)"
+    "message": "تحميل ملف الشهادة (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "تطبيق عميل CA:"
@@ -309,7 +309,7 @@
     "message": "اسم المستخدم:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "تحميل ملف PFX/P12:"
+    "message": "تحميل ملف PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "كلمة مرور الشهادة:"
@@ -318,7 +318,7 @@
     "message": "التعليمات"
   },
   "pdfSignerInstructionsText": {
-    "message": "حدد الصفحة المستهدفة واسحب الصندوق الأخضر لتحديد موضع ختم توقيعك. انقر فوق الزر أدناه لتوقيع ملف PDF."
+    "message": "حدد الصفحة المستهدفة واسحب إطار التوقيع لتحديد موضع ختمك الرقمي، ثم انقر فوق الزر أدناه لتوقيع ملف PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "الانتقال إلى لوحة تحكم UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "يرجى إدخال كلمة المرور."
+  },
+  "viewWebProfile": {
+    "message": "فتح الخزنة على الويب"
+  },
+  "pdfSignerPrevPage": {
+    "message": "الصفحة السابقة"
+  },
+  "pdfSignerNextPage": {
+    "message": "الصفحة التالية"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "أدخل رمز PIN"
   }
 }

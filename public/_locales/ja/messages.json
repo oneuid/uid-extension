@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · セキュリティとアイデンティティ"
   },
   "extensionDesc": {
     "message": "UID.oneのための自立型クライアント側セキュリティ層。Zero-Trust、DLP保護、セッションバインド、およびSSD追跡防止を適用します。"
@@ -69,7 +69,7 @@
     "message": "電子署名の確認"
   },
   "dialogDesc": {
-    "message": "UID.one モバイルアプリを開くか、<a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> にアクセスして一致する番号を選択してください。"
+    "message": "UID.one モバイルアプリを開くか、<a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> にアクセスして一致する番号を選択してください。"
   },
   "dialogCancel": {
     "message": "リクエストをキャンセル"
@@ -96,7 +96,7 @@
     "message": "署名日時"
   },
   "signatureVerify": {
-    "message": "本人確認 →"
+    "message": "本人確認"
   },
   "alertLinkFirst": {
     "message": "電子署名を行う前に、UID.one アカウントを連携してください。"
@@ -129,7 +129,7 @@
     "message": "ページ"
   },
   "pdfSignerOfLabel": {
-    "message": "/"
+    "message": "·"
   },
   "pdfSignerButtonSign": {
     "message": "ドキュメントに署名"
@@ -252,7 +252,7 @@
     "message": "リモートクラウド CA"
   },
   "pdfSignerMethodP12": {
-    "message": "証明書ファイルアップロード (.p12 / .pfx)"
+    "message": "証明書ファイルアップロード (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "CA クライアントアプリ："
@@ -309,7 +309,7 @@
     "message": "ユーザー名："
   },
   "pdfSignerLabelUploadP12": {
-    "message": "PFX/P12 ファイルのアップロード："
+    "message": "PKCS#12 ファイルのアップロード："
   },
   "pdfSignerLabelCertPassword": {
     "message": "証明書のパスワード："
@@ -318,7 +318,7 @@
     "message": "操作手順"
   },
   "pdfSignerInstructionsText": {
-    "message": "対象ページを選択し、緑の枠をドラッグして署名スタンプの位置を調整します。下のボタンをクリックしてPDFに署名します。"
+    "message": "対象ページを選択し、署名枠をドラッグしてスタンプの位置を調整します。下のボタンをクリックしてPDFに署名します。"
   },
   "pdfSignerLinkDashboard": {
     "message": "UID.one ダッシュボードへ戻る"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "パスワードを入力してください。"
+  },
+  "viewWebProfile": {
+    "message": "ウェブ保管庫を開く"
+  },
+  "pdfSignerPrevPage": {
+    "message": "前のページ"
+  },
+  "pdfSignerNextPage": {
+    "message": "次のページ"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "PINを入力"
   }
 }

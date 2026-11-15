@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - Security & Identity"
+    "message": "UID Link · Bảo mật và định danh"
   },
   "extensionDesc": {
     "message": "Lớp bảo mật Zero-Trust cho hệ sinh thái UID.one. Thực thi bảo vệ dữ liệu DLP và chống theo dõi SSD."
@@ -15,7 +15,7 @@
     "message": "Lỗi: Không thể giải mã tài khoản."
   },
   "errorNoUsernameProvided": {
-    "message": "Vui lòng gõ tên đăng nhập / email của bạn vào ô trước khi nhấn biểu tượng Passkey."
+    "message": "Vui lòng nhập tên đăng nhập hoặc email trước khi sử dụng Passkey."
   },
   "pickerHeader": {
     "message": "Chọn tài khoản"
@@ -42,7 +42,7 @@
     "message": "Xóa EXIF ảnh"
   },
   "inputsWiped": {
-    "message": "Xóa OTP / Form"
+    "message": "Đã xóa biểu mẫu"
   },
   "engineControl": {
     "message": "Bảng điều khiển"
@@ -66,10 +66,10 @@
     "message": "Đang ký..."
   },
   "dialogTitle": {
-    "message": "XÁC THỰC CHỮ KÝ SỐ"
+    "message": "Xác thực chữ ký số"
   },
   "dialogDesc": {
-    "message": "Vui lòng mở ứng dụng di động UID.one hoặc truy cập <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> để chọn số trùng khớp bên dưới."
+    "message": "Vui lòng mở ứng dụng di động UID.one hoặc truy cập <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> để chọn số trùng khớp bên dưới."
   },
   "dialogCancel": {
     "message": "Hủy yêu cầu"
@@ -96,7 +96,7 @@
     "message": "Thời gian ký"
   },
   "signatureVerify": {
-    "message": "Xác minh danh tính →"
+    "message": "Xác minh danh tính"
   },
   "alertLinkFirst": {
     "message": "Vui lòng liên kết tài khoản UID.one trước khi thực hiện ký số."
@@ -225,7 +225,7 @@
     "message": "Ký số tệp PDF thành công!"
   },
   "pdfSignerSubtitle": {
-    "message": "Xác thực mã hóa PDF không tin cậy & đóng dấu ký số."
+    "message": "Xác thực mã hóa PDF không tin cậy và đóng dấu ký số."
   },
   "pdfSignerPanelDocument": {
     "message": "Tài liệu"
@@ -252,7 +252,7 @@
     "message": "Chữ ký số từ xa (Cloud CA)"
   },
   "pdfSignerMethodP12": {
-    "message": "Tải lên tệp chứng thư (.p12 / .pfx)"
+    "message": "Tải lên tệp chứng thư (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "Phần mềm ký số:"
@@ -309,7 +309,7 @@
     "message": "Tên đăng nhập:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Tải lên tệp PFX/P12:"
+    "message": "Tải lên tệp PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Mật khẩu chứng thư:"
@@ -318,7 +318,7 @@
     "message": "Hướng dẫn sử dụng"
   },
   "pdfSignerInstructionsText": {
-    "message": "Chọn trang cần ký, sau đó kéo khung màu xanh tới vị trí mong muốn trên tài liệu. Click nút phía dưới để bắt đầu ký số."
+    "message": "Chọn trang cần ký, sau đó kéo khung chữ ký tới vị trí mong muốn trên tài liệu. Nhấn nút bên dưới để ký số PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Truy cập UID.one Dashboard"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Vui lòng nhập mật khẩu."
+  },
+  "viewWebProfile": {
+    "message": "Mở kho lưu trữ web"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Trang trước"
+  },
+  "pdfSignerNextPage": {
+    "message": "Trang sau"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Nhập mã PIN"
   }
 }

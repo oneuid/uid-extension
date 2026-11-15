@@ -86,3 +86,18 @@ Before handing a blueprint or component over to `UI DESIGNER` and `VERIFIER`, th
 - [ ] **4. Live Viewport Resize (`320px` $\leftrightarrow$ `1440px`)**: Do open Modals, Sheets, or Popovers survive orientation flip and window resize without trapping scroll (`overflow: hidden` stuck on `<body>`)?
 - [ ] **5. RTL (`ar`) Structural Mirroring**: Does directional flow (`flex-row`, icons, drawers, breadcrumbs) mirror cleanly under `dir="rtl"`?
 - [ ] **6. Cross-Platform Parity**: Is the state contract identical across Web Next.js, Desktop Tauri Kiosk, and Mobile React Native (`app.getding.io`, `trip.express/mobile`, `uid-app`, `shan.one`)?
+
+---
+
+## 5. Agent-Ready Structural & Evidence Conventions (`meta/astryx`)
+
+Distilled from Meta's 8-year / 13,000-app **Astryx** design system (`principles.doc.dense` & `is-my-code-good` rubric — stack-agnostic architectural rules without `@astryxdesign/*` or StyleX lock-in):
+
+1. **Frame-First & Row-vs-Card Data Density Law (`Dense Data = Rows, Never Card-Wrapped Lists`)**:
+   - Lock the route's outer shell and region budgets *before* authoring inner widgets (individual page components own content layout only; the host `AppShell` owns global navigation chrome).
+   - **Dense operational records & multi-field settings** (orders, transactions, contacts, logs, key-value preferences) MUST render as **`Table` rows or `1px` hairline-divided `List` rows (`divide-y`)** — NEVER wrap individual list items in separate `Card` boxes or cram multi-tag selects into narrow multi-column card grids. Reserve `Card` strictly for KPI summary widgets, media galleries, and top-level grouped sections.
+2. **Sibling-Surface Alignment First (`Inspect >= 2 Sibling Views Before Editing`)**:
+   - Never design, refactor, or judge a route in isolation. First inspect **at least 2 sibling surfaces** doing adjacent jobs in the same app to match shared header slots, action order, container padding, control density, and app-owned `@/components/ui/*` wrappers. Documented intentional app conventions take precedence over generic patterns.
+3. **Tri-State Evidence Gate (`good` | `needs work` | `not inspected`) & Anti-Wrapper Disguise**:
+   - Static source inspection proves primitive reuse and imports, **never** rendered layout, responsive reflow, or dark-mode contrast. Mark any unverified runtime state or viewport explicitly as **`not inspected`** — never convert missing browser/device evidence into a silent `pass`.
+   - Hiding raw `<div className="...">`, `<button>`, or `<svg>` behind a file-local PascalCase helper does **not** satisfy Gate 5 primitive reuse; compose `@/components/ui/*` primitives directly (retaining raw HTML strictly where native semantics require it, such as `<form>` or `<input type="hidden">`).

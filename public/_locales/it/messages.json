@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Sicurezza e identità"
   },
   "extensionDesc": {
     "message": "Sicurezza Zero-Trust per UID.one. Impone protezione DLP, associazione di sessione e anti-tracciamento."
@@ -66,10 +66,10 @@
     "message": "Firma in corso..."
   },
   "dialogTitle": {
-    "message": "VERIFICA DELLA FIRMA DIGITALE"
+    "message": "Verifica della firma digitale"
   },
   "dialogDesc": {
-    "message": "Apri l'app mobile UID.one o visita <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> per selezionare il numero corrispondente."
+    "message": "Apri l'app mobile UID.one o visita <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> per selezionare il numero corrispondente."
   },
   "dialogCancel": {
     "message": "Annulla richiesta"
@@ -96,7 +96,7 @@
     "message": "Data e ora di firma"
   },
   "signatureVerify": {
-    "message": "Verifica identità →"
+    "message": "Verifica identità"
   },
   "alertLinkFirst": {
     "message": "Collega il tuo account UID.one prima di eseguire una firma digitale."
@@ -252,7 +252,7 @@
     "message": "Cloud CA remoto"
   },
   "pdfSignerMethodP12": {
-    "message": "Carica file certificato (.p12 / .pfx)"
+    "message": "Carica file certificato (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "App client CA:"
@@ -309,7 +309,7 @@
     "message": "Nome utente:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Carica file PFX/P12:"
+    "message": "Carica file PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Password del certificato:"
@@ -318,7 +318,7 @@
     "message": "Istruzioni"
   },
   "pdfSignerInstructionsText": {
-    "message": "Seleziona la pagina di destinazione e trascina la casella verde per posizionare il timbro di firma. Fai clic sul pulsante in basso per firmare il PDF."
+    "message": "Seleziona la pagina di destinazione e trascina il riquadro di firma per posizionare il timbro digitale. Fai clic sul pulsante in basso per firmare il PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Vai alla dashboard di UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Inserisci la tua password."
+  },
+  "viewWebProfile": {
+    "message": "Apri cassaforte web"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Pagina precedente"
+  },
+  "pdfSignerNextPage": {
+    "message": "Pagina successiva"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Inserisci PIN"
   }
 }

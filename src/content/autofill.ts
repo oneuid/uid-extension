@@ -38,7 +38,7 @@ export function captureSessionToken(): void {
     if (token) {
       chrome.runtime.sendMessage({ type: 'SET_SESSION_TOKEN', token, origin: window.location.origin });
     }
-  } catch (e) {}
+  } catch {}
 
   if (!isListeningToSessionEvents) {
     try {
@@ -77,7 +77,7 @@ const injectedInputs = new WeakSet<HTMLInputElement>();
 export function injectAll(): void {
   const nativeMeta = document.querySelector('meta[name="uid-passkey-native"]');
   if (nativeMeta && nativeMeta.getAttribute('content') === 'true') {
-    return; 
+    return;
   }
 
   const hostname = window.location.hostname;
@@ -89,9 +89,9 @@ export function injectAll(): void {
   const passwordInputs = document.querySelectorAll<HTMLInputElement>('input[type="password"]');
   passwordInputs.forEach((input) => {
     if (
-      input.disabled || 
-      input.readOnly || 
-      input.type === 'hidden' || 
+      input.disabled ||
+      input.readOnly ||
+      input.type === 'hidden' ||
       input.style.display === 'none' ||
       input.style.visibility === 'hidden' ||
       input.autocomplete === 'new-password'
@@ -117,7 +117,7 @@ function injectIcon(input: HTMLInputElement): void {
 
   const computedStyle = window.getComputedStyle(input);
   const originalPaddingRight = parseFloat(computedStyle.paddingRight) || 0;
-  
+
   input.style.paddingRight = `${originalPaddingRight + 28}px`;
   input.setAttribute('data-uid-autofill', 'true');
 
@@ -129,7 +129,7 @@ function injectIcon(input: HTMLInputElement): void {
     }
     shadowHost.style.display = 'block';
     shadowHost.style.top = `${rect.top + window.scrollY + rect.height / 2}px`;
-    
+
     const offsetFromRight = originalPaddingRight + 28;
     shadowHost.style.left = `${rect.right + window.scrollX - offsetFromRight}px`;
     shadowHost.style.transform = 'translateY(-50%)';
@@ -141,7 +141,7 @@ function injectIcon(input: HTMLInputElement): void {
   setInterval(updatePosition, 500);
 
   const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
-  
+
   const icon = document.createElement('div');
   icon.style.cssText = `
     width: 24px;
@@ -152,9 +152,9 @@ function injectIcon(input: HTMLInputElement): void {
     cursor: pointer;
     color: #0B1220;
     opacity: 1;
-    transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+    transition: color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
   `;
-  
+
   icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-fingerprint">
     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
     <path d="M18.9 7a8 8 0 0 1 1.1 5v1a6 6 0 0 0 .8 3" />
@@ -163,14 +163,14 @@ function injectIcon(input: HTMLInputElement): void {
     <path d="M8 15a18 18 0 0 0 1.8 6" />
     <path d="M4.9 19a22 22 0 0 1 -.9 -7v-1a8 8 0 0 1 12 -6.95" />
   </svg>`;
-  
-  icon.title = chrome.runtime?.id ? (chrome.i18n.getMessage("iconTitle") || "Login with Passkey") : "Login with Passkey";
-  
+
+  icon.title = chrome.runtime?.id ? (chrome.i18n.getMessage("iconTitle") || "Sign in with passkey") : "Sign in with passkey";
+
   icon.addEventListener('mouseenter', () => {
-    icon.style.color = '#1A2233';
+    icon.style.color = '#2563EB';
     icon.style.transform = "scale(1.05)";
   });
-  
+
   icon.addEventListener('mouseleave', () => {
     icon.style.color = '#0B1220';
     icon.style.transform = "scale(1)";
@@ -182,10 +182,10 @@ function injectIcon(input: HTMLInputElement): void {
         alert("Extension context invalidated. Please refresh the page.");
         return;
       }
-      
+
       const domain = window.location.hostname;
       const device = navigator.userAgent.includes("Mac") ? "Chrome on macOS" : "Chrome Web";
-      
+
       const isPairedRes = await new Promise<any>((resolve) => {
         chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, resolve);
       });
@@ -195,38 +195,69 @@ function injectIcon(input: HTMLInputElement): void {
           chrome.runtime.sendMessage({ type: 'START_OOB_AUTH', domain, device, identifier: targetUsername }, resolve);
         });
 
-        if (!reqRes?.success) return alert("Failed to initiate Pairing");
+        if (!reqRes?.success) return alert("Failed to initiate pairing.");
 
         const qrUrl = `https://uid.one/qr?challenge=${reqRes.challenge.token}&client_id=uid-extension-client&client_name=Extension`;
         const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
 
         const overlay = document.createElement('div');
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Pair device');
         overlay.innerHTML = `
-          <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-            <div id="uid-qr-container" style="background: #ffffff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
-              <button id="close-qr" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-              <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Pair Device</h3>
-              <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <img src="${qrDataUrl}" alt="QR Code" style="width: 200px; height: 200px; display: block;" />
+          <div id="uid-qr-backdrop" style="position: fixed; inset: 0; min-height: 100dvh; background: rgba(2, 8, 23, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
+            <div id="uid-qr-container" style="background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.28); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: 'Inter', system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
+              <button type="button" id="close-qr" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
+              <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #0f172a;">Pair device</h3>
+              <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                <img src="${qrDataUrl}" alt="UID.one pairing QR code" style="width: 200px; height: 200px; display: block;" />
               </div>
-              <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px; line-height: 1.4;">
-                Scan this code with the UID.ONE App, or <a href="${qrUrl}" target="_blank" style="color: #0ea5e9; text-decoration: underline; font-weight: 500; cursor: pointer;">approve on this browser</a>.
+              <p style="margin: 0; font-size: 13px; color: #475569; text-align: center; max-width: 230px; line-height: 1.45;">
+                Scan this code with the UID.one app, or <a href="${qrUrl}" target="_blank" rel="noopener noreferrer" style="color: #2563EB; text-decoration: underline; font-weight: 600; cursor: pointer;">approve in this browser</a>.
               </p>
             </div>
           </div>
         `;
         document.body.appendChild(overlay);
-        overlay.querySelector('#close-qr')?.addEventListener('click', () => overlay.remove());
 
-        const pollInterval = setInterval(async () => {
+        let pollInterval: ReturnType<typeof setInterval> | null = null;
+        const cleanupQr = () => {
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+          document.removeEventListener('keydown', onQrEsc, true);
+          overlay.remove();
+        };
+
+        const onQrEsc = (e: KeyboardEvent) => {
+          if (e.isComposing || e.keyCode === 229) return;
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            cleanupQr();
+          }
+        };
+        document.addEventListener('keydown', onQrEsc, true);
+
+        overlay.querySelector('#close-qr')?.addEventListener('click', cleanupQr);
+        overlay.querySelector('#uid-qr-backdrop')?.addEventListener('click', (ev) => {
+          if (ev.target === ev.currentTarget) cleanupQr();
+        });
+
+        pollInterval = setInterval(async () => {
           const pollRes = await new Promise<any>((resolve) => {
             chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token: reqRes.challenge.token }, resolve);
           });
 
           if (pollRes?.success && pollRes.status === 'APPROVED') {
-            clearInterval(pollInterval);
+            if (pollInterval) {
+              clearInterval(pollInterval);
+              pollInterval = null;
+            }
+            document.removeEventListener('keydown', onQrEsc, true);
             await new Promise((resolve) => chrome.runtime.sendMessage({ type: 'SAVE_PAIRING', token: reqRes.challenge.token }, resolve));
-            
+
             const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
             if (container) {
               container.innerHTML = `
@@ -234,11 +265,11 @@ function injectIcon(input: HTMLInputElement): void {
                   <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
-                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Paired Successfully!</h3>
-                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">You can now use push notifications.</p>
+                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Device paired</h3>
+                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Push verification is now active.</p>
                 </div>
               `;
-              setTimeout(() => { overlay.remove(); performOOBAuth(targetUsername, passwordInput); }, 2000);
+              setTimeout(() => { overlay.remove(); performOOBAuth(targetUsername, passwordInput); }, 1800);
             }
           }
         }, 2000);
@@ -257,18 +288,21 @@ function injectIcon(input: HTMLInputElement): void {
       const challengeId = reqRes.data.token;
 
       const overlay = document.createElement('div');
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'Confirm login');
       overlay.innerHTML = `
-        <div style="position: fixed; inset: 0; background: rgba(2, 8, 23, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-          <div id="uid-match-container" style="background: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: system-ui, sans-serif; color: #0f172a; position: relative; min-width: 300px;">
-            <button id="close-match" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
-            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center;">Confirm Login</h3>
-            <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 240px; line-height: 1.4;">Please approve the login request on your paired UID.one dashboard or app.</p>
-            <div style="width: 72px; height: 72px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; color: #4f46e5; margin: 12px 0; box-shadow: 0 0 20px rgba(79, 70, 229, 0.25); animation: pulse 2s infinite;">
+        <div id="uid-match-backdrop" style="position: fixed; inset: 0; min-height: 100dvh; background: rgba(2, 8, 23, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
+          <div id="uid-match-container" style="background: #ffffff; border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.28); display: flex; flex-direction: column; align-items: center; gap: 16px; font-family: 'Inter', system-ui, sans-serif; color: #0f172a; position: relative; min-width: 300px;">
+            <button type="button" id="close-match" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center; color: #0f172a;">Confirm login</h3>
+            <p style="margin: 0; font-size: 13px; color: #475569; text-align: center; max-width: 240px; line-height: 1.45;">Approve the sign-in request on your paired UID.one dashboard or mobile app.</p>
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #DBEAFE; display: flex; align-items: center; justify-content: center; color: #2563EB; margin: 12px 0; box-shadow: 0 0 20px rgba(37, 99, 235, 0.22); animation: pulse 2s infinite;">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-               <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-               <span style="font-size: 12px; color: #64748b;">Waiting for approval...</span>
+              <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+              <span style="font-size: 12px; color: #64748b;">Waiting for approval...</span>
             </div>
             <style>
               @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -278,17 +312,40 @@ function injectIcon(input: HTMLInputElement): void {
         </div>
       `;
       document.body.appendChild(overlay);
-      overlay.querySelector('#close-match')?.addEventListener('click', () => overlay.remove());
 
       const wsBase = import.meta.env.VITE_WS_BASE || 'wss://api.uid.one';
       const wsUrl = `${wsBase}/ws/challenges/${challengeId}/`;
       const ws = new WebSocket(wsUrl);
+
+      const cleanupMatch = () => {
+        document.removeEventListener('keydown', onMatchEsc, true);
+        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+          ws.close();
+        }
+        overlay.remove();
+      };
+
+      const onMatchEsc = (e: KeyboardEvent) => {
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          cleanupMatch();
+        }
+      };
+      document.addEventListener('keydown', onMatchEsc, true);
+
+      overlay.querySelector('#close-match')?.addEventListener('click', cleanupMatch);
+      overlay.querySelector('#uid-match-backdrop')?.addEventListener('click', (ev) => {
+        if (ev.target === ev.currentTarget) cleanupMatch();
+      });
 
       ws.onmessage = async (event) => {
         try {
           const data = JSON.parse(event.data);
           if (data.status === 'APPROVED' && data.encrypted_payload) {
             ws.close();
+            document.removeEventListener('keydown', onMatchEsc, true);
             const decryptRes = await new Promise<any>((resolve) => {
               chrome.runtime.sendMessage({ type: 'DECRYPT_PAYLOAD', token: challengeId, encrypted_payload: data.encrypted_payload }, resolve);
             });
@@ -301,8 +358,8 @@ function injectIcon(input: HTMLInputElement): void {
                     <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Approved!</h3>
-                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Login successful. Auto-filling...</p>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Approved</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Sign-in verified. Auto-filling credentials...</p>
                   </div>
                 `;
               }
@@ -318,17 +375,18 @@ function injectIcon(input: HTMLInputElement): void {
               }, 500);
             } else {
               if (container) {
+                document.addEventListener('keydown', onMatchEsc, true);
                 container.innerHTML = `
-                  <button id="close-match-error" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 16px;">✕</button>
+                  <button type="button" id="close-match-error" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
                     <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                     </div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Failed</h3>
-                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Could not inject password.</p>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Sign-in failed</h3>
+                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 220px;">Could not inject credentials.</p>
                   </div>
                 `;
-                container.querySelector('#close-match-error')?.addEventListener('click', () => overlay.remove());
+                container.querySelector('#close-match-error')?.addEventListener('click', cleanupMatch);
               }
             }
           }
@@ -349,7 +407,7 @@ function injectIcon(input: HTMLInputElement): void {
   icon.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const form = input.closest('form');
     let username = '';
     if (form) {
@@ -357,10 +415,10 @@ function injectIcon(input: HTMLInputElement): void {
       if (usernameInput) username = usernameInput.value.trim();
     }
     if (!username) {
-      alert(chrome.i18n.getMessage("errorNoUsernameProvided") || "Please enter your email or username first to use your Passkey.");
+      alert(chrome.i18n.getMessage("errorNoUsernameProvided") || "Enter your email or username first to sign in with passkey.");
       return;
     }
-    
+
     await performOOBAuth(username, input);
   });
 

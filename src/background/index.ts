@@ -907,13 +907,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         if (chrome.runtime.lastError || !response || !response.success) {
           console.warn('[uid.one] Could not fetch PDF bytes via content script, opening signer page with direct URL:', chrome.runtime.lastError?.message || response?.error);
           chrome.tabs.create({
-            url: chrome.runtime.getURL(`pdf-signer.html?url=${encodeURIComponent(pdfUrl)}`)
+            url: chrome.runtime.getURL(`signer.html?url=${encodeURIComponent(pdfUrl)}`)
           });
         } else {
           const cacheKey = `pdf_cache_${Date.now()}`;
           chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
             chrome.tabs.create({
-              url: chrome.runtime.getURL(`pdf-signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`)
+              url: chrome.runtime.getURL(`signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`)
             });
           });
         }

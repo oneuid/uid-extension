@@ -1,7 +1,15 @@
 import './style.css'
 
+function syncDocumentLocale() {
+  const uiLang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'en').trim();
+  document.documentElement.lang = uiLang;
+  document.documentElement.dir = uiLang.toLowerCase().startsWith('ar') ? 'rtl' : 'ltr';
+}
+
 function updateUI() {
   if (!chrome.runtime?.id) return;
+
+  syncDocumentLocale();
 
   chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, (pairingRes) => {
     const isPaired = pairingRes?.isPaired;
@@ -11,6 +19,7 @@ function updateUI() {
 
       const app = document.querySelector<HTMLDivElement>('#app')!;
       const i18n = (key: string) => chrome.i18n.getMessage(key);
+      const dlpLabel = i18n('activeDlpInterceptor') || 'Active DLP shield';
 
       app.innerHTML = `
         <div class="header">
@@ -18,7 +27,7 @@ function updateUI() {
             <span class="brand-dot"></span>
             UID Link
           </div>
-          <span style="font-size: 10px; font-weight: 500; color: var(--text-muted);">v${chrome.runtime.getManifest().version}</span>
+          <span class="tabular-nums" style="font-size: 10px; font-weight: 500; color: var(--text-muted);">v${chrome.runtime.getManifest().version}</span>
         </div>
 
         <div style="flex: 1; display: flex; flex-direction: column; gap: 14px;">
@@ -51,15 +60,15 @@ function updateUI() {
             </div>
             <div class="stats-grid">
               <div class="stat-box">
-                <div class="stat-value">${stats.cookies_blocked}</div>
+                <div class="stat-value tabular-nums">${stats.cookies_blocked}</div>
                 <div class="stat-label">${i18n('cookiesGuard')}</div>
               </div>
               <div class="stat-box">
-                <div class="stat-value">${stats.exif_stripped}</div>
+                <div class="stat-value tabular-nums">${stats.exif_stripped}</div>
                 <div class="stat-label">${i18n('exifStripped')}</div>
               </div>
               <div class="stat-box">
-                <div class="stat-value">${stats.otp_cleared}</div>
+                <div class="stat-value tabular-nums">${stats.otp_cleared}</div>
                 <div class="stat-label">${i18n('inputsWiped')}</div>
               </div>
             </div>
@@ -76,12 +85,12 @@ function updateUI() {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 </div>
                 <div class="row-content">
-                  <div class="row-title">${i18n('activeDlpInterceptor')}</div>
+                  <div class="row-title">${dlpLabel}</div>
                   <div class="row-desc">${i18n('activeDlpInterceptorDesc')}</div>
                 </div>
               </div>
               <label class="switch">
-                <input type="checkbox" id="toggle-dlp" checked>
+                <input type="checkbox" id="toggle-dlp" aria-label="${dlpLabel}" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -89,14 +98,13 @@ function updateUI() {
         </div>
 
         <div class="footer">
-          <a href="https://uid.one/profile" target="_blank" class="text-link">
-            Xem chi tiết trên web →
+          <a href="https://uid.one/profile" target="_blank" rel="noopener noreferrer" class="text-link">
+            ${i18n('viewWebProfile') || 'Open web vault'}
           </a>
-          <span style="font-size: 9px; color: var(--text-muted);">UID.one</span>
+          <span style="font-size: 10px; color: var(--text-muted);">UID.one</span>
         </div>
       `;
 
-      // Set up switch listener
       const toggleDlp = document.getElementById('toggle-dlp') as HTMLInputElement;
       if (toggleDlp) {
         chrome.storage.local.get('settings_otp_shield').then(res => {

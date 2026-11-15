@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Seguridad e identidad"
   },
   "extensionDesc": {
     "message": "Seguridad Zero-Trust para UID.one. Aplica protección DLP, vinculación de sesión y anti-rastreo."
@@ -66,10 +66,10 @@
     "message": "Firmando..."
   },
   "dialogTitle": {
-    "message": "VERIFICACIÓN DE FIRMA DIGITAL"
+    "message": "Verificación de firma digital"
   },
   "dialogDesc": {
-    "message": "Abra su aplicación móvil UID.one o visite <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> para seleccionar el número correspondiente."
+    "message": "Abra su aplicación móvil UID.one o visite <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> para seleccionar el número correspondiente."
   },
   "dialogCancel": {
     "message": "Cancelar solicitud"
@@ -96,7 +96,7 @@
     "message": "Hora de firma"
   },
   "signatureVerify": {
-    "message": "Verificar identidad →"
+    "message": "Verificar identidad"
   },
   "alertLinkFirst": {
     "message": "Vincule su cuenta de UID.one antes de realizar una firma digital."
@@ -252,7 +252,7 @@
     "message": "Cloud CA remota"
   },
   "pdfSignerMethodP12": {
-    "message": "Subir archivo de certificado (.p12 / .pfx)"
+    "message": "Subir archivo de certificado (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "Aplicación cliente CA:"
@@ -309,7 +309,7 @@
     "message": "Nombre de usuario:"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Subir archivo PFX/P12:"
+    "message": "Subir archivo PKCS#12:"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Contraseña del certificado:"
@@ -318,7 +318,7 @@
     "message": "Instrucciones"
   },
   "pdfSignerInstructionsText": {
-    "message": "Seleccione la página de destino y arrastre el cuadro verde para colocar su sello de firma. Haga clic en el botón de abajo para firmar el PDF."
+    "message": "Seleccione la página de destino y arrastre el recuadro de firma para colocar su sello digital. Haga clic en el botón inferior para firmar el PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Ir al panel de UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Por favor, ingrese su contraseña."
+  },
+  "viewWebProfile": {
+    "message": "Abrir bóveda web"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Página anterior"
+  },
+  "pdfSignerNextPage": {
+    "message": "Página siguiente"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Ingrese PIN"
   }
 }

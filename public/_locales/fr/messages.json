@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "UID Link - security & identity"
+    "message": "UID Link · Sécurité et identité"
   },
   "extensionDesc": {
     "message": "Sécurité client Zero-Trust pour UID.one. Impose la protection DLP, la liaison de session et l'anti-traçage."
@@ -66,10 +66,10 @@
     "message": "Signature en cours..."
   },
   "dialogTitle": {
-    "message": "VÉRIFICATION DE LA SIGNATURE NUMÉRIQUE"
+    "message": "Vérification de la signature numérique"
   },
   "dialogDesc": {
-    "message": "Veuillez ouvrir votre application mobile UID.one ou visiter <a href='https://uid.one' target='_blank' style='color:#38bdf8; text-decoration:underline;'>uid.one</a> pour sélectionner le numéro correspondant."
+    "message": "Veuillez ouvrir votre application mobile UID.one ou visiter <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> pour sélectionner le numéro correspondant."
   },
   "dialogCancel": {
     "message": "Annuler la demande"
@@ -96,7 +96,7 @@
     "message": "Heure de signature"
   },
   "signatureVerify": {
-    "message": "Vérifier l'identité →"
+    "message": "Vérifier l'identité"
   },
   "alertLinkFirst": {
     "message": "Veuillez lier votre compte UID.one avant d'effectuer une signature numérique."
@@ -249,10 +249,10 @@
     "message": "Jeton USB (Carte à puce)"
   },
   "pdfSignerMethodRemote": {
-    "message": "Remote cloud CA"
+    "message": "Autorité cloud distante"
   },
   "pdfSignerMethodP12": {
-    "message": "Télécharger le fichier de certificat (.p12 / .pfx)"
+    "message": "Télécharger le fichier de certificat (.p12, .pfx)"
   },
   "pdfSignerLabelAgentStatus": {
     "message": "Application cliente CA :"
@@ -309,7 +309,7 @@
     "message": "Nom d'utilisateur :"
   },
   "pdfSignerLabelUploadP12": {
-    "message": "Télécharger le fichier PFX/P12 :"
+    "message": "Télécharger le fichier PKCS#12 :"
   },
   "pdfSignerLabelCertPassword": {
     "message": "Mot de passe du certificat :"
@@ -318,7 +318,7 @@
     "message": "Instructions"
   },
   "pdfSignerInstructionsText": {
-    "message": "Sélectionnez la page cible et faites glisser la boîte verte pour positionner votre tampon de signature. Cliquez sur le bouton ci-dessous pour signer le PDF."
+    "message": "Sélectionnez la page cible et faites glisser le cadre de signature pour positionner votre tampon numérique. Cliquez sur le bouton ci-dessous pour signer le PDF."
   },
   "pdfSignerLinkDashboard": {
     "message": "Aller au tableau de bord UID.one"
@@ -367,5 +367,17 @@
   },
   "pdfSignerRemotePasswordAlert": {
     "message": "Veuillez saisir votre mot de passe."
+  },
+  "viewWebProfile": {
+    "message": "Ouvrir le coffre web"
+  },
+  "pdfSignerPrevPage": {
+    "message": "Page précédente"
+  },
+  "pdfSignerNextPage": {
+    "message": "Page suivante"
+  },
+  "pdfSignerPinPlaceholder": {
+    "message": "Saisir le code PIN"
   }
 }
