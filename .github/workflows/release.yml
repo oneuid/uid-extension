@@ -2,30 +2,53 @@ name: Release Extension
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'
+      - "v*"
+    paths-ignore:
+      - ".agents/**"
+      - ".agent/**"
+      - "docs/**"
+      - "**/*.docx"
+      - "README.md"
+      - "CHANGELOG.md"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v2.5.5)"
+        required: false
+        default: ""
+
+concurrency:
+  group: uid-link-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+
+permissions:
+  contents: read
 
 jobs:
   build-extensions:
+    name: Build Chrome, Edge & Firefox Extensions (Ubuntu 1x)
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build and Package Extensions
-        run: npm run build:publish
+        run: pnpm run build:publish
 
       - name: Upload Chrome Extension Artifact
         uses: actions/upload-artifact@v4
@@ -46,31 +69,33 @@ jobs:
           path: uid-link-firefox.zip
 
   build-safari:
+    name: Convert & Package Safari Xcode Project
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build Chrome distribution (basis for Safari conversion)
-        run: npm run build
+        run: pnpm run build
 
       - name: Convert to Safari Web Extension
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
-          xcrun safari-web-extension-converter dist/chrome \
-            --no-open \
-            --swift \
-            --force \
-            --app-name "UID Link" \
-            --bundle-identifier "one.uid.link"
+          xcrun safari-web-extension-converter dist/chrome             --no-open             --swift             --force             --app-name "UID Link"             --bundle-identifier "one.uid.link"
           python3 scripts/prepare-safari-project.py
 
       - name: Compress Safari Xcode Project
@@ -83,6 +108,8 @@ jobs:
           path: uid-link-safari-xcode.zip
 
   create-release:
+    name: Create Draft GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [build-extensions, build-safari]
     runs-on: ubuntu-latest
     permissions:
@@ -90,6 +117,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        id: meta
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          elif [ "$REF_TYPE" = "tag" ]; then
+            TAG="$REF_NAME"
+          else
+            VER=$(node -p "require('./package.json').version")
+            TAG="v${VER}"
+          fi
+          CLEAN="${TAG#v}"
+          echo "tag=v${CLEAN}" >> "$GITHUB_OUTPUT"
+          echo "version=${CLEAN}" >> "$GITHUB_OUTPUT"
 
       - name: Download Chrome Extension
         uses: actions/download-artifact@v4
@@ -116,9 +162,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          name: 'UID Link v${{ github.ref_name }}'
-          body: 'Pre-compiled browser extensions. Download the appropriate ZIP file and install it on your browser.'
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: "UID Link v${{ steps.meta.outputs.version }}"
+          body: "Pre-compiled browser extensions. Download the appropriate ZIP file and install it on your browser."
           draft: true
           prerelease: false
           files: |
