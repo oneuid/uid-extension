@@ -40,8 +40,6 @@ jobs:
         with:
           version: 10.26.2
 
-        with:
-          version: 10.26.2
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -85,8 +83,6 @@ jobs:
         with:
           version: 10.26.2
 
-        with:
-          version: 10.26.2
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
