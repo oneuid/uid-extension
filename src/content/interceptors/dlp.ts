@@ -305,41 +305,62 @@ async function stripMetadata(file: File): Promise<File> {
 
 export class FileUploadInterceptor {
   private observer: MutationObserver | null = null;
+  private isExifEnabled = false;
+  private isDlpEnabled = false;
 
   init(): void {
-    chrome.storage.local.get('settings_exif_stripper').then(res => {
-      if (res.settings_exif_stripper === false) {
-        console.log('[uid.one] FileUploadInterceptor (EXIF Stripper) is disabled.');
-        return;
+    chrome.storage.local.get(['settings_exif_stripper', 'settings_otp_shield']).then((res) => {
+      this.isExifEnabled = res.settings_exif_stripper === true;
+      this.isDlpEnabled = res.settings_otp_shield === true;
+      if (this.isExifEnabled || this.isDlpEnabled) {
+        this.attach();
       }
-      this.scanFileInputs(document.querySelectorAll('input[type="file"]'));
+    });
 
-      this.observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          mutation.addedNodes.forEach(node => {
-            if (node instanceof Element) {
-              const inputs = node.querySelectorAll('input[type="file"]');
-              this.scanFileInputs(inputs);
-            }
-          });
-        }
-      });
-
-      this.observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-
-      document.addEventListener('drop', this.handleDrop.bind(this), true);
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== 'local') return;
+      if (changes.settings_exif_stripper) {
+        this.isExifEnabled = changes.settings_exif_stripper.newValue === true;
+      }
+      if (changes.settings_otp_shield) {
+        this.isDlpEnabled = changes.settings_otp_shield.newValue === true;
+      }
+      if (this.isExifEnabled || this.isDlpEnabled) {
+        this.attach();
+      }
     });
   }
 
+  private attach(): void {
+    if (this.observer) return;
+    this.scanFileInputs(document.querySelectorAll('input[type="file"]'));
+
+    this.observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof Element) {
+            const inputs = node.querySelectorAll('input[type="file"]');
+            this.scanFileInputs(inputs);
+          }
+        });
+      }
+    });
+
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    document.addEventListener('drop', this.handleDrop.bind(this), true);
+  }
+
   private scanFileInputs(inputs: NodeListOf<Element>): void {
-    inputs.forEach(input => {
+    inputs.forEach((input) => {
       if (input.getAttribute('data-uid-scanned')) return;
       input.setAttribute('data-uid-scanned', 'true');
 
       input.addEventListener('change', async (e) => {
+        if (!this.isExifEnabled && !this.isDlpEnabled) return;
         const inputEl = e.target as HTMLInputElement;
         if (inputEl.getAttribute('data-uid-metadata-cleaning') === 'true') {
           return;
@@ -353,31 +374,35 @@ export class FileUploadInterceptor {
         const files = inputEl.files;
         if (!files || files.length === 0) return;
 
-        inputEl.setAttribute('data-uid-metadata-cleaning', 'true');
-        try {
-          const cleanedFiles: File[] = [];
-          let modified = false;
-          for (let i = 0; i < files.length; i++) {
-            const originalFile = files[i];
-            const cleanFile = await stripMetadata(originalFile);
-            if (cleanFile !== originalFile) {
-              modified = true;
+        if (this.isExifEnabled) {
+          inputEl.setAttribute('data-uid-metadata-cleaning', 'true');
+          try {
+            const cleanedFiles: File[] = [];
+            let modified = false;
+            for (let i = 0; i < files.length; i++) {
+              const originalFile = files[i];
+              const cleanFile = await stripMetadata(originalFile);
+              if (cleanFile !== originalFile) {
+                modified = true;
+              }
+              cleanedFiles.push(cleanFile);
             }
-            cleanedFiles.push(cleanFile);
-          }
 
-          if (modified) {
-            const dataTransfer = new DataTransfer();
-            cleanedFiles.forEach(f => dataTransfer.items.add(f));
-            inputEl.files = dataTransfer.files;
-            inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-            return;
+            if (modified) {
+              const dataTransfer = new DataTransfer();
+              cleanedFiles.forEach((f) => dataTransfer.items.add(f));
+              inputEl.files = dataTransfer.files;
+              inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+              return;
+            }
+          } finally {
+            inputEl.removeAttribute('data-uid-metadata-cleaning');
           }
-        } finally {
-          inputEl.removeAttribute('data-uid-metadata-cleaning');
         }
 
-        await this.handleFiles(Array.from(inputEl.files || []), inputEl);
+        if (this.isDlpEnabled) {
+          await this.handleFiles(Array.from(inputEl.files || []), inputEl);
+        }
       });
     });
   }
@@ -433,6 +458,7 @@ export class FileUploadInterceptor {
   }
 
   private async handleDrop(e: DragEvent): Promise<void> {
+    if (!this.isExifEnabled && !this.isDlpEnabled) return;
     if (!e.dataTransfer?.files?.length) return;
     if (e.defaultPrevented) return;
 
@@ -444,58 +470,66 @@ export class FileUploadInterceptor {
 
     const files = Array.from(e.dataTransfer.files);
 
-    // DLP Block Check first
-    for (const file of files) {
-      const result = await this.scanFile(file);
-      if (result.blocked) {
+    if (this.isDlpEnabled) {
+      for (const file of files) {
+        const result = await this.scanFile(file);
+        if (result.blocked) {
+          e.preventDefault();
+          e.stopPropagation();
+          await showDLPWarning({ context: 'drag_drop', filename: file.name, result });
+          return;
+        }
+      }
+    }
+
+    if (this.isExifEnabled) {
+      let modified = false;
+      const cleanedFiles: File[] = [];
+      for (const file of files) {
+        const cleanFile = await stripMetadata(file);
+        if (cleanFile !== file) {
+          modified = true;
+        }
+        cleanedFiles.push(cleanFile);
+      }
+
+      if (modified) {
         e.preventDefault();
         e.stopPropagation();
-        await showDLPWarning({ context: 'drag_drop', filename: file.name, result });
-        return;
+
+        targetEl.setAttribute('data-uid-dropped-clean', 'true');
+
+        const dataTransfer = new DataTransfer();
+        cleanedFiles.forEach((f) => dataTransfer.items.add(f));
+
+        const cleanDropEvent = new DragEvent('drop', {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: dataTransfer,
+        });
+        targetEl.dispatchEvent(cleanDropEvent);
       }
-    }
-
-    // EXIF strip
-    let modified = false;
-    const cleanedFiles: File[] = [];
-    for (const file of files) {
-      const cleanFile = await stripMetadata(file);
-      if (cleanFile !== file) {
-        modified = true;
-      }
-      cleanedFiles.push(cleanFile);
-    }
-
-    if (modified) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      targetEl.setAttribute('data-uid-dropped-clean', 'true');
-
-      const dataTransfer = new DataTransfer();
-      cleanedFiles.forEach(f => dataTransfer.items.add(f));
-
-      const cleanDropEvent = new DragEvent('drop', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dataTransfer
-      });
-      targetEl.dispatchEvent(cleanDropEvent);
     }
   }
 }
 
 export class ClipboardInterceptor {
-  private isDlpActive = true;
+  private isDlpActive = false;
+  private isAuditEnabled = false;
 
   init(): void {
-    chrome.storage.local.get('settings_otp_shield').then(res => {
-      this.isDlpActive = res.settings_otp_shield !== false;
+    chrome.storage.local.get(['settings_otp_shield', 'settings_clipboard_audit']).then((res) => {
+      this.isDlpActive = res.settings_otp_shield === true;
+      this.isAuditEnabled = res.settings_clipboard_audit === true;
     });
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'local' && changes.settings_otp_shield) {
-        this.isDlpActive = changes.settings_otp_shield.newValue !== false;
+      if (areaName !== 'local') return;
+      if (changes.settings_otp_shield) {
+        this.isDlpActive = changes.settings_otp_shield.newValue === true;
+      }
+      if (changes.settings_clipboard_audit) {
+        this.isAuditEnabled = changes.settings_clipboard_audit.newValue === true;
       }
     });
 
@@ -539,7 +573,7 @@ export class ClipboardInterceptor {
   }
 
   private handleCopy(e: ClipboardEvent): void {
-    if (!this.isDlpActive) return;
+    if (!this.isDlpActive && !this.isAuditEnabled) return;
 
     const text = window.getSelection()?.toString();
     if (!text) return;
@@ -621,36 +655,29 @@ export class ClipboardInterceptor {
     }
 
     if (totalSensitiveCount > 0) {
-      const isBulk = totalSensitiveCount >= 3 || maxSingleTypeCount >= 3;
+      const isBulk = this.isDlpActive && (totalSensitiveCount >= 3 || maxSingleTypeCount >= 3);
 
       if (isBulk) {
         e.preventDefault();
         if (e.clipboardData) {
           e.clipboardData.setData('text/plain', '[SECURE DATA BLOCKED BY UID.ONE]');
         }
-        
-        chrome.runtime.sendMessage({
-          type: 'SHOW_NOTIFICATION',
-          title: 'Security Alert',
-          message: 'Bulk copying of sensitive customer data (email/phone/credentials) is disabled.',
-        });
 
         chrome.runtime.sendMessage({
-          type: 'AUDIT_COPY',
-          domain: window.location.hostname,
-          sensitive_type: detectedTypes.join(','),
-          sample: '[BULK COPY BLOCKED]',
-          count: totalSensitiveCount,
-          blocked: true
+          type: 'SHOW_NOTIFICATION',
+          title: 'Security alert',
+          message: 'Bulk copying of sensitive customer data (email, phone, or credentials) is disabled.',
         });
-      } else {
+      }
+
+      if (this.isAuditEnabled) {
         chrome.runtime.sendMessage({
           type: 'AUDIT_COPY',
           domain: window.location.hostname,
           sensitive_type: detectedTypes.join(','),
-          sample: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
           count: totalSensitiveCount,
-          blocked: false
+          length: text.length,
+          blocked: isBulk,
         });
       }
     }
@@ -658,6 +685,9 @@ export class ClipboardInterceptor {
 }
 
 export class FormInterceptor {
+  private isDlpActive = false;
+  private attached = false;
+
   private isWhitelistedDomain(hostname: string): boolean {
     const whitelist = [
       'uid.one',
@@ -669,46 +699,65 @@ export class FormInterceptor {
 
   init(): void {
     chrome.storage.local.get('settings_otp_shield').then(res => {
-      if (res.settings_otp_shield === false) return;
+      this.isDlpActive = res.settings_otp_shield === true;
+      if (this.isDlpActive) {
+        this.attach();
+      }
+    });
 
-      document.addEventListener('submit', this.handleSubmit.bind(this), true);
-      
-      document.addEventListener('click', (e) => {
-        if (!this.isWhitelistedDomain(window.location.hostname)) return;
-        const target = e.target as HTMLElement;
-        const btn = target.closest('button, input[type="submit"]');
-        if (!btn) return;
-        
-        const isSubmitBtn = btn.getAttribute('type') === 'submit' || 
-                            /submit|login|verify|confirm|pay/i.test(btn.textContent || '') ||
-                            /submit|login|verify|confirm|pay/i.test((btn as HTMLInputElement).value || '');
-        
-        if (isSubmitBtn) {
-          const form = btn.closest('form');
-          if (form) {
-            this.wipeSensitiveInputs(form);
-          } else {
-            const container = btn.parentElement;
-            if (container) {
-              const sensitiveInputs = container.querySelectorAll<HTMLInputElement>(
-                'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
-              );
-              sensitiveInputs.forEach(input => {
-                setTimeout(() => {
-                  if (input.value) {
-                    input.value = '';
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                  }
-                }, 300);
-              });
-            }
-          }
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes.settings_otp_shield) {
+        this.isDlpActive = changes.settings_otp_shield.newValue === true;
+        if (this.isDlpActive) {
+          this.attach();
         }
-      }, true);
+      }
     });
   }
 
+  private attach(): void {
+    if (this.attached) return;
+    this.attached = true;
+
+    document.addEventListener('submit', this.handleSubmit.bind(this), true);
+
+    document.addEventListener('click', (e) => {
+      if (!this.isDlpActive) return;
+      if (!this.isWhitelistedDomain(window.location.hostname)) return;
+      const target = e.target as HTMLElement;
+      const btn = target.closest('button, input[type="submit"]');
+      if (!btn) return;
+
+      const isSubmitBtn = btn.getAttribute('type') === 'submit' ||
+                          /submit|login|verify|confirm|pay/i.test(btn.textContent || '') ||
+                          /submit|login|verify|confirm|pay/i.test((btn as HTMLInputElement).value || '');
+
+      if (isSubmitBtn) {
+        const form = btn.closest('form');
+        if (form) {
+          this.wipeSensitiveInputs(form);
+        } else {
+          const container = btn.parentElement;
+          if (container) {
+            const sensitiveInputs = container.querySelectorAll<HTMLInputElement>(
+              'input[type="password"], input[autocomplete*="one-time-code" i], input[name*="otp" i], input[name*="cvv" i], input[name*="cvc" i]'
+            );
+            sensitiveInputs.forEach(input => {
+              setTimeout(() => {
+                if (input.value) {
+                  input.value = '';
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }, 300);
+            });
+          }
+        }
+      }
+    }, true);
+  }
+
   private async handleSubmit(e: SubmitEvent): Promise<void> {
+    if (!this.isDlpActive) return;
     const form = e.target as HTMLFormElement;
 
     if (form.getAttribute('data-uid-owned')) return;
@@ -746,36 +795,21 @@ export class FormInterceptor {
   private wipeSensitiveInputs(form: HTMLFormElement): void {
     if (!this.isWhitelistedDomain(window.location.hostname)) return;
     const sensitiveInputs = form.querySelectorAll<HTMLInputElement>(
-      'input[type="password"], input[name*="otp" i], input[name*="code" i], input[autocomplete*="one-time-code" i], input[name*="card" i], input[name*="cvv" i], input[name*="cvc" i]'
+      'input[type="password"], input[autocomplete*="one-time-code" i], input[name*="otp" i], input[name*="cvv" i], input[name*="cvc" i]'
     );
-    
+
     sensitiveInputs.forEach(input => {
       setTimeout(() => {
         if (input.value) {
-          console.log(`[uid.one] CookieGuard / Privacy wiped sensitive value from input: ${input.name || input.id}`);
           input.value = '';
           input.dispatchEvent(new Event('input', { bubbles: true }));
           input.dispatchEvent(new Event('change', { bubbles: true }));
           try {
             chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'otp_cleared' });
-          } catch (e) {}
+          } catch {}
         }
       }, 300);
     });
-
-    try {
-      navigator.clipboard.readText().then(text => {
-        const result = scanContent(text);
-        if (result.riskLevel === 'critical' || result.riskLevel === 'high') {
-          navigator.clipboard.writeText('').then(() => {
-            console.log('[uid.one] CookieGuard / Privacy wiped sensitive content from clipboard cache.');
-            try {
-              chrome.runtime.sendMessage({ type: 'INC_STAT', key: 'otp_cleared' });
-            } catch (e) {}
-          });
-        }
-      }).catch(() => {});
-    } catch (e) {}
   }
 
   private extractFormContent(form: HTMLFormElement): string {
@@ -794,29 +828,46 @@ export class FormInterceptor {
 }
 
 export class TextDLPShield {
+  private isDlpActive = false;
+
   init(): void {
-    chrome.storage.local.get('settings_otp_shield').then(res => {
-      if (res.settings_otp_shield === false) return;
-      
-      const textInputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
-      textInputs.forEach(input => {
-        if (input.getAttribute('data-uid-dlp-shield')) return;
-        input.setAttribute('data-uid-dlp-shield', 'true');
-        
-        input.addEventListener('blur', (e) => {
-          const el = e.target as HTMLInputElement;
-          const val = el.value || '';
-          if (val.trim()) {
-            const scan = scanContent(val);
-            if (scan.blocked) {
-              chrome.runtime.sendMessage({
-                type: 'SHOW_NOTIFICATION',
-                title: 'Sensitive Data Alert',
-                message: `Potential sensitive data (${scan.findings.map(f => f.type).join(', ')}) detected in input field.`
-              });
-            }
+    chrome.storage.local.get('settings_otp_shield').then((res) => {
+      this.isDlpActive = res.settings_otp_shield === true;
+      if (this.isDlpActive) {
+        this.attach();
+      }
+    });
+
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes.settings_otp_shield) {
+        this.isDlpActive = changes.settings_otp_shield.newValue === true;
+        if (this.isDlpActive) {
+          this.attach();
+        }
+      }
+    });
+  }
+
+  private attach(): void {
+    const textInputs = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
+    textInputs.forEach((input) => {
+      if (input.getAttribute('data-uid-dlp-shield')) return;
+      input.setAttribute('data-uid-dlp-shield', 'true');
+
+      input.addEventListener('blur', (e) => {
+        if (!this.isDlpActive) return;
+        const el = e.target as HTMLInputElement;
+        const val = el.value || '';
+        if (val.trim()) {
+          const scan = scanContent(val);
+          if (scan.blocked) {
+            chrome.runtime.sendMessage({
+              type: 'SHOW_NOTIFICATION',
+              title: 'Sensitive data alert',
+              message: `Potential sensitive data (${scan.findings.map((f) => f.type).join(', ')}) detected in input field.`,
+            });
           }
-        });
+        }
       });
     });
   }

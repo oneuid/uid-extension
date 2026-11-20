@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "输入 PIN 码"
+  },
+  "shieldDlpTitle": {
+    "message": "DLP 输入与粘贴防护"
+  },
+  "shieldDlpDesc": {
+    "message": "扫描表单提交、文件上传与敏感粘贴内容"
+  },
+  "shieldExifTitle": {
+    "message": "EXIF 元数据清除"
+  },
+  "shieldExifDesc": {
+    "message": "上传时移除 JPEG 位置与相机元数据"
+  },
+  "shieldCookieTitle": {
+    "message": "跟踪 Cookie 防护"
+  },
+  "shieldCookieDesc": {
+    "message": "清理已知的第三方分析 Cookie"
+  },
+  "shieldAuditTitle": {
+    "message": "剪贴板审计元数据"
+  },
+  "shieldAuditDesc": {
+    "message": "仅记录类型、数量与长度，不发送内容"
+  },
+  "shieldScreenTitle": {
+    "message": "切换标签页模糊 (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "标签页隐藏时模糊 UID.one 页面"
+  },
+  "vaultFillTitle": {
+    "message": "站点集成与密码填充"
+  },
+  "vaultFillOffDesc": {
+    "message": "此站点默认关闭"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "代理端点 (HTTPS)："
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "请输入有效的 HTTPS 代理端点 URL 以连接。"
   }
 }

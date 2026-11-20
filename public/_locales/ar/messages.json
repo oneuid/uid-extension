@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "أدخل رمز PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "درع إدخال ولصق DLP"
+  },
+  "shieldDlpDesc": {
+    "message": "فحص إرسال النماذج والملفات المرفوعة واللصق الحساس"
+  },
+  "shieldExifTitle": {
+    "message": "مزيل بيانات EXIF الوصفية"
+  },
+  "shieldExifDesc": {
+    "message": "إزالة بيانات الموقع والكاميرا من صور JPEG عند الرفع"
+  },
+  "shieldCookieTitle": {
+    "message": "حارس ملفات تعريف الارتباط للتتبع"
+  },
+  "shieldCookieDesc": {
+    "message": "تنظيف ملفات تعريف الارتباط التحليلية المعروفة للجهات الخارجية"
+  },
+  "shieldAuditTitle": {
+    "message": "بيانات تدقيق الحافظة"
+  },
+  "shieldAuditDesc": {
+    "message": "تسجيل النوع والعدد والطول عند النسخ دون إرسال المحتوى"
+  },
+  "shieldScreenTitle": {
+    "message": "تمويه تبديل التبويب (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "تمويه صفحات UID.one عند إخفاء علامة التبويب"
+  },
+  "vaultFillTitle": {
+    "message": "تكامل الموقع وتعبئة الخزنة"
+  },
+  "vaultFillOffDesc": {
+    "message": "معطل افتراضيا لهذا الموقع"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "نقطة نهاية الوكيل (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "أدخل عنوان URL صالحا لوكيل HTTPS للاتصال."
   }
 }

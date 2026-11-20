@@ -453,13 +453,13 @@
         <select class="control-select" id="signing-cert-select" aria-label="Signing method" style="margin-bottom: 12px;">
           <option value="uid" data-i18n="pdfSignerMethodUid">UID.one cryptographic trust (default)</option>
           <option value="local_agent" data-i18n="pdfSignerMethodLocal">USB token (smart card)</option>
-          <option value="remote_ca" data-i18n="pdfSignerMethodRemote">Remote cloud CA</option>
           <option value="p12_file" data-i18n="pdfSignerMethodP12">Upload certificate file (.p12, .pfx)</option>
         </select>
 
         <!-- Local Agent Config Panel -->
         <div id="panel-local-agent" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
-          <input type="hidden" id="local-agent-url" value="">
+          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelAgentUrl">Agent endpoint (HTTPS):</div>
+          <input type="url" id="local-agent-url" data-i18n-placeholder="pdfSignerPlaceholderAgentUrl" placeholder="https://127.0.0.1:8443" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(11, 18, 32, 0.7); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box;">
 
           <!-- USB Status Card -->
           <div id="usb-status-card" style="border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 12px; background: rgba(11, 18, 32, 0.6); font-size: 11px; display: flex; flex-direction: column; gap: 8px;">
@@ -483,38 +483,6 @@
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="pdfSignerLabelSelectCert">Select certificate:</div>
             <select class="control-select" id="local-cert-select" style="font-size: 11px; padding: 6px 8px;"></select>
           </div>
-        </div>
-
-        <!-- Remote CA Config Panel -->
-        <div id="panel-remote-ca" style="display: none; border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 4px; flex-direction: column; gap: 8px;">
-          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelCloudProvider">Cloud CA provider:</div>
-          <select class="control-select" id="remote-ca-provider" style="font-size: 11px; padding: 6px 8px; margin-bottom: 4px;">
-            <optgroup label="Vietnam providers" data-i18n-label="pdfSignerGroupVnProviders">
-              <option value="vnpt_smartca">VNPT SmartCA</option>
-              <option value="viettel_mysign">Viettel MySign</option>
-              <option value="misa_esign">MISA eSign</option>
-              <option value="fpt_esign">FPT.eSign</option>
-              <option value="bkav_ca">BKAV Remote CA</option>
-              <option value="ca2_smartca">CA2 Smart CA</option>
-              <option value="trustca">CMC TrustCA</option>
-            </optgroup>
-            <optgroup label="Global providers" data-i18n-label="pdfSignerGroupGlobalProviders">
-              <option value="digicert">DigiCert Document Signing</option>
-              <option value="globalsign">GlobalSign Atlas</option>
-              <option value="docusign">DocuSign Cloud CA</option>
-              <option value="adobe_sign">Adobe Acrobat Sign CA</option>
-              <option value="entrust">Entrust Cloud Signing</option>
-              <option value="infocert">InfoCert (Europe)</option>
-              <option value="swisscom">Swisscom Signing Service</option>
-              <option value="itsme">Itsme Sign (Belgium)</option>
-            </optgroup>
-          </select>
-
-          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelPersonalId">Username:</div>
-          <input type="text" id="remote-ca-user" data-i18n-placeholder="pdfSignerPlaceholderPersonalId" placeholder="Enter your username" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(11, 18, 32, 0.7); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box; margin-bottom: 4px;">
-
-          <div style="font-size: 11px; color: var(--text-muted);" data-i18n="pdfSignerLabelCloudPassword">Password:</div>
-          <input type="password" id="remote-ca-password" data-i18n-placeholder="pdfSignerPlaceholderCloudPassword" placeholder="Enter your password" style="width: 100%; padding: 6px 10px; border-radius: var(--radius-md); border: 1px solid var(--card-border); background: rgba(11, 18, 32, 0.7); color: var(--text-primary); font-size: 11px; outline: none; box-sizing: border-box;">
         </div>
 
         <!-- P12 File Upload Config Panel -->

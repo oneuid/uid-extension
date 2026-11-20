@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "輸入 PIN 碼"
+  },
+  "shieldDlpTitle": {
+    "message": "DLP 輸入與貼上防護"
+  },
+  "shieldDlpDesc": {
+    "message": "掃描表單提交、檔案上傳與敏感貼上內容"
+  },
+  "shieldExifTitle": {
+    "message": "EXIF 中繼資料清除"
+  },
+  "shieldExifDesc": {
+    "message": "上傳時移除 JPEG 位置與相機中繼資料"
+  },
+  "shieldCookieTitle": {
+    "message": "追蹤 Cookie 防護"
+  },
+  "shieldCookieDesc": {
+    "message": "清理已知的第三方分析 Cookie"
+  },
+  "shieldAuditTitle": {
+    "message": "剪貼簿稽核中繼資料"
+  },
+  "shieldAuditDesc": {
+    "message": "僅記錄類型、數量與長度，不傳送內容"
+  },
+  "shieldScreenTitle": {
+    "message": "切換分頁模糊 (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "分頁隱藏時模糊 UID.one 頁面"
+  },
+  "vaultFillTitle": {
+    "message": "網站整合與密碼填入"
+  },
+  "vaultFillOffDesc": {
+    "message": "此網站預設為關閉"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "代理端點 (HTTPS)："
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "請輸入有效的 HTTPS 代理端點 URL 以連線。"
   }
 }

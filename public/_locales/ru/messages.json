@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "Введите PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "Защита ввода и вставки DLP"
+  },
+  "shieldDlpDesc": {
+    "message": "Проверка форм, загрузок файлов и чувствительной вставки"
+  },
+  "shieldExifTitle": {
+    "message": "Очистка метаданных EXIF"
+  },
+  "shieldExifDesc": {
+    "message": "Удаление геолокации и данных камеры JPEG при загрузке"
+  },
+  "shieldCookieTitle": {
+    "message": "Защита от отслеживающих cookie"
+  },
+  "shieldCookieDesc": {
+    "message": "Очистка известных сторонних аналитических cookie"
+  },
+  "shieldAuditTitle": {
+    "message": "Метаданные аудита буфера обмена"
+  },
+  "shieldAuditDesc": {
+    "message": "Запись только типа, числа и длины без содержимого"
+  },
+  "shieldScreenTitle": {
+    "message": "Размытие при смене вкладки (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "Размывать страницы UID.one при скрытии вкладки"
+  },
+  "vaultFillTitle": {
+    "message": "Интеграция сайта и автозаполнение"
+  },
+  "vaultFillOffDesc": {
+    "message": "Отключено по умолчанию для этого сайта"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "Адрес агента (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "Введите действительный HTTPS-адрес агента для подключения."
   }
 }

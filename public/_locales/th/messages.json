@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "ป้อนรหัส PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "เกราะป้องกันการป้อนและวาง DLP"
+  },
+  "shieldDlpDesc": {
+    "message": "สแกนการส่งแบบฟอร์ม การอัปโหลด และการวางข้อมูลละเอียดอ่อน"
+  },
+  "shieldExifTitle": {
+    "message": "ตัวลบเมตาดาตา EXIF"
+  },
+  "shieldExifDesc": {
+    "message": "ลบข้อมูลตำแหน่งและกล้องจากไฟล์ JPEG เมื่ออัปโหลด"
+  },
+  "shieldCookieTitle": {
+    "message": "ตัวป้องกันคุกกี้ติดตาม"
+  },
+  "shieldCookieDesc": {
+    "message": "ล้างคุกกี้วิเคราะห์ของบุคคลที่สามที่รู้จัก"
+  },
+  "shieldAuditTitle": {
+    "message": "เมตาดาตาตรวจสอบคลิปบอร์ด"
+  },
+  "shieldAuditDesc": {
+    "message": "บันทึกประเภท จำนวน และความยาวโดยไม่ส่งเนื้อหา"
+  },
+  "shieldScreenTitle": {
+    "message": "เบลอหน้าจอเมื่อสลับแท็บ (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "เบลอหน้า UID.one เมื่อแท็บถูกซ่อน"
+  },
+  "vaultFillTitle": {
+    "message": "การเชื่อมต่อเว็บไซต์และกรอกรหัสผ่าน"
+  },
+  "vaultFillOffDesc": {
+    "message": "ปิดเป็นค่าเริ่มต้นสำหรับเว็บไซต์นี้"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "ปลายทางของเอเจนต์ (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "ป้อน URL ปลายทาง HTTPS ของเอเจนต์ที่ถูกต้องเพื่อเชื่อมต่อ"
   }
 }

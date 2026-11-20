@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "PINを入力"
+  },
+  "shieldDlpTitle": {
+    "message": "DLP 入力および貼り付け保護"
+  },
+  "shieldDlpDesc": {
+    "message": "フォーム送信、アップロード、機密貼り付けをスキャン"
+  },
+  "shieldExifTitle": {
+    "message": "EXIF メタデータ削除"
+  },
+  "shieldExifDesc": {
+    "message": "アップロード時に JPEG の位置情報とカメラ情報を削除"
+  },
+  "shieldCookieTitle": {
+    "message": "トラッキング Cookie ガード"
+  },
+  "shieldCookieDesc": {
+    "message": "既知のサードパーティ分析 Cookie を削除"
+  },
+  "shieldAuditTitle": {
+    "message": "クリップボード監査メタデータ"
+  },
+  "shieldAuditDesc": {
+    "message": "内容を送信せずコピーの種類・件数・長さのみを記録"
+  },
+  "shieldScreenTitle": {
+    "message": "タブ切替ブラー (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "タブが非表示のときに UID.one ページをぼかす"
+  },
+  "vaultFillTitle": {
+    "message": "サイト連携とボールト入力"
+  },
+  "vaultFillOffDesc": {
+    "message": "このサイトでは既定でオフです"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "エージェントエンドポイント (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "接続するには有効な HTTPS エージェント URL を入力してください。"
   }
 }

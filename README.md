@@ -40,54 +40,35 @@ Actively checks visited domains to detect spoofing, typosquatting, and phishing 
 - Matches against regex patterns targeting domain variations like `uid-one-login.com`, `uidone-secure.com`, and `uid.one.evil.com`.
 - Automatically injects an authoritative red blocking banner if a malicious mimic page is detected, warning users against entering credentials.
 
-### 3. Browser-Layer Data Loss Prevention (DLP)
-Inspects client-side actions to prevent inadvertent leaks of PII, credentials, or sensitive documents:
-- **Presentation Mode:** Toggle via `Alt+Shift+P` to dynamically blur and hide all sensitive plain-text patterns (such as phone numbers, emails, Vietnam Citizen IDs, credit card numbers) across web pages. This ensures screen shares and captures do not leak business details. Hovering reveals the text temporarily.
-- **File Upload Interceptor:** Listens for `input[type="file"]` change events and drag & drop drops. Files are analyzed client-side, blocking unsafe files and displaying a warning overlay.
-- **Clipboard Interceptor:** Intercepts `paste` and `copy` events. Unsafe clipboard pastes are stopped with confirmation modals, while sensitive copies trigger native browser warning notifications.
-- **Form Interceptor:** Scans outbound `<form>` submissions for compliance before payloads leave the browser context.
+#### 3. Opt-In Browser-Layer Data Loss Prevention (DLP)
+All intrusive shields are **off by default** and controlled individually from the extension popup on user-enabled sites:
+- **DLP Input and Paste Shield (`settings_otp_shield`):** When enabled, inspects form submissions, text uploads, and critical-risk pastes client-side before submission.
+- **Presentation Mode:** Toggle on demand via `Alt+Shift+P` to mask sensitive patterns across the active page. Hovering reveals text temporarily.
+- **Clipboard Audit Metadata (`settings_clipboard_audit`):** Disabled by default. When explicitly enabled, logs only the detected pattern type, match count, length, and block status — never raw clipboard text or secret substrings.
 
-### 4. Cookie Guard & Anti-Tracking
-Protects user privacy even when clicking "Accept All" on popular cookie consent banners:
-- Intercepts writes to `document.cookie` in the page context, suppressing registration of tracking/advertising cookies (e.g., `_ga`, `_gid`, `_fbp`, `_fbc`, `hj*`, `cluid`).
-- Detects and blocks cookies containing sensitive PII values (like raw email addresses, Credit Card numbers, JWTs, and API Keys).
-- Performs periodic sweeps (every 5 seconds) to clean up tracking cookies set via HTTP response headers.
+### 4. Opt-In Tracking Cookie Guard
+Disabled by default (`settings_cookie_guard`). When enabled on non-UID.one sites, sweeps known third-party analytics cookie prefixes (`_ga`, `_gid`, `_gat`, `_fbp`, `_fbc`, `_uetsid`, `_uetvid`, `_tt_enable_cookie`) without deleting cookie-consent preference cookies.
 
-### 5. Dynamic EXIF & Metadata Stripper
-Automatically strips privacy-leaking metadata from images on the fly:
-- Intercepts image uploads (JPEG/JPG) via file inputs and drag-and-drop events.
-- Client-side strips GPS coordinates, camera model, and creation timestamp headers (`APP1` segment) before reconstruction and submission.
+### 5. Opt-In JPEG EXIF Stripper
+Disabled by default (`settings_exif_stripper`). When enabled, strips JPEG `APP1` EXIF metadata (GPS, camera model, timestamp) client-side before upload.
 
-### 6. Self-Destructing OTP / Input Cache Wiping
-Prevents sensitive inputs and code leakage in shared or compromised environments:
-- Detects OTP, 2FA codes, password, and credit card fields during standard or AJAX-based form submissions.
-- Automatically wipes values from inputs and clears browser autocomplete history 300ms after submission.
-- Wipes clipboard content immediately if it contains highly sensitive PII values.
+### 6. Opt-In Tab-Switch Blur (`UID.one`)
+Disabled by default (`settings_screen_shield`). When enabled, blurs `uid.one` tabs only when `document.hidden` is true, without blocking printing, DevTools, or browser context menus.
 
-### 7. Global Privacy Control (GPC) & DNT Enforcer
-Asserts the user's sovereign right to privacy across all web interactions:
-- Injects standard privacy signals (`navigator.globalPrivacyControl = true` and `navigator.doNotTrack = '1'`) into the global window context of all web pages.
+### 7. Digital Document and Email Signing
+- **PDF Signer (`signer.html`):** Supports UID.one cryptographic challenge signing, local PKCS#12 (`.p12` / `.pfx`) certificates, and an optional user-configured **HTTPS-only** local PKCS#11 USB token agent endpoint. Fails closed if a signature, certificate, or agent is unavailable.
+- **Verified Email and Signature Modal:** Signs selected email content using RSA-SHA256 challenges approved on your UID.one authenticator and verifies incoming signatures against UID.one JWKS public keys.
 
-### 8. Viewport Cleaner & Blocker Shield
-- **Notification Blocker:** Intercepts service worker registration and notification permissions to block annoying third-party push notifications.
-- **Viewport Cleaner:** Sweeps and hides suspicious floating elements, overlays, and potential keyloggers on secure pages to protect input fields.
-- **Tab Focus Blurring:** Automatically blurs the page viewport only when the tab is completely hidden or switched (`document.hidden`), preventing shoulder-surfing without interrupting side-by-side multitasking.
+### 8. Multi-Language i18n Localization
+Localized across **14 canonical locales** (`ar`, `de`, `en`, `es`, `fr`, `it`, `ja`, `ko`, `pt`, `ru`, `th`, `vi`, `zh_CN`, `zh_TW`) with full RTL support for Arabic.
 
-### 9. Frost Attack & SSD Side-Channel Shield
-Protects users from history tracking and app detection using disk-performance timing analysis:
-- Overrides the `StorageManager.prototype.getDirectory` API (Origin Private File System - OPFS) for non-whitelisted origins.
-- Blocks malicious pages from performing high-frequency silent write/read operations used to fingerprint SSD latency and profile browsing history.
-
-### 10. Multi-Language i18n Localization
-Fully localizes the extension user interface, error states, and popup statistics across 12 standard locales:
-- English, Vietnamese, Arabic, German, Spanish, French, Italian, Japanese, Korean, Russian, Thai, and Simplified Chinese.
-- Automatically synchronizes with the host browser language.
-
-### 11. Verified Email & AI Trust Filter (Phishing Protection)
-Protects against business email compromise (BEC) and email phishing:
-- **Client-Side Email Signing:** Cryptographically signs email bodies end-to-end using the local device's private key before sending.
-- **On-Device Verification:** Automatically verifies incoming email signatures against the sender's public keys fetched from the UID JWKS.
-- **AI Trust Filter (window.ai):** Analyzes and triages emails into `Priority` (signed by a trusted contact), `Safe` (standard verified emails), or `Suspicious` (unsigned/spoofed emails demanding urgent action) using on-device Gemini Nano, with a local heuristic fallback if `window.ai` is not available.
+### 9. Minimal MV3 Permissions Justification
+- `storage`: Stores user shield toggles, user-enabled HTTPS site allowlists, and `chrome.storage.session` (`TRUSTED_CONTEXTS`) session tokens.
+- `contextMenus`: Adds right-click signing actions (`Sign text with UID.one`, `Sign PDF with UID.one`).
+- `activeTab` & `scripting`: Injects signing or vault-fill scripts strictly on user-enabled HTTPS sites or on demand when the user clicks a context-menu action.
+- `notifications`: Displays signing results and phishing warnings.
+- `declarativeNetRequest`: Attaches the `X-UID-Session-Binding` header exclusively to `https://*.uid.one/*` requests.
+- `host_permissions` (`https://uid.one/*`, `https://*.uid.one/*`) & `optional_host_permissions` (`https://*/*`): Default host access is limited to HTTPS `uid.one` origins; third-party HTTPS origins require explicit per-site opt-in in the popup.
 
 ---
 

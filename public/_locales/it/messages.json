@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "Inserisci PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "Scudo DLP per inserimento e incolla"
+  },
+  "shieldDlpDesc": {
+    "message": "Scansiona moduli inviati, caricamenti e dati sensibili incollati"
+  },
+  "shieldExifTitle": {
+    "message": "Rimozione metadati EXIF"
+  },
+  "shieldExifDesc": {
+    "message": "Rimuovi posizione e metadati fotocamera JPEG al caricamento"
+  },
+  "shieldCookieTitle": {
+    "message": "Protezione cookie di tracciamento"
+  },
+  "shieldCookieDesc": {
+    "message": "Rimuovi i cookie analitici di terze parti noti"
+  },
+  "shieldAuditTitle": {
+    "message": "Metadati di audit degli appunti"
+  },
+  "shieldAuditDesc": {
+    "message": "Registra tipo, conteggio e lunghezza senza contenuto"
+  },
+  "shieldScreenTitle": {
+    "message": "Sfocatura cambio scheda (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "Sfoca le pagine UID.one quando la scheda è nascosta"
+  },
+  "vaultFillTitle": {
+    "message": "Integrazione sito e compilazione"
+  },
+  "vaultFillOffDesc": {
+    "message": "Disattivato per impostazione predefinita per questo sito"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "Endpoint agente (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "Inserisci un URL HTTPS valido dell’agente per connetterti."
   }
 }

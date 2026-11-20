@@ -1,41 +1,44 @@
 {
   "manifest_version": 3,
-  "version": "2.5.9",
+  "version": "2.5.10",
   "name": "__MSG_extensionName__",
   "default_locale": "en",
   "description": "__MSG_extensionDesc__",
+  "homepage_url": "https://uid.one",
   "icons": {
-    "16": "icon.png",
-    "32": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "icon_16.png",
+    "32": "icon_32.png",
+    "48": "icon_48.png",
+    "128": "icon_128.png"
   },
   "permissions": [
     "storage",
     "contextMenus",
     "activeTab",
     "scripting",
-    "clipboardRead",
-    "clipboardWrite",
     "notifications",
-    "webRequest",
     "declarativeNetRequest"
   ],
   "host_permissions": [
-    "*://api.uid.one/*",
-    "*://*.uid.one/*",
-    "file:///*",
-    "*://*/*"
+    "https://uid.one/*",
+    "https://*.uid.one/*"
   ],
+  "optional_host_permissions": [
+    "https://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+  },
   "background": {
     "service_worker": "src/background/index.ts"
   },
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://uid.one/*",
+        "https://*.uid.one/*"
       ],
-      "all_frames": true,
+      "all_frames": false,
       "js": [
         "src/content/index.ts"
       ]
@@ -44,10 +47,10 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "16": "icon.png",
-      "32": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
+      "16": "icon_16.png",
+      "32": "icon_32.png",
+      "48": "icon_48.png",
+      "128": "icon_128.png"
     }
   },
   "browser_specific_settings": {
@@ -60,17 +63,5 @@
         ]
       }
     }
-  },
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "fonts/Roboto-Regular.ttf",
-        "fonts/Roboto-Bold.ttf",
-        "icon.png"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+  }
 }

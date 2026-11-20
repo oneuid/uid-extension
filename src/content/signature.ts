@@ -383,8 +383,6 @@ export class EmailSignatureGuard {
           return;
         }
 
-        console.log(`[uid.one] Verifying signature for ${signer} (hash: ${textHash || 'DOM'}, sig: ${dataSig.slice(0, 10)}...)`);
-
         chrome.runtime.sendMessage(
           { type: 'GET_USER_PUBKEY', identifier: signer.replace('did:uid:', '') },
           async (keyRes) => {
@@ -481,8 +479,6 @@ export class EmailSignatureGuard {
               }
 
               if (isValid) {
-                console.log(`[uid.one] Cryptographic signature VERIFIED successfully for ${signer}`);
-                
                 // Clear any warnings
                 container.querySelectorAll('.uid-ai-triage-badge, .uid-email-warning-banner').forEach(el => el.remove());
                 
@@ -504,7 +500,6 @@ export class EmailSignatureGuard {
                   (link as HTMLElement).style.setProperty('display', 'none', 'important');
                 });
               } else {
-                console.warn(`[uid.one] Cryptographic signature VERIFICATION FAILED for ${signer}`);
                 const sigError = chrome.i18n.getMessage("warningContentTampered") || "Digital signature does not match email content (Content has been modified).";
                 new EmailAITrustFilter().triage(container, false, '', sigError).catch(console.error);
               }

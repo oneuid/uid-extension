@@ -4,9 +4,11 @@ import path from 'node:path';
 import test from 'node:test';
 
 import {
+  isAllowedPdfFetchUrl,
   isSuspiciousUidHostname,
   isTrustedUidOrigin,
   isTrustedUidUrl,
+  isValidLocalHttpsEndpoint,
 } from '../src/shared/origins.ts';
 import {
   validateJwtStructureAndClaims,
@@ -57,6 +59,37 @@ test('isTrustedUidUrl validates full URLs without substring bypasses', () => {
   assert.equal(isTrustedUidUrl('https://uid.one.evil.com/login'), false);
   assert.equal(isTrustedUidUrl('https://evil.com/?origin=https://uid.one'), false);
   assert.equal(isTrustedUidUrl('http://uid.one/login'), false);
+});
+
+test('isAllowedPdfFetchUrl refuses file://, http://, and off-origin URLs', () => {
+  assert.equal(isAllowedPdfFetchUrl('https://uid.one/doc.pdf'), true);
+  assert.equal(isAllowedPdfFetchUrl('https://api.uid.one/files/a.pdf'), true);
+  assert.equal(
+    isAllowedPdfFetchUrl('https://docs.example.com/a.pdf', 'https://docs.example.com'),
+    true
+  );
+
+  // Refused cases
+  assert.equal(isAllowedPdfFetchUrl('file:///etc/passwd'), false);
+  assert.equal(isAllowedPdfFetchUrl('file:///home/user/secret.pdf', 'https://example.com'), false);
+  assert.equal(isAllowedPdfFetchUrl('http://uid.one/doc.pdf'), false);
+  assert.equal(isAllowedPdfFetchUrl('https://evil.com/doc.pdf'), false);
+  assert.equal(
+    isAllowedPdfFetchUrl('https://evil.com/doc.pdf', 'https://docs.example.com'),
+    false
+  );
+  assert.equal(isAllowedPdfFetchUrl('data:application/pdf;base64,AA=='), false);
+  assert.equal(isAllowedPdfFetchUrl('https://user:pass@uid.one/doc.pdf'), false);
+});
+
+test('isValidLocalHttpsEndpoint requires HTTPS and rejects cleartext localhost', () => {
+  assert.equal(isValidLocalHttpsEndpoint('https://127.0.0.1:8443'), true);
+  assert.equal(isValidLocalHttpsEndpoint('https://localhost:9443'), true);
+
+  assert.equal(isValidLocalHttpsEndpoint(''), false);
+  assert.equal(isValidLocalHttpsEndpoint('http://127.0.0.1:13013'), false);
+  assert.equal(isValidLocalHttpsEndpoint('http://localhost:8080'), false);
+  assert.equal(isValidLocalHttpsEndpoint('https://user:pass@localhost:8443'), false);
 });
 
 test('isSuspiciousUidHostname flags typo-squats and lookalikes without flagging uid.one', () => {
@@ -150,23 +183,75 @@ test('verifyJwtWithJwks accepts valid signed JWT and rejects tampered/expired/un
   assert.equal(noneRes.valid, false);
 });
 
-test('built chrome bundle eliminates 13013 auth/sync, localhost host_permissions, and MAIN-world CA emulator', () => {
-  const distDir = path.resolve(import.meta.dirname, '../dist/chrome');
-  if (!fs.existsSync(distDir)) return;
+test('built chrome and firefox manifests and bundles enforce P0 and P1 security invariants', () => {
+  const pkg = JSON.parse(
+    fs.readFileSync(path.resolve(import.meta.dirname, '../package.json'), 'utf8')
+  );
 
-  const bgBundle = fs.readFileSync(path.join(distDir, 'src/background/index.js'), 'utf8');
-  assert.equal(bgBundle.includes('13013'), false, 'background bundle must not reference 13013');
-  assert.equal(bgBundle.includes('auth/sync'), false, 'background bundle must not reference auth/sync');
+  for (const target of ['chrome', 'firefox']) {
+    const distDir = path.resolve(import.meta.dirname, `../dist/${target}`);
+    if (!fs.existsSync(distDir)) continue;
 
-  const manifest = JSON.parse(fs.readFileSync(path.join(distDir, 'manifest.json'), 'utf8'));
-  const hostPerms: string[] = manifest.host_permissions || [];
-  assert.equal(hostPerms.some((p) => p.includes('127.0.0.1') || p.includes('localhost')), false);
-  const contentScripts: Array<{ world?: string; js?: string[] }> = manifest.content_scripts || [];
-  assert.equal(contentScripts.some((cs) => cs.world === 'MAIN'), false);
+    const manifest = JSON.parse(fs.readFileSync(path.join(distDir, 'manifest.json'), 'utf8'));
+    assert.equal(manifest.version, pkg.version, `${target} manifest version must match package.json`);
 
-  const contentBundle = fs.readFileSync(path.join(distDir, 'src/content/index.js'), 'utf8');
-  assert.equal(contentBundle.includes('vnpt_plugin'), false);
-  assert.equal(contentBundle.includes('vgcaplugin'), false);
-  assert.equal(contentBundle.includes('oneuid-handshake-token'), false);
-  assert.equal(contentBundle.includes('Sign in with passkey'), false);
+    const hostPerms: string[] = manifest.host_permissions || [];
+    assert.equal(hostPerms.includes('*://*/*'), false);
+    assert.equal(hostPerms.includes('file:///*'), false);
+    assert.equal(hostPerms.some((p) => p.includes('127.0.0.1') || p.includes('localhost')), false);
+
+    const perms: string[] = manifest.permissions || [];
+    assert.equal(perms.includes('clipboardRead'), false);
+    assert.equal(perms.includes('clipboardWrite'), false);
+    assert.equal(perms.includes('webRequest'), false);
+
+    const contentScripts: Array<{ world?: string; matches?: string[]; all_frames?: boolean }> =
+      manifest.content_scripts || [];
+    assert.equal(contentScripts.some((cs) => cs.world === 'MAIN'), false);
+    assert.equal(
+      contentScripts.some((cs) => (cs.matches || []).includes('<all_urls>')),
+      false
+    );
+    assert.equal(
+      contentScripts.some((cs) => cs.all_frames === true),
+      false
+    );
+
+    const csp = manifest.content_security_policy?.extension_pages || '';
+    assert.equal(csp.includes("script-src 'self'"), true);
+    assert.equal(csp.includes("object-src 'none'"), true);
+
+    const bgBundle = fs.readFileSync(path.join(distDir, 'src/background/index.js'), 'utf8');
+    assert.equal(bgBundle.includes('13013'), false, 'background bundle must not reference 13013');
+    assert.equal(bgBundle.includes('auth/sync'), false, 'background bundle must not reference auth/sync');
+    assert.equal(
+      bgBundle.includes('DEMO_SIGNATURE_VALUE'),
+      false,
+      'background bundle must not contain DEMO_SIGNATURE_VALUE'
+    );
+
+    const signerBundle = fs.readFileSync(path.join(distDir, 'signer.js'), 'utf8');
+    assert.equal(signerBundle.includes('13013'), false, 'signer bundle must not reference 13013');
+    assert.equal(signerBundle.includes('Remote CA Demo'), false);
+    assert.equal(signerBundle.includes('generateKeyPair(512)'), false);
+
+    const contentBundle = fs.readFileSync(path.join(distDir, 'src/content/index.js'), 'utf8');
+    assert.equal(contentBundle.includes('vnpt_plugin'), false);
+    assert.equal(contentBundle.includes('vgcaplugin'), false);
+    assert.equal(contentBundle.includes('oneuid-handshake-token'), false);
+    assert.equal(contentBundle.includes('Sign in with passkey'), false);
+    assert.equal(contentBundle.includes('display: none !important'), false);
+  }
+
+  // Ensure clipboard audit payload never ships secret sample substrings
+  const dlpSource = fs.readFileSync(
+    path.resolve(import.meta.dirname, '../src/content/interceptors/dlp.ts'),
+    'utf8'
+  );
+  const bgSource = fs.readFileSync(
+    path.resolve(import.meta.dirname, '../src/background/index.ts'),
+    'utf8'
+  );
+  assert.equal(dlpSource.includes('sample: text.slice'), false);
+  assert.equal(bgSource.includes('sample: request.sample'), false);
 });

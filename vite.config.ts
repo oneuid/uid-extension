@@ -3,9 +3,9 @@ import webExtension from 'vite-plugin-web-extension';
 
 import fs from 'fs';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   esbuild: {
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
   },
   build: {
     outDir: process.env.TARGET === 'firefox' ? 'dist/firefox' : 'dist/chrome',
@@ -37,4 +37,4 @@ export default defineConfig({
       },
     }),
   ],
-});
+}));

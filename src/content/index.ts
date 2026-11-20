@@ -1,11 +1,10 @@
 import { isWebmailSite, isContextValid } from './utils';
+import { isAllowedPdfFetchUrl } from '../shared/origins';
 import { findComposerSenderEmail, detectWebmailUserEmail, normalizeEmail } from './adapters/webmail';
 import { FileUploadInterceptor, ClipboardInterceptor, FormInterceptor, TextDLPShield, PresentationModeController } from './interceptors/dlp';
-import { ScreenshotProtector, OriginVerifier, ViewportCleaner, CookieGuard, NotificationBlocker, GPCEnforcer } from './interceptors/security';
+import { ScreenshotProtector, OriginVerifier, CookieGuard } from './interceptors/security';
 import { captureSessionToken, injectAll } from './autofill';
 import { EmailSignatureGuard, EmailSendInterceptor, ComposerFloatingSignButton } from './signature';
-
-console.log('[uid.one] Content script loaded on', window.location.hostname);
 
 export let lastRightClickedElement: HTMLElement | null = null;
 
@@ -14,74 +13,85 @@ export function setContextElement(el: HTMLElement | null) {
 }
 export { setContextElement as setLastRightClickedElement };
 
-document.addEventListener('contextmenu', (e) => {
-  if (!isContextValid()) return;
-  lastRightClickedElement = e.target as HTMLElement;
-  
-  const isEditable = lastRightClickedElement.closest('[contenteditable="true"]') || 
-                     lastRightClickedElement.tagName === 'INPUT' || 
-                     lastRightClickedElement.tagName === 'TEXTAREA';
-                     
-  if (isEditable) {
-    let senderEmail = findComposerSenderEmail(lastRightClickedElement);
-    if (!senderEmail) {
-      senderEmail = detectWebmailUserEmail();
-    }
-    
-    if (senderEmail) {
-      chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, (profileRes) => {
-        if (profileRes && profileRes.success && profileRes.email) {
-          const linkedEmail = normalizeEmail(profileRes.email);
-          const senderEmailNormalized = normalizeEmail(senderEmail);
-          if (linkedEmail !== senderEmailNormalized) {
-            chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: false });
-            return;
-          }
-        }
-        chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
-      });
-    } else {
-      const isWebmail = isWebmailSite();
-      if (isWebmail) {
-        chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: false });
-      } else {
-        chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
-      }
-    }
-  } else {
-    chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
-  }
-});
+if (!(window as any).__uidLinkListenersRegistered) {
+  (window as any).__uidLinkListenersRegistered = true;
 
-chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.action === 'START_PDF_SIGNING') {
-    handlePdfSigning(request.url).catch(console.error);
-  } else if (request.action === 'START_TEXT_SIGNING') {
-    handleTextSigning(request.text).catch(console.error);
-  } else if (request.action === 'FETCH_PDF_BYTES') {
-    fetch(request.url)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
-        return res.arrayBuffer();
-      })
-      .then(buffer => {
-        const blob = new Blob([buffer]);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1];
-          sendResponse({ success: true, base64 });
-        };
-        reader.onerror = () => {
-          sendResponse({ success: false, error: 'Failed to read array buffer' });
-        };
-        reader.readAsDataURL(blob);
-      })
-      .catch(err => {
-        sendResponse({ success: false, error: err.message });
-      });
-    return true;
-  }
-});
+  document.addEventListener('contextmenu', (e) => {
+    if (!isContextValid()) return;
+    lastRightClickedElement = e.target as HTMLElement;
+
+    const isEditable = lastRightClickedElement.closest('[contenteditable="true"]') ||
+                       lastRightClickedElement.tagName === 'INPUT' ||
+                       lastRightClickedElement.tagName === 'TEXTAREA';
+
+    if (isEditable) {
+      let senderEmail = findComposerSenderEmail(lastRightClickedElement);
+      if (!senderEmail) {
+        senderEmail = detectWebmailUserEmail();
+      }
+
+      if (senderEmail) {
+        chrome.runtime.sendMessage({ type: 'GET_PROFILE' }, (profileRes) => {
+          if (profileRes && profileRes.success && profileRes.email) {
+            const linkedEmail = normalizeEmail(profileRes.email);
+            const senderEmailNormalized = normalizeEmail(senderEmail);
+            if (linkedEmail !== senderEmailNormalized) {
+              chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: false });
+              return;
+            }
+          }
+          chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
+        });
+      } else {
+        const isWebmail = isWebmailSite();
+        if (isWebmail) {
+          chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: false });
+        } else {
+          chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
+        }
+      }
+    } else {
+      chrome.runtime.sendMessage({ type: 'SET_CONTEXT_MENU_ENABLED', enabled: true });
+    }
+  });
+
+  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    if (request.action === 'START_PDF_SIGNING') {
+      handlePdfSigning(request.url).catch(console.error);
+    } else if (request.action === 'START_TEXT_SIGNING') {
+      handleTextSigning(request.text).catch(console.error);
+    } else if (request.action === 'FETCH_PDF_BYTES') {
+      if (!isAllowedPdfFetchUrl(request.url, window.location.origin)) {
+        sendResponse({ success: false, error: 'Refused to fetch PDF from untrusted or off-origin URL.' });
+        return false;
+      }
+      fetch(request.url, { credentials: 'omit' })
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+          if (res.url && !isAllowedPdfFetchUrl(res.url, window.location.origin)) {
+            throw new Error('Redirected to off-origin PDF URL.');
+          }
+          return res.arrayBuffer();
+        })
+        .then(buffer => {
+          const blob = new Blob([buffer]);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            sendResponse({ success: true, base64 });
+          };
+          reader.onerror = () => {
+            sendResponse({ success: false, error: 'Failed to read array buffer' });
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(err => {
+          sendResponse({ success: false, error: err.message });
+        });
+      return true;
+    }
+  });
+}
 
 function showToast(msg: string, type: string) {
   console.log(`[uid.one - ${type}] ${msg}`);
@@ -297,7 +307,7 @@ export async function handleTextSigning(text: string) {
           }
         }, (res) => {
           clearInterval(heartbeatInterval);
-          if (res && res.success) {
+          if (res && res.success && typeof res.signature === 'string' && res.signature.trim()) {
             insertSignature(targetEl!, res.signature, userEmail, hashHex, res.signer);
             showToast("Signature applied successfully!", "success");
           } else {
@@ -322,6 +332,12 @@ async function handlePdfSigning(pdfUrl: string) {
         const fallbackError = errorMsg || "Failed to retrieve account details.";
         alert(chrome.i18n.getMessage("errorVerification", [fallbackError]) || `Verification error: ${fallbackError}`);
       }
+      return;
+    }
+
+    if (!isAllowedPdfFetchUrl(pdfUrl, window.location.origin)) {
+      showToast("Refused to fetch PDF from untrusted or off-origin URL.", "error");
+      alert(chrome.i18n.getMessage("errorFetchPdf") || "Failed to fetch or hash PDF. Please make sure the link is accessible.");
       return;
     }
 
@@ -350,7 +366,7 @@ async function handlePdfSigning(pdfUrl: string) {
           }
         }, (res) => {
           clearInterval(heartbeatInterval);
-          if (res && res.success) {
+          if (res && res.success && typeof res.signature === 'string' && res.signature.trim()) {
             showToast("PDF signed successfully!", "success");
             alert(chrome.i18n.getMessage("pdfSignedSuccess") || "PDF digitally signed successfully!");
           } else {
@@ -364,9 +380,12 @@ async function handlePdfSigning(pdfUrl: string) {
       });
     };
 
-    fetch(pdfUrl)
+    fetch(pdfUrl, { credentials: 'omit' })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        if (res.url && !isAllowedPdfFetchUrl(res.url, window.location.origin)) {
+          throw new Error('Redirected to off-origin PDF URL.');
+        }
         return res.arrayBuffer();
       })
       .then(arrayBuffer => crypto.subtle.digest('SHA-256', arrayBuffer))
@@ -554,13 +573,10 @@ let isChecking = false;
 function init() {
   if (isChecking) return;
   isChecking = true;
-  
+
   if (!chrome.runtime?.id) {
-    console.warn('[uid.one] Extension context invalidated. Please refresh the page.');
     return;
   }
-
-  console.log('[uid.one] Content script initialized on:', window.location.href);
 
   const meta = document.createElement('meta');
   meta.name = 'uid-extension-client-active';
@@ -569,7 +585,7 @@ function init() {
   if (targetHead) {
     targetHead.appendChild(meta);
   }
-  
+
   try {
     injectAll();
   } catch (err) {
@@ -582,10 +598,7 @@ function init() {
     { name: 'FormInterceptor', run: () => new FormInterceptor().init() },
     { name: 'OriginVerifier', run: () => new OriginVerifier().init() },
     { name: 'ScreenshotProtector', run: () => new ScreenshotProtector().init() },
-    { name: 'ViewportCleaner', run: () => new ViewportCleaner().init() },
-    { name: 'NotificationBlocker', run: () => new NotificationBlocker().init() },
     { name: 'CookieGuard', run: () => new CookieGuard().init() },
-    { name: 'GPCEnforcer', run: () => new GPCEnforcer().init() },
     { name: 'TextDLPShield', run: () => new TextDLPShield().init() },
     { name: 'EmailSignatureGuard', run: () => new EmailSignatureGuard().init() },
     { name: 'EmailSendInterceptor', run: () => new EmailSendInterceptor().init() },
@@ -597,7 +610,6 @@ function init() {
   for (const interceptor of interceptors) {
     try {
       interceptor.run();
-      console.log(`[uid.one] Subsystem ${interceptor.name} loaded successfully.`);
     } catch (err) {
       console.error(`[uid.one] Failed to initialize ${interceptor.name}:`, err);
     }
@@ -610,7 +622,9 @@ function init() {
     }
     injectAll();
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 if (document.readyState === 'loading') {

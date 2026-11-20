@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "Enter PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "DLP input and paste shield"
+  },
+  "shieldDlpDesc": {
+    "message": "Scan form submissions, uploads, and sensitive pastes"
+  },
+  "shieldExifTitle": {
+    "message": "EXIF metadata stripper"
+  },
+  "shieldExifDesc": {
+    "message": "Strip JPEG location and camera metadata on upload"
+  },
+  "shieldCookieTitle": {
+    "message": "Tracking cookie guard"
+  },
+  "shieldCookieDesc": {
+    "message": "Sweep known third-party analytics cookies"
+  },
+  "shieldAuditTitle": {
+    "message": "Clipboard audit metadata"
+  },
+  "shieldAuditDesc": {
+    "message": "Log copy type, count, and length without content"
+  },
+  "shieldScreenTitle": {
+    "message": "Tab-switch blur (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "Blur UID.one pages when the tab is hidden"
+  },
+  "vaultFillTitle": {
+    "message": "Site integration and vault fill"
+  },
+  "vaultFillOffDesc": {
+    "message": "Off by default for this site"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "Agent endpoint (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "Enter a valid HTTPS agent endpoint URL to connect."
   }
 }

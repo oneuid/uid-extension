@@ -83,3 +83,63 @@ export function isSuspiciousUidHostname(hostname: string | null | undefined): bo
   ];
   return patterns.some((p) => p.test(host));
 }
+
+/**
+ * Allows background/content PDF fetches ONLY for HTTPS URLs on trusted UID.one
+ * origins or strictly matching the caller tab's HTTPS origin. Rejects `file:`,
+ * `http:`, `data:`, `blob:`, userinfo URLs, and arbitrary cross-origin URLs.
+ */
+export function isAllowedPdfFetchUrl(
+  urlStr: string | null | undefined,
+  senderOrigin?: string | null
+): boolean {
+  if (!urlStr || typeof urlStr !== 'string') return false;
+  let parsed: URL;
+  try {
+    parsed = new URL(urlStr);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== 'https:') return false;
+  if (parsed.username || parsed.password) return false;
+
+  if (isTrustedUidOrigin(parsed.origin)) {
+    return true;
+  }
+
+  if (senderOrigin && typeof senderOrigin === 'string') {
+    try {
+      const senderParsed = new URL(senderOrigin);
+      if (
+        senderParsed.protocol === 'https:' &&
+        !senderParsed.username &&
+        !senderParsed.password &&
+        senderParsed.origin === parsed.origin
+      ) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Validates that a user-configured local signing agent endpoint uses HTTPS only.
+ */
+export function isValidLocalHttpsEndpoint(urlStr: string | null | undefined): boolean {
+  if (!urlStr || typeof urlStr !== 'string') return false;
+  let parsed: URL;
+  try {
+    parsed = new URL(urlStr.trim());
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== 'https:') return false;
+  if (parsed.username || parsed.password) return false;
+  return Boolean(parsed.hostname);
+}
+

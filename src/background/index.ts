@@ -1,6 +1,6 @@
 /// <reference types="chrome"/>
 
-import { isTrustedUidOrigin, isTrustedUidUrl } from '../shared/origins';
+import { isAllowedPdfFetchUrl, isTrustedUidOrigin, isTrustedUidUrl } from '../shared/origins';
 import {
   clearStoredSessionToken,
   configureSessionStorageAccess,
@@ -15,6 +15,7 @@ import {
 const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE || 'https://api.uid.one/v1/auth';
 const CLIENT_ID = 'uid-extension-client';
 const AUTOFILL_SITES_KEY = 'autofill_enabled_origins';
+const USER_SCRIPT_ID = 'uid-user-sites';
 
 interface PendingChallenge {
   privateKey: CryptoKey;
@@ -87,6 +88,42 @@ async function isAutofillEnabledForOrigin(origin: string | undefined): Promise<b
   if (!origin) return false;
   const enabled = await getAutofillEnabledOrigins();
   return enabled.includes(origin);
+}
+
+async function syncUserContentScripts(): Promise<void> {
+  if (!chrome.scripting?.registerContentScripts) return;
+  try {
+    await chrome.scripting.unregisterContentScripts({ ids: [USER_SCRIPT_ID] }).catch(() => {});
+    const origins = await getAutofillEnabledOrigins();
+    const matches: string[] = [];
+    for (const origin of origins) {
+      try {
+        const parsed = new URL(origin);
+        if (parsed.protocol !== 'https:') continue;
+        if (isTrustedUidOrigin(parsed.origin)) continue;
+        const pattern = `${parsed.origin}/*`;
+        const hasPerm = await chrome.permissions.contains({ origins: [pattern] }).catch(() => false);
+        if (hasPerm) {
+          matches.push(pattern);
+        }
+      } catch {
+        continue;
+      }
+    }
+    if (matches.length > 0) {
+      await chrome.scripting.registerContentScripts([
+        {
+          id: USER_SCRIPT_ID,
+          matches,
+          js: ['src/content/index.js'],
+          allFrames: false,
+          runAt: 'document_idle',
+        },
+      ]);
+    }
+  } catch (err) {
+    console.warn('[uid.one] Failed to sync user-enabled content scripts:', err);
+  }
 }
 
 // ================= SESSION BINDING CLIENT =================
@@ -192,7 +229,7 @@ async function updateDeclarativeRules(token: string) {
       ],
     },
     condition: {
-      urlFilter: '||uid.one',
+      regexFilter: '^https://([a-z0-9-]+\\.)*uid\\.one(/|$)',
       resourceTypes: [
         'main_frame',
         'sub_frame',
@@ -499,6 +536,7 @@ async function initActiveToken(retries = 5, delay = 200): Promise<void> {
   try {
     await configureSessionStorageAccess();
     await purgeLegacyPlaintextTokens();
+    await syncUserContentScripts();
 
     const token = await getActiveSessionToken();
     if (token) {
@@ -556,6 +594,17 @@ function waitForChallengeApproval(token: string): Promise<any> {
       resolve({ success: false, error });
     };
 
+    const extractSignature = (data: any): string => {
+      if (!data || typeof data !== 'object') return '';
+      if (typeof data.signature === 'string' && data.signature.trim()) {
+        return data.signature.trim();
+      }
+      if (typeof data.encrypted_payload === 'string' && data.encrypted_payload.trim()) {
+        return data.encrypted_payload.trim();
+      }
+      return '';
+    };
+
     getApiBase().then(() => {
       try {
         const wsBase = import.meta.env.VITE_WS_BASE || 'wss://api.uid.one';
@@ -566,7 +615,11 @@ function waitForChallengeApproval(token: string): Promise<any> {
           try {
             const data = JSON.parse(event.data);
             if (data.status === 'APPROVED') {
-              const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
+              const signature = extractSignature(data);
+              if (!signature) {
+                handleFailure('Cryptographic signature missing from approved challenge.');
+                return;
+              }
               handleSuccess(signature);
             } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
               handleFailure(data.status.toLowerCase());
@@ -597,7 +650,11 @@ function waitForChallengeApproval(token: string): Promise<any> {
         if (!res.ok) return;
         const data = await res.json();
         if (data.status === 'APPROVED') {
-          const signature = data.signature || data.encrypted_payload || 'DEMO_SIGNATURE_VALUE';
+          const signature = extractSignature(data);
+          if (!signature) {
+            handleFailure('Cryptographic signature missing from approved challenge.');
+            return;
+          }
           handleSuccess(signature);
         } else if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
           handleFailure(data.status.toLowerCase());
@@ -625,9 +682,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   } else if (request.type === 'FETCH_AND_HASH_PDF') {
-    fetch(request.url)
+    const callerOrigin = sender.origin || (sender.url ? (() => { try { return new URL(sender.url).origin; } catch { return ''; } })() : '');
+    if (!isAllowedPdfFetchUrl(request.url, callerOrigin)) {
+      sendResponse({ success: false, error: 'Refused to fetch PDF from untrusted or off-origin URL.' });
+      return false;
+    }
+
+    fetch(request.url, { credentials: 'omit' })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        if (res.url && !isAllowedPdfFetchUrl(res.url, callerOrigin)) {
+          throw new Error('Refused redirected off-origin PDF URL.');
+        }
         return res.arrayBuffer();
       })
       .then((arrayBuffer) => crypto.subtle.digest('SHA-256', arrayBuffer))
@@ -668,7 +734,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       normalizedOrigin = '';
     }
     if (!normalizedOrigin) {
-      sendResponse({ success: false, error: 'Only HTTPS origins can enable vault password fill.' });
+      sendResponse({ success: false, error: 'Only HTTPS origins can enable site integration.' });
       return false;
     }
     getAutofillEnabledOrigins().then(async (origins) => {
@@ -679,6 +745,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         next.delete(normalizedOrigin);
       }
       await chrome.storage.local.set({ [AUTOFILL_SITES_KEY]: Array.from(next) });
+      await syncUserContentScripts();
       sendResponse({ success: true, origins: Array.from(next) });
     });
     return true;
@@ -738,7 +805,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   } else if (request.type === 'GET_USER_PUBKEY') {
-    const identifier = request.identifier;
+    const identifier = typeof request.identifier === 'string' ? request.identifier.trim() : '';
+    if (
+      !identifier ||
+      identifier.length > 256 ||
+      identifier.includes('/') ||
+      identifier.includes('\\') ||
+      identifier.includes('..')
+    ) {
+      sendResponse({ success: false, error: 'Invalid identifier' });
+      return false;
+    }
     getApiBase().then(async (apiBase) => {
       let res: Response | null = null;
       try {
@@ -915,9 +992,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .then((data) => {
           if (data.error) throw new Error(data.error);
 
-          if (data.signature) {
-            sendResponse({ success: true, signature: data.signature, signer: data.signer });
+          if (typeof data.signature === 'string' && data.signature.trim()) {
+            sendResponse({ success: true, signature: data.signature.trim(), signer: data.signer });
             return;
+          }
+
+          if (!data.token) {
+            throw new Error('Missing challenge token and cryptographic signature.');
           }
 
           waitForChallengeApproval(data.token)
@@ -934,7 +1015,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.type === 'SHOW_NOTIFICATION') {
     chrome.notifications.create({
       type: 'basic',
-      iconUrl: chrome.runtime.getURL('icon.png'),
+      iconUrl: chrome.runtime.getURL('icon_128.png'),
       title: request.title,
       message: request.message,
       priority: 2,
@@ -942,7 +1023,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ success: true });
     return true;
   } else if (request.type === 'AUDIT_COPY') {
-    Promise.all([getActiveSessionToken(), getApiBase()]).then(([token, apiBase]) => {
+    Promise.all([
+      chrome.storage.local.get('settings_clipboard_audit'),
+      getActiveSessionToken(),
+      getApiBase(),
+    ]).then(([settings, token, apiBase]) => {
+      if (settings.settings_clipboard_audit !== true) {
+        sendResponse({ success: false, error: 'Clipboard audit is disabled.' });
+        return;
+      }
       if (!token) {
         sendResponse({ success: false, error: 'No active session' });
         return;
@@ -956,11 +1045,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          domain: request.domain,
-          sensitive_type: request.sensitive_type,
-          sample: request.sample,
-          count: request.count,
-          blocked: request.blocked,
+          domain: typeof request.domain === 'string' ? request.domain : '',
+          sensitive_type: typeof request.sensitive_type === 'string' ? request.sensitive_type : '',
+          count: typeof request.count === 'number' ? request.count : 0,
+          length: typeof request.length === 'number' ? request.length : 0,
+          blocked: Boolean(request.blocked),
         }),
       })
         .then((res) => {
@@ -980,6 +1069,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener(() => {
   configureSessionStorageAccess();
   purgeLegacyPlaintextTokens();
+  syncUserContentScripts();
 
   chrome.contextMenus.create({
     id: 'sign-pdf',
@@ -1010,20 +1100,40 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!tab?.id) return;
+  const tabId = tab.id;
   if (info.menuItemId === 'sign-pdf' || info.menuItemId === 'sign-pdf-page') {
     const pdfUrl = info.linkUrl || info.pageUrl || tab.url;
-    if (pdfUrl) {
+    if (!pdfUrl) return;
+
+    const tabOrigin = (() => {
+      try {
+        return tab.url ? new URL(tab.url).origin : '';
+      } catch {
+        return '';
+      }
+    })();
+
+    const openSignerFallback = () => {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL(`signer.html?url=${encodeURIComponent(pdfUrl)}`),
+      });
+    };
+
+    if (!isAllowedPdfFetchUrl(pdfUrl, tabOrigin)) {
+      openSignerFallback();
+      return;
+    }
+
+    const requestBytesFromTab = () => {
       chrome.tabs.sendMessage(
-        tab.id,
+        tabId,
         {
           action: 'FETCH_PDF_BYTES',
           url: pdfUrl,
         },
         (response) => {
           if (chrome.runtime.lastError || !response || !response.success) {
-            chrome.tabs.create({
-              url: chrome.runtime.getURL(`signer.html?url=${encodeURIComponent(pdfUrl)}`),
-            });
+            openSignerFallback();
           } else {
             const cacheKey = `pdf_cache_${Date.now()}`;
             chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
@@ -1036,16 +1146,49 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           }
         }
       );
-    }
+    };
+
+    chrome.tabs.sendMessage(
+      tabId,
+      { action: 'FETCH_PDF_BYTES', url: pdfUrl },
+      (response) => {
+        if (!chrome.runtime.lastError && response?.success) {
+          const cacheKey = `pdf_cache_${Date.now()}`;
+          chrome.storage.local.set({ [cacheKey]: response.base64 }).then(() => {
+            chrome.tabs.create({
+              url: chrome.runtime.getURL(
+                `signer.html?cacheKey=${cacheKey}&url=${encodeURIComponent(pdfUrl)}`
+              ),
+            });
+          });
+          return;
+        }
+        chrome.scripting
+          .executeScript({
+            target: { tabId, frameIds: [0] },
+            files: ['src/content/index.js'],
+          })
+          .then(() => requestBytesFromTab())
+          .catch(() => openSignerFallback());
+      }
+    );
   } else if (info.menuItemId === 'sign-text') {
-    chrome.tabs
-      .sendMessage(tab.id, {
-        action: 'START_TEXT_SIGNING',
-        text: info.selectionText || '',
-      })
-      .catch((err) => {
-        console.warn('[uid.one] Could not send START_TEXT_SIGNING message to tab:', err);
-      });
+    const payload = {
+      action: 'START_TEXT_SIGNING',
+      text: info.selectionText || '',
+    };
+    chrome.tabs.sendMessage(tabId, payload).catch(() => {
+      const frameIds = typeof info.frameId === 'number' ? [info.frameId] : [0];
+      chrome.scripting
+        .executeScript({
+          target: { tabId, frameIds },
+          files: ['src/content/index.js'],
+        })
+        .then(() => chrome.tabs.sendMessage(tabId, payload))
+        .catch((err) => {
+          console.warn('[uid.one] Could not send START_TEXT_SIGNING message to tab:', err);
+        });
+    });
   }
 });
 

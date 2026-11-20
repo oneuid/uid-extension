@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "PIN 입력"
+  },
+  "shieldDlpTitle": {
+    "message": "DLP 입력 및 붙여넣기 보호"
+  },
+  "shieldDlpDesc": {
+    "message": "양식 제출, 업로드 및 민감한 붙여넣기 검사"
+  },
+  "shieldExifTitle": {
+    "message": "EXIF 메타데이터 제거기"
+  },
+  "shieldExifDesc": {
+    "message": "업로드 시 JPEG 위치 및 카메라 메타데이터 제거"
+  },
+  "shieldCookieTitle": {
+    "message": "추적 쿠키 보호"
+  },
+  "shieldCookieDesc": {
+    "message": "알려진 타사 분석 쿠키 정리"
+  },
+  "shieldAuditTitle": {
+    "message": "클립보드 감사 메타데이터"
+  },
+  "shieldAuditDesc": {
+    "message": "내용 없이 복사 유형, 횟수 및 길이만 기록"
+  },
+  "shieldScreenTitle": {
+    "message": "탭 전환 흐림 (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "탭이 숨겨질 때 UID.one 페이지 흐리게 처리"
+  },
+  "vaultFillTitle": {
+    "message": "사이트 연동 및 금고 채우기"
+  },
+  "vaultFillOffDesc": {
+    "message": "이 사이트에서는 기본적으로 꺼져 있습니다"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "에이전트 엔드포인트 (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "연결하려면 유효한 HTTPS 에이전트 엔드포인트 URL을 입력하세요."
   }
 }

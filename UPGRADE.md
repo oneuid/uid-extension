@@ -1,20 +1,26 @@
 # OneUID Browser Link - Upgrade Log
 
-> **Repository**: `uid.one/uid-link` (Cross-Browser WebExtension & Safari Extension for Session Binding, DLP & Cryptographic Signing)
+> **Repository**: `oneuid/uid-extension` (Cross-Browser WebExtension & Safari Extension for Session Binding, Opt-In DLP & Cryptographic Signing)
 > **Ecosystem**: OneUID
-> **Current version**: `v2.5.9` (2026-11-20)
-> **Release policy**: Updated automatically via `python3 /home/s/Projects/getding.io/scripts/release.py` and verified by `gate.py` before every release push.
+> **Current version**: `v2.5.10` (2026-11-20)
 
 ## Feature inventory
 
 | Module | Surface | Core capabilities |
 | :--- | :--- | :--- |
 | **Binding** | `src/` | Hardware device fingerprinting and HMAC session binding (`/v1/auth/session-binding/register/`) with MV3 session-only token storage and JWKS JWT verification |
-| **Signer** | `src/` | Cryptographic Minimal in-browser PDF and webmail digital signature overlay paired with **UID Agent** PKCS#11 hardware tokens |
-| **Shield** | `src/` | Real-time anti-phishing origin verification, context-aware browser DLP clipboard/upload guard, and opt-in per-site vault password fill |
+| **Signer** | `src/` | Fail-closed in-browser PDF and webmail digital signature overlay supporting UID.one challenges, local PKCS#12 (`.p12`/`.pfx`) files, and optional HTTPS-only PKCS#11 local agent endpoints |
+| **Shield** | `src/` | Anti-phishing lookalike origin verification plus opt-in per-site vault password fill and individual default-off DLP, EXIF, analytics cookie, clipboard metadata audit, and tab-blur toggles |
 | **Targets** | `.github/workflows/` | Unified WebExtension manifest supporting Chrome, Edge, Brave, Firefox, and macOS/iOS Safari Web Extension packaging |
 
 ## Release log
+
+### Version 2.5.10 - 2026-11-20
+
+- **[SECURITY]** Narrowed MV3 manifest permissions and host access (`#5`): restricted `host_permissions` to `https://uid.one/*` and `https://*.uid.one/*` with `optional_host_permissions` (`https://*/*`), narrowed `content_scripts` to top-frame `https://uid.one/*` and `https://*.uid.one/*` (using `activeTab` + `chrome.scripting` for user-enabled sites and context-menu actions), removed `clipboardRead`, `clipboardWrite`, `webRequest`, and `<all_urls>` `web_accessible_resources`, tightened `declarativeNetRequest` to HTTPS `uid.one` only, added strict `content_security_policy.extension_pages`, enforced `isAllowedPdfFetchUrl` across `FETCH_AND_HASH_PDF`, `FETCH_PDF_BYTES`, and `signer.html`, added `GET_USER_PUBKEY` identifier traversal checks, and shipped sized 16/32/48/128 PNG icons.
+- **[SECURITY]** Removed destructive default shields and clipboard sample exfiltration (`#6`): removed global print-blocking `@media print` CSS, DevTools console getter polling, `F12`/inspect/`contextmenu` blocking, `ViewportCleaner` DOM hiding, catch-all cookie regexes, and silent `navigator.clipboard.readText()` wiping; defaulted all shields (`settings_otp_shield`, `settings_exif_stripper`, `settings_cookie_guard`, `settings_clipboard_audit`, `settings_screen_shield`) to OFF with 1-to-1 popup toggles; eliminated `sample` substrings from `AUDIT_COPY` and removed signer email logging.
+- **[SECURITY]** Removed 512-bit mock certificates and `DEMO_SIGNATURE_VALUE` (`#7`): deleted `generateMockCert`, `showRemoteSigningModal`, and unreviewed `remote_ca` third-party CA password forms; removed `'DEMO_SIGNATURE_VALUE'` fallbacks from `waitForChallengeApproval` so missing signatures fail closed; replaced hidden `local-agent-url` / `http://127.0.0.1:13013` with an explicit HTTPS-only agent endpoint setting; validated PKCS#12 decryption before modifying PDF bytes.
+- **[FIXED]** Synchronized `package.json`, `manifest.json`, and `UPGRADE.md` at `v2.5.10`, updated popup title to `UID Link`, stripped `console.*` via Vite `mode === 'production'`, and added 14-locale translations for all new shield and signer controls.
 
 ### Version 2.5.9 - 2026-11-20
 

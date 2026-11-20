@@ -379,5 +379,50 @@
   },
   "pdfSignerPinPlaceholder": {
     "message": "Nhập mã PIN"
+  },
+  "shieldDlpTitle": {
+    "message": "Lá chắn nhập liệu và dán DLP"
+  },
+  "shieldDlpDesc": {
+    "message": "Quét biểu mẫu gửi đi, tệp tải lên và nội dung dán nhạy cảm"
+  },
+  "shieldExifTitle": {
+    "message": "Xóa siêu dữ liệu EXIF"
+  },
+  "shieldExifDesc": {
+    "message": "Xóa vị trí và thông tin máy ảnh JPEG khi tải lên"
+  },
+  "shieldCookieTitle": {
+    "message": "Chặn cookie theo dõi"
+  },
+  "shieldCookieDesc": {
+    "message": "Dọn các cookie phân tích bên thứ ba đã biết"
+  },
+  "shieldAuditTitle": {
+    "message": "Siêu dữ liệu nhật ký khay nhớ tạm"
+  },
+  "shieldAuditDesc": {
+    "message": "Chỉ ghi loại, số lượng và độ dài, không gửi nội dung"
+  },
+  "shieldScreenTitle": {
+    "message": "Làm mờ khi chuyển tab (UID.one)"
+  },
+  "shieldScreenDesc": {
+    "message": "Làm mờ trang UID.one khi tab bị ẩn"
+  },
+  "vaultFillTitle": {
+    "message": "Tích hợp trang và điền mật khẩu"
+  },
+  "vaultFillOffDesc": {
+    "message": "Mặc định tắt cho trang này"
+  },
+  "pdfSignerLabelAgentUrl": {
+    "message": "Địa chỉ agent (HTTPS):"
+  },
+  "pdfSignerPlaceholderAgentUrl": {
+    "message": "https://127.0.0.1:8443"
+  },
+  "pdfSignerAgentUrlRequired": {
+    "message": "Nhập URL HTTPS hợp lệ của agent để kết nối."
   }
 }
