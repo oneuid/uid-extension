@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "2.5.5",
+  "version": "2.5.9",
   "name": "__MSG_extensionName__",
   "default_locale": "en",
   "description": "__MSG_extensionDesc__",
@@ -14,6 +14,7 @@
     "storage",
     "contextMenus",
     "activeTab",
+    "scripting",
     "clipboardRead",
     "clipboardWrite",
     "notifications",
@@ -23,8 +24,6 @@
   "host_permissions": [
     "*://api.uid.one/*",
     "*://*.uid.one/*",
-    "*://localhost/*",
-    "*://127.0.0.1/*",
     "file:///*",
     "*://*/*"
   ],
@@ -40,17 +39,6 @@
       "js": [
         "src/content/index.ts"
       ]
-    },
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "all_frames": true,
-      "js": [
-        "src/world.ts"
-      ],
-      "world": "MAIN",
-      "run_at": "document_start"
     }
   ],
   "action": {

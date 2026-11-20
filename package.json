@@ -1,7 +1,7 @@
 {
   "name": "uid-extension-client",
   "private": true,
-  "version": "2.5.8",
+  "version": "2.5.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,8 @@
     "zip:edge": "cd dist/chrome && zip -r ../../uid-link-edge.zip .",
     "build:publish": "pnpm run build && pnpm run build:firefox && pnpm run zip:chrome && pnpm run zip:firefox && pnpm run zip:edge",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.42",

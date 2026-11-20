@@ -6,7 +6,7 @@
     "message": "Camada de segurança cliente Zero-Trust para UID.one. Aplica proteção DLP, vinculação de sessão e antirastreamento SSD."
   },
   "iconTitle": {
-    "message": "Entrar com Passkey (UID.one)"
+    "message": "Preencher senha salva (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "Erro: Cofre não encontrado para este site."
@@ -15,13 +15,13 @@
     "message": "Erro: Falha ao descriptografar as credenciais."
   },
   "errorNoUsernameProvided": {
-    "message": "Insira primeiro seu e-mail ou nome de usuário para usar sua Passkey."
+    "message": "Insira primeiro seu e-mail ou nome de usuário para preencher sua senha salva."
   },
   "pickerHeader": {
     "message": "Selecionar conta"
   },
   "setupGuidance": {
-    "message": "Configuração inicial: Insira seu e-mail e senha para fazer login normalmente. Um cofre Passkey seguro será criado automaticamente!"
+    "message": "Configuração inicial: Insira seu e-mail e senha para fazer login normalmente e salvá-los no cofre."
   },
   "vaultConnected": {
     "message": "Cofre conectado"
@@ -30,7 +30,7 @@
     "message": "Aguardando login"
   },
   "vaultConnectedDesc": {
-    "message": "Segurança Zero-Trust ativa. Passkeys e credenciais sincronizadas com segurança no cofre."
+    "message": "Segurança Zero-Trust ativa. Credenciais do cofre sincronizadas com segurança."
   },
   "waitingForLoginDesc": {
     "message": "Faça login na sua conta web em <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. A extensão será sincronizada e pareada automaticamente."

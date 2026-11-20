@@ -6,7 +6,7 @@
     "message": "Lớp bảo mật Zero-Trust cho hệ sinh thái UID.one. Thực thi bảo vệ dữ liệu DLP và chống theo dõi SSD."
   },
   "iconTitle": {
-    "message": "Đăng nhập bằng Passkey (UID.one)"
+    "message": "Điền mật khẩu đã lưu (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "Lỗi: Không tìm thấy két sắt (Vault) cho trang web này."
@@ -15,13 +15,13 @@
     "message": "Lỗi: Không thể giải mã tài khoản."
   },
   "errorNoUsernameProvided": {
-    "message": "Vui lòng nhập tên đăng nhập hoặc email trước khi sử dụng Passkey."
+    "message": "Vui lòng nhập tên đăng nhập hoặc email trước khi điền mật khẩu đã lưu."
   },
   "pickerHeader": {
     "message": "Chọn tài khoản"
   },
   "setupGuidance": {
-    "message": "Lần đầu tiên sử dụng: Vui lòng gõ email và mật khẩu rồi nhấn đăng nhập bình thường. Két sắt bảo mật sẽ tự động được tạo cho bạn!"
+    "message": "Lần đầu tiên sử dụng: Vui lòng nhập email và mật khẩu để đăng nhập bình thường và lưu vào két sắt bảo mật."
   },
   "vaultConnected": {
     "message": "Két sắt đã kết nối"
@@ -30,7 +30,7 @@
     "message": "Chờ đăng nhập"
   },
   "vaultConnectedDesc": {
-    "message": "Chế độ bảo mật Zero-Trust đang hoạt động. Passkeys và thông tin đăng nhập được đồng bộ an toàn."
+    "message": "Chế độ bảo mật Zero-Trust đang hoạt động. Thông tin đăng nhập trong két sắt được đồng bộ an toàn."
   },
   "waitingForLoginDesc": {
     "message": "Đăng nhập vào tài khoản <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> của bạn. Tiện ích sẽ tự động đồng bộ và kết nối."

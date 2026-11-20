@@ -6,7 +6,7 @@
     "message": "طبقة الأمن والهوية السيادية لنظام UID.one. تفرض سياسات Zero-Trust، وحماية البيانات (DLP)، ومكافحة تتبع SSD."
   },
   "iconTitle": {
-    "message": "تسجيل الدخول باستخدام Passkey (UID.one)"
+    "message": "تعبئة كلمة المرور المحفوظة (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "خطأ: لم يتم العثور على الخزنة لهذا الموقع."
@@ -15,13 +15,13 @@
     "message": "خطأ: فشل فك تشفير البيانات."
   },
   "errorNoUsernameProvided": {
-    "message": "يرجى إدخال البريد الإلكتروني أو اسم المستخدم أولاً لاستخدام Passkey."
+    "message": "يرجى إدخال البريد الإلكتروني أو اسم المستخدم أولاً لتعبئة كلمة المرور المحفوظة."
   },
   "pickerHeader": {
     "message": "اختر حسابًا"
   },
   "setupGuidance": {
-    "message": "الإعداد لأول مرة: يرجى إدخال البريد الإلكتروني وكلمة المرور لتسجيل الدخول بشكل طبيعي. سيتم إنشاء خزنة Passkey آمنة تلقائيًا!"
+    "message": "الإعداد لأول مرة: يرجى إدخال البريد الإلكتروني وكلمة المرور لتسجيل الدخول بشكل طبيعي لحفظها في الخزنة."
   },
   "vaultConnected": {
     "message": "الخزنة متصلة"
@@ -30,7 +30,7 @@
     "message": "في انتظار تسجيل الدخول"
   },
   "vaultConnectedDesc": {
-    "message": "حماية Zero-Trust نشطة. تمت مزامنة مفاتيح المرور وبيانات الاعتماد بأمان مع الخزنة."
+    "message": "حماية Zero-Trust نشطة. تمت مزامنة بيانات الاعتماد بأمان مع الخزنة."
   },
   "waitingForLoginDesc": {
     "message": "سجل الدخول إلى حساب الويب الخاص بك على <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. سيتم مزامنة وربط الامتداد تلقائيًا."

@@ -6,7 +6,7 @@
     "message": "UID.oneのための自立型クライアント側セキュリティ層。Zero-Trust、DLP保護、セッションバインド、およびSSD追跡防止を適用します。"
   },
   "iconTitle": {
-    "message": "Passkeyでログイン (UID.one)"
+    "message": "保存済みパスワードを入力 (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "エラー: このウェブサイトの保管庫（ボルト）が見つかりません。"
@@ -15,13 +15,13 @@
     "message": "エラー: 認証情報の復号に失敗しました。"
   },
   "errorNoUsernameProvided": {
-    "message": "Passkeyを使用するには、まずメールアドレスまたはユーザー名を入力してください。"
+    "message": "保存済みパスワードを入力するには、まずメールアドレスまたはユーザー名を入力してください。"
   },
   "pickerHeader": {
     "message": "アカウントの選択"
   },
   "setupGuidance": {
-    "message": "初回設定: 通常通りメールアドレスとパスワードを入力してログインしてください。安全なPasskey保管庫が自動的に作成されます！"
+    "message": "初回設定: 通常通りメールアドレスとパスワードを入力してログインし、安全な保管庫に保存してください。"
   },
   "vaultConnected": {
     "message": "保管庫に接続完了"
@@ -30,7 +30,7 @@
     "message": "ログイン待ち"
   },
   "vaultConnectedDesc": {
-    "message": "Zero-Trustセキュリティが有効です。Passkeyと認証情報は保管庫と安全に同期されています。"
+    "message": "Zero-Trustセキュリティが有効です。認証情報は保管庫と安全に同期されています。"
   },
   "waitingForLoginDesc": {
     "message": "<strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> ウェブアカウントにログインしてください。拡張機能が自動的に同期してペアリングされます。"

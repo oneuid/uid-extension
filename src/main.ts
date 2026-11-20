@@ -94,6 +94,21 @@ function updateUI() {
                 <span class="slider"></span>
               </label>
             </div>
+            <div class="card-row" id="autofill-site-row" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(148, 163, 184, 0.14);">
+              <div class="row-left">
+                <div class="icon-wrapper">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div class="row-content">
+                  <div class="row-title">Vault password fill</div>
+                  <div class="row-desc" id="autofill-site-origin">Off by default for this site</div>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggle-autofill-site" aria-label="Enable vault password fill for this site">
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -113,6 +128,41 @@ function updateUI() {
 
         toggleDlp.addEventListener('change', () => {
           chrome.storage.local.set({ 'settings_otp_shield': toggleDlp.checked });
+        });
+      }
+
+      const autofillRow = document.getElementById('autofill-site-row');
+      const autofillOriginEl = document.getElementById('autofill-site-origin');
+      const toggleAutofill = document.getElementById('toggle-autofill-site') as HTMLInputElement | null;
+      if (autofillRow && autofillOriginEl && toggleAutofill && chrome.tabs?.query) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const urlStr = tabs?.[0]?.url || '';
+          let activeOrigin = '';
+          try {
+            const parsed = new URL(urlStr);
+            if (parsed.protocol === 'https:' && parsed.hostname !== 'uid.one' && !parsed.hostname.endsWith('.uid.one')) {
+              activeOrigin = parsed.origin;
+            }
+          } catch {
+            activeOrigin = '';
+          }
+
+          if (!activeOrigin) return;
+          autofillRow.style.display = 'flex';
+          autofillOriginEl.textContent = activeOrigin;
+
+          chrome.runtime.sendMessage({ type: 'GET_AUTOFILL_SITES' }, (sitesRes) => {
+            const origins: string[] = Array.isArray(sitesRes?.origins) ? sitesRes.origins : [];
+            toggleAutofill.checked = origins.includes(activeOrigin);
+          });
+
+          toggleAutofill.addEventListener('change', () => {
+            chrome.runtime.sendMessage({
+              type: 'SET_AUTOFILL_SITE',
+              origin: activeOrigin,
+              enabled: toggleAutofill.checked,
+            });
+          });
         });
       }
     });

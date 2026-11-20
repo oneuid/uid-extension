@@ -6,7 +6,7 @@
     "message": "Sicurezza Zero-Trust per UID.one. Impone protezione DLP, associazione di sessione e anti-tracciamento."
   },
   "iconTitle": {
-    "message": "Accedi con Passkey (UID.one)"
+    "message": "Compila password salvata (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "Errore: Cassaforte non trovata per questo sito web."
@@ -15,13 +15,13 @@
     "message": "Errore: Decrittografia delle credenziali non riuscita."
   },
   "errorNoUsernameProvided": {
-    "message": "Inserisci prima la tua email o nome utente per utilizzare la tua Passkey."
+    "message": "Inserisci prima la tua email o nome utente per compilare la password salvata."
   },
   "pickerHeader": {
     "message": "Seleziona account"
   },
   "setupGuidance": {
-    "message": "Configurazione iniziale: Inserisci email e password per accedere normalmente. Verrà creata automaticamente una cassaforte Passkey sicura!"
+    "message": "Configurazione iniziale: Inserisci email e password per accedere normalmente e salvarle nella cassaforte."
   },
   "vaultConnected": {
     "message": "Cassaforte connessa"
@@ -30,7 +30,7 @@
     "message": "In attesa di accesso"
   },
   "vaultConnectedDesc": {
-    "message": "Sicurezza Zero-Trust attiva. Passkey e credenziali sincronizzati in modo sicuro con la cassaforte."
+    "message": "Sicurezza Zero-Trust attiva. Le credenziali della cassaforte sono sincronizzate in modo sicuro."
   },
   "waitingForLoginDesc": {
     "message": "Accedi al tuo account web su <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong>. L'estensione si sincronizzerà e si collegherà automaticamente."

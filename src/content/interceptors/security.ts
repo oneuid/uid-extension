@@ -1,3 +1,5 @@
+import { isSuspiciousUidHostname, isUidHostname } from '../../shared/origins';
+
 export class ScreenshotProtector {
   init(): void {
     console.log('[uid.one] Initializing ScreenshotProtector...');
@@ -186,13 +188,6 @@ export class ScreenshotProtector {
 }
 
 export class OriginVerifier {
-  private readonly SUSPICIOUS_PATTERNS = [
-    /uid\.one\./i,           // uid.one.evil.com
-    /uid-one/i,              // uid-one-login.com
-    /uidone/i,               // uidone-secure.com
-    /uid_one/i,
-  ];
-
   init(): void {
     this.checkCurrentPage();
     this.monitorFormSubmissions();
@@ -209,18 +204,11 @@ export class OriginVerifier {
   }
 
   private isLegitimateUIDDomain(hostname: string): boolean {
-    const LEGIT_DOMAINS = [
-      'uid.one',
-      'auth.uid.one',
-      'api.uid.one',
-    ];
-    return LEGIT_DOMAINS.some(d =>
-      hostname === d || hostname.endsWith(`.${d}`) || hostname === 'localhost' || hostname === '127.0.0.1'
-    );
+    return isUidHostname(hostname) || hostname === 'localhost' || hostname === '127.0.0.1';
   }
 
   private isSuspiciousUIDDomain(hostname: string): boolean {
-    return this.SUSPICIOUS_PATTERNS.some(p => p.test(hostname));
+    return isSuspiciousUidHostname(hostname);
   }
 
   private showPhishingWarning(hostname: string): void {
@@ -240,20 +228,21 @@ export class OriginVerifier {
       align-items: center;
       justify-content: space-between;
     `;
-    banner.innerHTML = `
-      <span>
-        ⚠ <strong>Phishing warning:</strong>
-        This page (${hostname}) may be impersonating UID.one.
-        Do not enter your credentials.
-      </span>
-      <button id="uid-phish-dismiss"
-        style="background:none;border:1px solid white;color:white;
-               padding:4px 12px;border-radius:4px;cursor:pointer">
-        Dismiss
-      </button>
-    `;
+    const msgSpan = document.createElement('span');
+    const strong = document.createElement('strong');
+    strong.textContent = 'Phishing warning:';
+    msgSpan.append('⚠ ', strong, ` This page (${hostname}) may be impersonating UID.one. Do not enter your credentials.`);
+
+    const dismissBtn = document.createElement('button');
+    dismissBtn.id = 'uid-phish-dismiss';
+    dismissBtn.type = 'button';
+    dismissBtn.textContent = 'Dismiss';
+    dismissBtn.style.cssText =
+      'background:none;border:1px solid white;color:white;padding:4px 12px;border-radius:4px;cursor:pointer';
+    dismissBtn.addEventListener('click', () => banner.remove());
+
+    banner.append(msgSpan, dismissBtn);
     document.body.prepend(banner);
-    banner.querySelector('#uid-phish-dismiss')?.addEventListener('click', () => banner.remove());
   }
 
   private monitorFormSubmissions(): void {

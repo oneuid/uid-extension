@@ -6,7 +6,7 @@
     "message": "Zero-Trust-Sicherheitsebene für UID.one. Bietet DLP-Schutz, Sitzungsbindung und SSD-Anti-Tracking."
   },
   "iconTitle": {
-    "message": "Mit Passkey anmelden (UID.one)"
+    "message": "Gespeichertes Passwort ausfüllen (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "Fehler: Tresor für diese Website nicht gefunden."
@@ -15,13 +15,13 @@
     "message": "Fehler: Entschlüsselung der Anmeldedaten fehlgeschlagen."
   },
   "errorNoUsernameProvided": {
-    "message": "Bitte geben Sie zuerst Ihre E-Mail-Adresse oder Ihren Benutzernamen ein, um Ihren Passkey zu verwenden."
+    "message": "Bitte geben Sie zuerst Ihre E-Mail-Adresse oder Ihren Benutzernamen ein, um Ihr gespeichertes Passwort auszufüllen."
   },
   "pickerHeader": {
     "message": "Konto auswählen"
   },
   "setupGuidance": {
-    "message": "Ersteinrichtung: Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich normal anzumelden. Ein sicherer Passkey-Tresor wird automatisch erstellt!"
+    "message": "Ersteinrichtung: Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein, um sich normal anzumelden und sie im Tresor zu speichern."
   },
   "vaultConnected": {
     "message": "Tresor verbunden"
@@ -30,7 +30,7 @@
     "message": "Warten auf Login"
   },
   "vaultConnectedDesc": {
-    "message": "Zero-Trust-Sicherheit aktiv. Passkeys und Anmeldedaten sind sicher mit dem Tresor synchronisiert."
+    "message": "Zero-Trust-Sicherheit aktiv. Anmeldedaten sind sicher mit dem Tresor synchronisiert."
   },
   "waitingForLoginDesc": {
     "message": "Melden Sie sich in Ihrem <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> Webkonto an. Die Erweiterung synchronisiert und verbindet sich automatisch."

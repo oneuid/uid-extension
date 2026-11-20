@@ -1827,25 +1827,6 @@ async function loadOnStart() {
   localizeHtml();
   await initIdentity();
 
-  // Probe local agent on startup to see if USB is connected
-  try {
-    const probeRes = await fetch('http://127.0.0.1:13013/certificates', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
-    if (probeRes.ok) {
-      const data = await probeRes.json().catch(() => ({}));
-      const certs = data.certificates || [];
-      const hasUsb = certs.some((c: any) => c.id !== 'agent_identity_key');
-      if (hasUsb && signingCertSelect) {
-        signingCertSelect.value = 'local_agent';
-        signingCertSelect.dispatchEvent(new Event('change'));
-      }
-    }
-  } catch (e) {
-    // Agent is offline or not installed, fallback silently
-  }
-  
   const params = new URLSearchParams(window.location.search);
   const cacheKey = params.get('cacheKey');
   const fileUrl = params.get('url');

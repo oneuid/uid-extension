@@ -609,7 +609,6 @@ function init() {
       return;
     }
     injectAll();
-    captureSessionToken();
   });
   observer.observe(document.body, { childList: true, subtree: true });
 }

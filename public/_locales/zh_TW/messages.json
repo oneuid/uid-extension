@@ -6,7 +6,7 @@
     "message": "UID.one 的主權用戶端安全與身分層。執行零信任 (Zero-Trust)、資料防洩漏 (DLP) 保護、工作階段綁定與 SSD 反追蹤。"
   },
   "iconTitle": {
-    "message": "使用 Passkey 登入 (UID.one)"
+    "message": "填入已儲存密碼 (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "錯誤：找不到該網站的安全保險箱。"
@@ -15,13 +15,13 @@
     "message": "錯誤：解密憑證失敗。"
   },
   "errorNoUsernameProvided": {
-    "message": "請先輸入您的電子郵件或使用者名稱以使用 Passkey。"
+    "message": "請先輸入您的電子郵件或使用者名稱以填入已儲存密碼。"
   },
   "pickerHeader": {
     "message": "選擇帳戶"
   },
   "setupGuidance": {
-    "message": "首次設定：請輸入您的信箱與密碼進行正常登入。系統將自動為您建立安全的 Passkey 保險箱！"
+    "message": "首次設定：請輸入您的信箱與密碼進行正常登入，並儲存至安全保險箱中。"
   },
   "vaultConnected": {
     "message": "保險箱已連線"
@@ -30,7 +30,7 @@
     "message": "等待登入"
   },
   "vaultConnectedDesc": {
-    "message": "Zero-Trust 安全防禦已啟用。通行密鑰與憑證已安全同步至保險箱。"
+    "message": "Zero-Trust 安全防禦已啟用。保險箱憑證已安全同步。"
   },
   "waitingForLoginDesc": {
     "message": "請登入您的 <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 網頁帳戶。瀏覽器擴充功能將自動進行同步與配對。"

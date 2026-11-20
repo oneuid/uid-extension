@@ -6,7 +6,7 @@
     "message": "UID.one 的主权客户端安全与身份层。执行零信任 (Zero-Trust)、数据防泄漏 (DLP) 保护、会话绑定和 SSD 反跟踪。"
   },
   "iconTitle": {
-    "message": "使用 Passkey 登录 (UID.one)"
+    "message": "填充已保存密码 (UID.one)"
   },
   "errorVaultNotFound": {
     "message": "错误：找不到该网站的安全保险箱。"
@@ -15,13 +15,13 @@
     "message": "错误：解密凭据失败。"
   },
   "errorNoUsernameProvided": {
-    "message": "请先输入您的电子邮件或用户名以使用 Passkey。"
+    "message": "请先输入您的电子邮件或用户名以填充已保存密码。"
   },
   "pickerHeader": {
     "message": "选择账户"
   },
   "setupGuidance": {
-    "message": "首次设置：请输入您的邮箱和密码进行正常登录。系统将自动为您创建安全的 Passkey 保险箱！"
+    "message": "首次设置：请输入您的邮箱和密码进行正常登录，并保存到安全保险箱中。"
   },
   "vaultConnected": {
     "message": "保险箱已连接"
@@ -30,7 +30,7 @@
     "message": "等待登录"
   },
   "vaultConnectedDesc": {
-    "message": "Zero-Trust 安全防御已激活。密钥与凭据已安全同步至保险箱。"
+    "message": "Zero-Trust 安全防御已激活。保险箱凭据已安全同步。"
   },
   "waitingForLoginDesc": {
     "message": "请登录您的 <strong><a href=\"https://uid.one/login\" target=\"_blank\" style=\"color: var(--primary-glow); text-decoration: underline;\">uid.one</a></strong> 网页账户。浏览器扩展程序将自动进行同步与配对。"
