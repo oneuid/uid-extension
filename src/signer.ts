@@ -1017,21 +1017,21 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
   overlay.innerHTML = `
     <div style="background: #0B1220; border: 1px solid rgba(51, 65, 85, 0.7); border-radius: 20px; width: 90%; max-width: 400px; padding: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);">
       <div style="margin-bottom: 20px;">
-        <div style="display: inline-flex; width: 52px; height: 52px; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div style="display: inline-flex; width: 52px; height: 52px; background: rgba(37, 99, 255, 0.14); border: 1px solid rgba(37, 99, 255, 0.35); border-radius: 50%; align-items: center; justify-content: center; margin-bottom: 12px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </div>
         <h3 style="font-size: 18px; font-weight: 700; color: #F8FAFC; margin: 0 0 6px 0;">${title}</h3>
-        <p style="font-size: 13px; color: #94A3B8; margin: 0; line-height: 1.5;">${desc}</p>
+        <p style="font-size: 13px; color: #CBD5E1; margin: 0; line-height: 1.5;">${desc}</p>
       </div>
 
       <div style="margin-bottom: 24px;">
         <input type="${inputType}" id="uid-signer-otp-input" ${inputModeAttr} maxlength="${maxLength}" placeholder="${placeholder}" style="
           width: 80%;
-          background: #111A2E;
-          border: 1px solid rgba(51, 65, 85, 0.8);
+          background: #1A2233;
+          border: 1px solid rgba(229, 231, 235, 0.2);
           border-radius: 12px;
           padding: 12px;
           font-size: 24px;
@@ -1046,10 +1046,10 @@ function showOtpPromptModal(callback: (code: string) => void, cancelCallback: ()
       </div>
 
       <div style="display: flex; gap: 12px; justify-content: center;">
-        <button type="button" id="uid-signer-otp-cancel" style="flex: 1; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.7); color: #CBD5E1; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
+        <button type="button" id="uid-signer-otp-cancel" style="flex: 1; min-height: 44px; background: #1A2233; border: 1px solid rgba(229, 231, 235, 0.2); color: #E5E7EB; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
           ${chrome.i18n.getMessage("otpCancel") || "Cancel"}
         </button>
-        <button type="button" id="uid-signer-otp-confirm" style="flex: 1; background: #2563EB; border: none; color: #FFFFFF; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
+        <button type="button" id="uid-signer-otp-confirm" style="flex: 1; min-height: 44px; background: #2563FF; border: none; color: #FFFFFF; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;">
           ${chrome.i18n.getMessage("otpConfirm") || "Sign"}
         </button>
       </div>

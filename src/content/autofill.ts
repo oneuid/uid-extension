@@ -1,5 +1,6 @@
 import QRCode from 'qrcode';
 import { isTrustedUidOrigin, isUidHostname } from '../shared/origins';
+import { escapeHtml, t } from '../shared/ui';
 
 const AUTOFILL_SITES_KEY = 'autofill_enabled_origins';
 const PAIRING_TIMEOUT_MS = 120_000;
@@ -9,19 +10,267 @@ let isListeningToSessionEvents = false;
 let cachedEnabledOrigins: Set<string> | null = null;
 let isWatchingEnabledOrigins = false;
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 function generateTargetId(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getShadowStyles(): string {
+  return `
+    :host {
+      all: initial;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    .uid-backdrop {
+      position: fixed;
+      inset: 0;
+      min-height: 100dvh;
+      background: rgba(11, 18, 32, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 2147483647;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #F8FAFC;
+    }
+    .uid-card {
+      width: 100%;
+      max-width: 360px;
+      background: #1A2233;
+      border: 1px solid rgba(229, 231, 235, 0.18);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      color: #F8FAFC;
+    }
+    .uid-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.14);
+    }
+    .uid-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+    .uid-close {
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid rgba(229, 231, 235, 0.18);
+      background: #0B1220;
+      color: #E5E7EB;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .uid-close:hover {
+      border-color: #6E9BFF;
+    }
+    .uid-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+    .uid-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #CBD5E1;
+    }
+    .uid-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #CBD5E1;
+      margin-bottom: 4px;
+    }
+    .uid-origin {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F8FAFC;
+      background: #0B1220;
+      border: 1px solid rgba(229, 231, 235, 0.16);
+      border-radius: 8px;
+      padding: 8px 12px;
+      word-break: break-all;
+    }
+    .uid-match {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      font-variant-numeric: tabular-nums;
+      color: #6E9BFF;
+      background: rgba(37, 99, 255, 0.14);
+      border: 1px solid rgba(37, 99, 255, 0.35);
+      border-radius: 12px;
+      padding: 10px 18px;
+      text-align: center;
+    }
+    .uid-qr-wrap {
+      align-self: center;
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #E5E7EB;
+    }
+    .uid-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #0B1220;
+      border: 1px solid rgba(229, 231, 235, 0.16);
+      color: #E5E7EB;
+    }
+    .uid-status.error {
+      border-color: rgba(239, 68, 68, 0.5);
+      background: rgba(239, 68, 68, 0.14);
+      color: #FECACA;
+    }
+    .uid-status.success {
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(16, 185, 129, 0.14);
+      color: #A7F3D0;
+    }
+    .uid-spinner {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      animation: uid-spin 1s linear infinite;
+    }
+    .uid-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .uid-btn {
+      flex: 1;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .uid-btn-primary {
+      background: #2563FF;
+      color: #FFFFFF;
+    }
+    .uid-btn-primary:hover {
+      background: #1457FF;
+    }
+    .uid-btn-cancel {
+      background: transparent;
+      color: #FCA5A5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+    .uid-btn-cancel:hover {
+      background: rgba(239, 68, 68, 0.12);
+    }
+    .uid-btn-secondary {
+      background: #0B1220;
+      color: #F8FAFC;
+      border: 1px solid rgba(229, 231, 235, 0.22);
+    }
+    .uid-btn:focus-visible, .uid-close:focus-visible {
+      outline: 2px solid #6E9BFF;
+      outline-offset: 2px;
+    }
+    @keyframes uid-spin {
+      100% { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  `;
+}
+
+function createClosedOverlayHost(): { host: HTMLDivElement; shadow: ShadowRoot; dir: 'rtl' | 'ltr' } {
+  const host = document.createElement('div');
+  host.className = 'uid-extension-dialog-host';
+  const shadow = host.attachShadow({ mode: 'closed' });
+  const uiLang = (chrome.i18n?.getUILanguage?.() || navigator.language || 'en').toLowerCase();
+  const dir: 'rtl' | 'ltr' = uiLang.startsWith('ar') ? 'rtl' : 'ltr';
+  document.body.appendChild(host);
+  return { host, shadow, dir };
+}
+
+function showClosedNoticeDialog(title: string, message: string): void {
+  const { host, shadow, dir } = createClosedOverlayHost();
+  const closeLabel = escapeHtml(t('challengeCloseBtn', 'Close'));
+
+  shadow.innerHTML = `
+    <style>${getShadowStyles()}</style>
+    <div class="uid-backdrop" dir="${dir}" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+      <div class="uid-card">
+        <div class="uid-header">
+          <div class="uid-brand">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>UID Link</span>
+          </div>
+          <button type="button" id="uid-notice-close" class="uid-close" aria-label="${closeLabel}">✕</button>
+        </div>
+        <h3 class="uid-title">${escapeHtml(title)}</h3>
+        <div class="uid-status error" role="status" aria-live="polite">${escapeHtml(message)}</div>
+        <div class="uid-actions">
+          <button type="button" id="uid-notice-ok" class="uid-btn uid-btn-primary">${closeLabel}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const close = () => {
+    document.removeEventListener('keydown', onEsc, true);
+    host.remove();
+  };
+  const onEsc = (e: KeyboardEvent) => {
+    if (e.isComposing || e.keyCode === 229) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      close();
+    }
+  };
+  document.addEventListener('keydown', onEsc, true);
+  shadow.getElementById('uid-notice-close')?.addEventListener('click', close);
+  shadow.getElementById('uid-notice-ok')?.addEventListener('click', close);
+  shadow.querySelector('.uid-backdrop')?.addEventListener('click', (ev) => {
+    if (ev.target === ev.currentTarget) close();
+  });
 }
 
 /**
@@ -135,13 +384,14 @@ function injectIcon(input: HTMLInputElement): void {
   shadowHost.className = 'uid-vault-wrapper';
   shadowHost.style.position = 'absolute';
   shadowHost.style.zIndex = '999999';
-  shadowHost.style.cursor = 'pointer';
+  shadowHost.style.width = '44px';
+  shadowHost.style.height = '44px';
 
   document.body.appendChild(shadowHost);
 
   const computedStyle = window.getComputedStyle(input);
   const originalPaddingRight = parseFloat(computedStyle.paddingRight) || 0;
-  input.style.paddingRight = `${originalPaddingRight + 28}px`;
+  input.style.paddingRight = `${originalPaddingRight + 44}px`;
 
   const updatePosition = () => {
     const rect = input.getBoundingClientRect();
@@ -151,9 +401,7 @@ function injectIcon(input: HTMLInputElement): void {
     }
     shadowHost.style.display = 'block';
     shadowHost.style.top = `${rect.top + window.scrollY + rect.height / 2}px`;
-
-    const offsetFromRight = originalPaddingRight + 28;
-    shadowHost.style.left = `${rect.right + window.scrollX - offsetFromRight}px`;
+    shadowHost.style.left = `${rect.right + window.scrollX - 44}px`;
     shadowHost.style.transform = 'translateY(-50%)';
   };
 
@@ -170,48 +418,69 @@ function injectIcon(input: HTMLInputElement): void {
   }, 500);
 
   const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
-
-  const icon = document.createElement('div');
-  icon.style.cssText = `
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #0B1220;
-    opacity: 1;
-    transition: color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+  const iconStyle = document.createElement('style');
+  iconStyle.textContent = `
+    :host { all: initial; }
+    .uid-fill-trigger {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      color: #0B1220;
+      border-radius: 10px;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .uid-fill-trigger:hover {
+      color: #2563FF;
+      transform: scale(1.05);
+    }
+    .uid-fill-trigger:focus-visible {
+      outline: 2px solid #2563FF;
+      outline-offset: -2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .uid-fill-trigger {
+        transition: none;
+      }
+      .uid-fill-trigger:hover {
+        transform: none;
+      }
+    }
   `;
 
-  icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  const rawTitle = chrome.runtime?.id ? chrome.i18n.getMessage('iconTitle') : '';
+  const triggerLabel =
+    rawTitle && !/passkey/i.test(rawTitle) ? rawTitle : t('iconTitle', 'Fill saved password (UID.one)');
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'uid-fill-trigger';
+  button.title = triggerLabel;
+  button.setAttribute('aria-label', triggerLabel);
+  button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>`;
 
-  const rawTitle = chrome.runtime?.id ? chrome.i18n.getMessage('iconTitle') : '';
-  icon.title = rawTitle && !/passkey/i.test(rawTitle) ? rawTitle : 'Fill saved password (UID.one)';
-
-  icon.addEventListener('mouseenter', () => {
-    icon.style.color = '#2563FF';
-    icon.style.transform = 'scale(1.05)';
-  });
-
-  icon.addEventListener('mouseleave', () => {
-    icon.style.color = '#0B1220';
-    icon.style.transform = 'scale(1)';
-  });
-
   const performVaultFill = async (targetUsername: string, fillTargetId: string) => {
     try {
       if (!chrome.runtime?.id) {
-        alert('Extension context invalidated. Please refresh the page.');
+        showClosedNoticeDialog(
+          t('challengeFailed', 'Verification failed'),
+          t('extensionContextInvalid', 'Extension updated. Refresh the page and try again.')
+        );
         return;
       }
 
       const origin = window.location.origin;
       const domain = window.location.hostname;
-      const device = navigator.userAgent.includes('Mac') ? 'Chrome on macOS' : 'Chrome Web';
+      const device = navigator.userAgent.includes('Mac') ? 'Browser on macOS' : 'Browser Web';
 
       const isPairedRes = await new Promise<any>((resolve) => {
         chrome.runtime.sendMessage({ type: 'CHECK_PAIRING' }, resolve);
@@ -220,42 +489,72 @@ function injectIcon(input: HTMLInputElement): void {
       if (!isPairedRes?.isPaired) {
         const reqRes = await new Promise<any>((resolve) => {
           chrome.runtime.sendMessage(
-            { type: 'START_OOB_AUTH', domain, device, identifier: targetUsername },
+            { type: 'START_OOB_AUTH', domain, origin, device, identifier: targetUsername },
             resolve
           );
         });
 
         if (!reqRes?.success || !reqRes.challenge?.token) {
-          alert('Failed to initiate device pairing.');
+          showClosedNoticeDialog(
+            t('challengePairTitle', 'Confirm browser link'),
+            t('challengeInitFailed', 'Failed to start verification: $1', [reqRes?.error || 'Error'])
+          );
           return;
         }
 
-        const qrUrl = `https://uid.one/qr?challenge=${encodeURIComponent(reqRes.challenge.token)}&client_id=uid-extension-client&client_name=Extension`;
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 200 });
-        const pairingMatchNumber =
-          reqRes.challenge.match_number ?? reqRes.challenge.verification_code ?? '';
+        const challengeToken = String(reqRes.challenge.token);
+        const qrUrl = `https://uid.one/qr?challenge=${encodeURIComponent(challengeToken)}&client_id=uid-extension-client&client_name=Extension`;
+        const qrDataUrl = await QRCode.toDataURL(qrUrl, { margin: 2, width: 180 });
+        const pairingMatchNumber = String(
+          reqRes.challenge.match_number ?? reqRes.challenge.verification_code ?? '—'
+        );
 
-        const overlay = document.createElement('div');
-        overlay.setAttribute('role', 'dialog');
-        overlay.setAttribute('aria-modal', 'true');
-        overlay.setAttribute('aria-label', 'Pair device');
-        overlay.innerHTML = `
-          <div id="uid-qr-backdrop" style="position: fixed; inset: 0; min-height: 100dvh; background: rgba(2, 8, 23, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-            <div id="uid-qr-container" style="background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.28); display: flex; flex-direction: column; align-items: center; gap: 14px; font-family: 'Inter', system-ui, sans-serif; color: #0f172a; position: relative; min-width: 280px; min-height: 320px; justify-content: center;">
-              <button type="button" id="close-qr" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
-              <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #0f172a;">Pair device for vault fill</h3>
-              <p style="margin: 0; font-size: 12px; color: #475569; text-align: center;">Site: <strong>${escapeHtml(origin)}</strong></p>
-              ${pairingMatchNumber ? `<div style="font-size: 22px; font-weight: 700; letter-spacing: 0.14em; color: #2563FF; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 6px 16px;">${escapeHtml(String(pairingMatchNumber))}</div>` : ''}
-              <div style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 10px;">
-                <img src="${qrDataUrl}" alt="UID.one pairing QR code" style="width: 200px; height: 200px; display: block;" />
+        // Open extension chrome verification window so pairing completes outside host DOM.
+        chrome.runtime.sendMessage({ type: 'OPEN_CHALLENGE_WINDOW', token: challengeToken });
+
+        const { host, shadow, dir } = createClosedOverlayHost();
+        const titleText = t('challengePairTitle', 'Confirm browser link');
+        const closeLabel = t('challengeCloseBtn', 'Close');
+        const cancelLabel = t('challengeCancelBtn', 'Cancel');
+        const retryLabel = t('retryButton', 'Retry');
+
+        shadow.innerHTML = `
+          <style>${getShadowStyles()}</style>
+          <div class="uid-backdrop" dir="${dir}" role="dialog" aria-modal="true" aria-label="${escapeHtml(titleText)}">
+            <div class="uid-card">
+              <div class="uid-header">
+                <div class="uid-brand">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                  <span>UID Link</span>
+                </div>
+                <button type="button" id="close-qr" class="uid-close" aria-label="${escapeHtml(closeLabel)}">✕</button>
               </div>
-              <p id="uid-qr-status" style="margin: 0; font-size: 13px; color: #475569; text-align: center; max-width: 240px; line-height: 1.45;">
-                Scan this code with the UID.one mobile app and confirm the match number.
-              </p>
+              <h3 class="uid-title">${escapeHtml(titleText)}</h3>
+              <p class="uid-desc">${escapeHtml(t('pairBrowserDesc', 'Scan this QR code with the UID.one mobile app and confirm the match number.'))}</p>
+              <div>
+                <div class="uid-label">${escapeHtml(t('originLabel', 'Origin'))}</div>
+                <div class="uid-origin">${escapeHtml(origin)}</div>
+              </div>
+              <div>
+                <div class="uid-label">${escapeHtml(t('matchNumberLabel', 'Match number'))}</div>
+                <div class="uid-match">${escapeHtml(pairingMatchNumber)}</div>
+              </div>
+              <div class="uid-qr-wrap">
+                <img src="${qrDataUrl}" alt="${escapeHtml(t('pairBrowserTitle', 'Link this browser'))}" width="180" height="180" style="display: block;" />
+              </div>
+              <div id="uid-qr-status" class="uid-status" role="status" aria-live="polite">
+                <svg class="uid-spinner" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                <span>${escapeHtml(t('challengeWaiting', 'Waiting for approval...'))}</span>
+              </div>
+              <div class="uid-actions">
+                <button type="button" id="cancel-qr" class="uid-btn uid-btn-cancel">${escapeHtml(cancelLabel)}</button>
+                <button type="button" id="retry-qr" class="uid-btn uid-btn-primary" style="display: none;">${escapeHtml(retryLabel)}</button>
+              </div>
             </div>
           </div>
         `;
-        document.body.appendChild(overlay);
 
         let pollInterval: ReturnType<typeof setInterval> | null = null;
         const startedAt = Date.now();
@@ -270,7 +569,25 @@ function injectIcon(input: HTMLInputElement): void {
         const cleanupQr = () => {
           stopPolling();
           document.removeEventListener('keydown', onQrEsc, true);
-          overlay.remove();
+          host.remove();
+        };
+
+        const showTerminalQrState = (message: string, kind: 'error' | 'success', allowRetry: boolean) => {
+          stopPolling();
+          const statusEl = shadow.getElementById('uid-qr-status');
+          const cancelBtn = shadow.getElementById('cancel-qr') as HTMLButtonElement | null;
+          const retryBtn = shadow.getElementById('retry-qr') as HTMLButtonElement | null;
+          if (statusEl) {
+            statusEl.className = `uid-status ${kind}`;
+            statusEl.textContent = message;
+          }
+          if (cancelBtn) cancelBtn.style.display = 'none';
+          if (retryBtn) retryBtn.style.display = allowRetry ? 'inline-flex' : 'none';
+        };
+
+        const cancelQr = () => {
+          chrome.runtime.sendMessage({ type: 'CANCEL_ACTIVE_CHALLENGE', token: challengeToken });
+          cleanupQr();
         };
 
         const onQrEsc = (e: KeyboardEvent) => {
@@ -278,131 +595,141 @@ function injectIcon(input: HTMLInputElement): void {
           if (e.key === 'Escape') {
             e.preventDefault();
             e.stopPropagation();
-            cleanupQr();
+            cancelQr();
           }
         };
         document.addEventListener('keydown', onQrEsc, true);
 
-        overlay.querySelector('#close-qr')?.addEventListener('click', cleanupQr);
-        overlay.querySelector('#uid-qr-backdrop')?.addEventListener('click', (ev) => {
-          if (ev.target === ev.currentTarget) cleanupQr();
+        shadow.getElementById('close-qr')?.addEventListener('click', cancelQr);
+        shadow.getElementById('cancel-qr')?.addEventListener('click', cancelQr);
+        shadow.getElementById('retry-qr')?.addEventListener('click', () => {
+          cleanupQr();
+          void performVaultFill(targetUsername, fillTargetId);
         });
-
-        const showPairingFailure = (message: string) => {
-          stopPolling();
-          const statusEl = overlay.querySelector('#uid-qr-status') as HTMLElement | null;
-          if (statusEl) {
-            statusEl.textContent = message;
-            statusEl.style.color = '#dc2626';
-          }
-        };
+        shadow.querySelector('.uid-backdrop')?.addEventListener('click', (ev) => {
+          if (ev.target === ev.currentTarget) cancelQr();
+        });
 
         pollInterval = setInterval(async () => {
           if (Date.now() - startedAt > PAIRING_TIMEOUT_MS) {
-            showPairingFailure('Pairing timed out. Close and try again.');
+            chrome.runtime.sendMessage({
+              type: 'UPDATE_ACTIVE_CHALLENGE_STATUS',
+              token: challengeToken,
+              status: 'EXPIRED',
+            });
+            showTerminalQrState(t('challengeTimedOut', 'Request timed out. Please try again.'), 'error', true);
             return;
           }
 
           const pollRes = await new Promise<any>((resolve) => {
-            chrome.runtime.sendMessage(
-              { type: 'POLL_OOB_STATUS', token: reqRes.challenge.token },
-              resolve
-            );
+            chrome.runtime.sendMessage({ type: 'POLL_OOB_STATUS', token: challengeToken }, resolve);
           });
 
           if (!pollRes?.success) {
-            showPairingFailure('Pairing check failed. Please try again.');
+            showTerminalQrState(t('challengeFailed', 'Verification failed'), 'error', true);
             return;
           }
 
-          if (pollRes.status === 'REJECTED' || pollRes.status === 'EXPIRED') {
-            showPairingFailure(
-              pollRes.status === 'REJECTED'
-                ? 'Pairing request was rejected.'
-                : 'Pairing code expired. Please try again.'
-            );
+          if (pollRes.status === 'REJECTED') {
+            showTerminalQrState(t('challengeRejected', 'Request was rejected.'), 'error', true);
+            return;
+          }
+
+          if (pollRes.status === 'EXPIRED') {
+            showTerminalQrState(t('challengeExpired', 'Request expired. Please try again.'), 'error', true);
             return;
           }
 
           if (pollRes.status === 'APPROVED') {
             stopPolling();
-            document.removeEventListener('keydown', onQrEsc, true);
-
-            // Never persist a challenge token as a session token; only persist a verified access_token if issued.
             const issuedAccessToken =
               typeof pollRes.data?.access_token === 'string' ? pollRes.data.access_token : '';
-            if (issuedAccessToken) {
-              const saveRes = await new Promise<any>((resolve) =>
-                chrome.runtime.sendMessage({ type: 'SAVE_PAIRING', token: issuedAccessToken }, resolve)
+            if (!issuedAccessToken) {
+              showTerminalQrState(
+                t('pairingTokenUnverified', 'Approved. Finish signing in on uid.one.'),
+                'error',
+                true
               );
-              if (!saveRes?.success) {
-                showPairingFailure('Could not verify session token. Sign in on uid.one to pair.');
-                return;
-              }
-            } else {
-              showPairingFailure('Approved. Please complete pairing by signing in on https://uid.one.');
               return;
             }
-
-            const container = overlay.querySelector('#uid-qr-container') as HTMLElement;
-            if (container) {
-              container.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-                  <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </div>
-                  <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Device paired</h3>
-                  <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Vault password fill verification is now active.</p>
-                </div>
-              `;
-              setTimeout(() => {
-                overlay.remove();
-                void performVaultFill(targetUsername, fillTargetId);
-              }, 1800);
+            const saveRes = await new Promise<any>((resolve) =>
+              chrome.runtime.sendMessage({ type: 'SAVE_PAIRING', token: issuedAccessToken }, resolve)
+            );
+            if (!saveRes?.success) {
+              showTerminalQrState(saveRes?.error || t('challengeFailed', 'Verification failed'), 'error', true);
+              return;
             }
+            showTerminalQrState(
+              `${t('pairingSuccess', 'Device linked')} — ${t('pairingSuccessDesc', 'Your browser session is now verified.')}`,
+              'success',
+              false
+            );
+            setTimeout(() => {
+              cleanupQr();
+              void performVaultFill(targetUsername, fillTargetId);
+            }, 1200);
           }
         }, 2000);
         return;
       }
 
       const reqRes = await new Promise<any>((resolve) => {
-        chrome.runtime.sendMessage({ type: 'PUSH_REQUEST', domain }, resolve);
+        chrome.runtime.sendMessage({ type: 'PUSH_REQUEST', domain, targetId: fillTargetId }, resolve);
       });
 
       if (!reqRes?.success || !reqRes.data?.token) {
-        alert('Failed to request vault password fill: ' + (reqRes?.error || 'Unknown error'));
+        showClosedNoticeDialog(
+          t('challengeTitle', 'Confirm vault password fill'),
+          t('challengeInitFailed', 'Failed to start verification: $1', [reqRes?.error || 'Error'])
+        );
         return;
       }
 
-      const challengeId = reqRes.data.token;
-      const matchNumber =
-        reqRes.data.match_number ?? reqRes.data.verification_code ?? '';
+      const challengeId = String(reqRes.data.token);
+      const matchNumber = String(reqRes.data.match_number ?? reqRes.data.verification_code ?? '—');
 
-      const overlay = document.createElement('div');
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.setAttribute('aria-label', 'Confirm vault password fill');
-      overlay.innerHTML = `
-        <div id="uid-match-backdrop" style="position: fixed; inset: 0; min-height: 100dvh; background: rgba(2, 8, 23, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999999;">
-          <div id="uid-match-container" style="background: #ffffff; border-radius: 16px; padding: 32px; box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.28); display: flex; flex-direction: column; align-items: center; gap: 14px; font-family: 'Inter', system-ui, sans-serif; color: #0f172a; position: relative; min-width: 300px;">
-            <button type="button" id="close-match" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
-            <h3 style="margin: 0; font-size: 18px; font-weight: 600; text-align: center; color: #0f172a;">Confirm vault password fill</h3>
-            <p style="margin: 0; font-size: 12px; color: #475569; text-align: center;">Origin: <strong>${escapeHtml(origin)}</strong></p>
-            <p style="margin: 0; font-size: 13px; color: #475569; text-align: center; max-width: 260px; line-height: 1.45;">Verify the match number below on your paired UID.one device. The form will not auto-submit.</p>
-            <div style="font-size: 28px; font-weight: 700; letter-spacing: 0.16em; color: #2563FF; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 10px 22px; margin: 4px 0;">
-              ${escapeHtml(matchNumber ? String(matchNumber) : '—')}
+      chrome.runtime.sendMessage({ type: 'OPEN_CHALLENGE_WINDOW', token: challengeId });
+
+      const { host, shadow, dir } = createClosedOverlayHost();
+      const titleText = t('challengeTitle', 'Confirm vault password fill');
+      const closeLabel = t('challengeCloseBtn', 'Close');
+      const cancelLabel = t('challengeCancelBtn', 'Cancel');
+      const retryLabel = t('retryButton', 'Retry');
+
+      shadow.innerHTML = `
+        <style>${getShadowStyles()}</style>
+        <div class="uid-backdrop" dir="${dir}" role="dialog" aria-modal="true" aria-label="${escapeHtml(titleText)}">
+          <div class="uid-card">
+            <div class="uid-header">
+              <div class="uid-brand">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>UID Link</span>
+              </div>
+              <button type="button" id="close-match" class="uid-close" aria-label="${escapeHtml(closeLabel)}">✕</button>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-              <span style="font-size: 12px; color: #64748b;">Waiting for approval...</span>
+            <h3 class="uid-title">${escapeHtml(titleText)}</h3>
+            <p class="uid-desc">${escapeHtml(t('challengeDesc', 'Verify the match number on your UID.one device. Forms never auto-submit.'))}</p>
+            <div>
+              <div class="uid-label">${escapeHtml(t('originLabel', 'Origin'))}</div>
+              <div class="uid-origin">${escapeHtml(origin)}</div>
             </div>
-            <style>
-              @keyframes spin { 100% { transform: rotate(360deg); } }
-            </style>
+            <div>
+              <div class="uid-label">${escapeHtml(t('matchNumberLabel', 'Match number'))}</div>
+              <div class="uid-match">${escapeHtml(matchNumber)}</div>
+            </div>
+            <div id="uid-match-status" class="uid-status" role="status" aria-live="polite">
+              <svg class="uid-spinner" viewBox="0 0 24 24" fill="none" stroke="#6E9BFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+              <span>${escapeHtml(t('challengeWaiting', 'Waiting for approval...'))}</span>
+            </div>
+            <div class="uid-actions">
+              <button type="button" id="cancel-match" class="uid-btn uid-btn-cancel">${escapeHtml(cancelLabel)}</button>
+              <button type="button" id="retry-match" class="uid-btn uid-btn-primary" style="display: none;">${escapeHtml(retryLabel)}</button>
+            </div>
           </div>
         </div>
       `;
-      document.body.appendChild(overlay);
 
       const wsBase = import.meta.env.VITE_WS_BASE || 'wss://api.uid.one';
       const wsUrl = `${wsBase}/ws/challenges/${encodeURIComponent(challengeId)}/`;
@@ -419,11 +746,40 @@ function injectIcon(input: HTMLInputElement): void {
         if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
           ws.close();
         }
-        overlay.remove();
+        host.remove();
+      };
+
+      const showTerminalMatchState = (message: string, kind: 'error' | 'success', allowRetry: boolean) => {
+        if (pushTimeout) {
+          clearTimeout(pushTimeout);
+          pushTimeout = null;
+        }
+        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+          ws.close();
+        }
+        const statusEl = shadow.getElementById('uid-match-status');
+        const cancelBtn = shadow.getElementById('cancel-match') as HTMLButtonElement | null;
+        const retryBtn = shadow.getElementById('retry-match') as HTMLButtonElement | null;
+        if (statusEl) {
+          statusEl.className = `uid-status ${kind}`;
+          statusEl.textContent = message;
+        }
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        if (retryBtn) retryBtn.style.display = allowRetry ? 'inline-flex' : 'none';
+      };
+
+      const cancelMatch = () => {
+        chrome.runtime.sendMessage({ type: 'CANCEL_ACTIVE_CHALLENGE', token: challengeId });
+        cleanupMatch();
       };
 
       pushTimeout = setTimeout(() => {
-        cleanupMatch();
+        chrome.runtime.sendMessage({
+          type: 'UPDATE_ACTIVE_CHALLENGE_STATUS',
+          token: challengeId,
+          status: 'EXPIRED',
+        });
+        showTerminalMatchState(t('challengeTimedOut', 'Request timed out. Please try again.'), 'error', true);
       }, PUSH_TIMEOUT_MS);
 
       const onMatchEsc = (e: KeyboardEvent) => {
@@ -431,53 +787,44 @@ function injectIcon(input: HTMLInputElement): void {
         if (e.key === 'Escape') {
           e.preventDefault();
           e.stopPropagation();
-          cleanupMatch();
+          cancelMatch();
         }
       };
       document.addEventListener('keydown', onMatchEsc, true);
 
-      overlay.querySelector('#close-match')?.addEventListener('click', cleanupMatch);
-      overlay.querySelector('#uid-match-backdrop')?.addEventListener('click', (ev) => {
-        if (ev.target === ev.currentTarget) cleanupMatch();
+      shadow.getElementById('close-match')?.addEventListener('click', cancelMatch);
+      shadow.getElementById('cancel-match')?.addEventListener('click', cancelMatch);
+      shadow.getElementById('retry-match')?.addEventListener('click', () => {
+        cleanupMatch();
+        void performVaultFill(targetUsername, fillTargetId);
       });
-
-      const showMatchError = (message: string) => {
-        const container = overlay.querySelector('#uid-match-container') as HTMLElement | null;
-        if (container) {
-          document.addEventListener('keydown', onMatchEsc, true);
-          container.innerHTML = `
-            <button type="button" id="close-match-error" aria-label="Close" style="position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: #64748b; font-size: 15px;">✕</button>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 16px;">
-              <div style="width: 64px; height: 64px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-              </div>
-              <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #dc2626;">Password fill failed</h3>
-              <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center; max-width: 240px;">${escapeHtml(message)}</p>
-            </div>
-          `;
-          container.querySelector('#close-match-error')?.addEventListener('click', cleanupMatch);
-        }
-      };
+      shadow.querySelector('.uid-backdrop')?.addEventListener('click', (ev) => {
+        if (ev.target === ev.currentTarget) cancelMatch();
+      });
 
       ws.onmessage = async (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.status === 'REJECTED' || data.status === 'EXPIRED') {
-            if (pushTimeout) clearTimeout(pushTimeout);
-            ws.close();
-            showMatchError(
-              data.status === 'REJECTED'
-                ? 'Vault fill request was rejected.'
-                : 'Vault fill request expired.'
-            );
+          if (data.status === 'REJECTED') {
+            chrome.runtime.sendMessage({
+              type: 'UPDATE_ACTIVE_CHALLENGE_STATUS',
+              token: challengeId,
+              status: 'REJECTED',
+            });
+            showTerminalMatchState(t('challengeRejected', 'Request was rejected.'), 'error', true);
+            return;
+          }
+          if (data.status === 'EXPIRED') {
+            chrome.runtime.sendMessage({
+              type: 'UPDATE_ACTIVE_CHALLENGE_STATUS',
+              token: challengeId,
+              status: 'EXPIRED',
+            });
+            showTerminalMatchState(t('challengeExpired', 'Request expired. Please try again.'), 'error', true);
             return;
           }
 
           if (data.status === 'APPROVED' && data.encrypted_payload) {
-            if (pushTimeout) clearTimeout(pushTimeout);
-            ws.close();
-            document.removeEventListener('keydown', onMatchEsc, true);
-
             const fillRes = await new Promise<any>((resolve) => {
               chrome.runtime.sendMessage(
                 {
@@ -490,40 +837,38 @@ function injectIcon(input: HTMLInputElement): void {
               );
             });
 
-            const container = overlay.querySelector('#uid-match-container') as HTMLElement;
             if (fillRes?.success) {
-              if (container) {
-                container.innerHTML = `
-                  <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; color: #16a34a;">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #16a34a;">Password filled</h3>
-                    <p style="margin: 0; font-size: 14px; color: #64748b; text-align: center;">Review the form and submit manually when ready.</p>
-                  </div>
-                `;
-              }
-              setTimeout(() => {
-                overlay.remove();
-              }, 900);
+              showTerminalMatchState(
+                `${t('challengeFilled', 'Password filled')} — ${t('challengeFilledDesc', 'Review the form and submit manually when ready.')}`,
+                'success',
+                false
+              );
+              setTimeout(cleanupMatch, 1100);
             } else {
-              showMatchError(fillRes?.error || 'Could not fill the password field.');
+              showTerminalMatchState(
+                fillRes?.error || t('fillFailedDesc', 'Could not fill the password field.'),
+                'error',
+                true
+              );
             }
           }
-        } catch (err) {
-          console.error('WS parse error', err);
+        } catch {
+          showTerminalMatchState(t('challengeFailed', 'Verification failed'), 'error', true);
         }
       };
 
-      ws.onerror = (err) => {
-        console.error('WS Error', err);
+      ws.onerror = () => {
+        showTerminalMatchState(t('challengeFailed', 'Verification failed'), 'error', true);
       };
-    } catch (error) {
-      console.error('[uid.one] Error:', error);
+    } catch {
+      showClosedNoticeDialog(
+        t('challengeFailed', 'Verification failed'),
+        t('fillFailedDesc', 'Could not fill the password field.')
+      );
     }
   };
 
-  icon.addEventListener('click', async (e) => {
+  button.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -537,16 +882,16 @@ function injectIcon(input: HTMLInputElement): void {
     }
     if (!username) {
       const rawErr = chrome.runtime?.id ? chrome.i18n.getMessage('errorNoUsernameProvided') : '';
-      alert(
+      const msg =
         rawErr && !/passkey/i.test(rawErr)
           ? rawErr
-          : 'Enter your email or username first to fill your saved password.'
-      );
+          : t('errorNoUsernameProvided', 'Please enter your email or username first to fill your saved password.');
+      showClosedNoticeDialog(t('challengeTitle', 'Confirm vault password fill'), msg);
       return;
     }
 
     await performVaultFill(username, targetId);
   });
 
-  shadowRoot.appendChild(icon);
+  shadowRoot.append(iconStyle, button);
 }

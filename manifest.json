@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "2.5.10",
+  "version": "2.5.11",
   "name": "__MSG_extensionName__",
   "default_locale": "en",
   "description": "__MSG_extensionDesc__",
@@ -52,6 +52,10 @@
       "48": "icon_48.png",
       "128": "icon_128.png"
     }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
   "browser_specific_settings": {
     "gecko": {

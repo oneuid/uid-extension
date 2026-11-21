@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
@@ -11,6 +12,7 @@ import {
   isValidLocalHttpsEndpoint,
 } from '../src/shared/origins.ts';
 import {
+  maskAccountIdentifier,
   validateJwtStructureAndClaims,
   verifyJwtWithJwks,
 } from '../src/background/auth.ts';
@@ -254,4 +256,59 @@ test('built chrome and firefox manifests and bundles enforce P0 and P1 security 
   );
   assert.equal(dlpSource.includes('sample: text.slice'), false);
   assert.equal(bgSource.includes('sample: request.sample'), false);
+});
+
+test('version parity, untracked zip artifacts, options_ui, and popup title are valid', () => {
+  const rootDir = path.resolve(import.meta.dirname, '..');
+  const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+  const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'manifest.json'), 'utf8'));
+  assert.equal(manifest.version, pkg.version, 'manifest.json version must match package.json');
+  assert.equal(manifest.options_ui?.page, 'options.html');
+
+  const indexHtml = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf8');
+  assert.equal(indexHtml.includes('<title>UID Link</title>'), true);
+  assert.equal(indexHtml.includes('uid-extension-client'), false);
+
+  const trackedZips = execFileSync('git', ['ls-files', '*.zip'], { cwd: rootDir, encoding: 'utf8' }).trim();
+  assert.equal(trackedZips, '', 'No .zip files may be tracked in git');
+
+  assert.equal(fs.existsSync(path.join(rootDir, 'src/counter.ts')), false);
+  assert.equal(fs.existsSync(path.join(rootDir, 'public/screenshoots')), false);
+  assert.equal(fs.existsSync(path.join(rootDir, 'public/screenshots/popup.png')), true);
+});
+
+test('14-locale message packs have 100% key parity and autofill overlays are closed-shadow and alert-free', () => {
+  const rootDir = path.resolve(import.meta.dirname, '..');
+  const localesDir = path.join(rootDir, 'public/_locales');
+  const expectedLocales = ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'th', 'vi', 'zh_CN', 'zh_TW'];
+  const actualLocales = fs.readdirSync(localesDir).sort();
+  assert.deepEqual(actualLocales, expectedLocales);
+
+  const enKeys = Object.keys(
+    JSON.parse(fs.readFileSync(path.join(localesDir, 'en/messages.json'), 'utf8'))
+  ).sort();
+  for (const loc of expectedLocales) {
+    const keys = Object.keys(
+      JSON.parse(fs.readFileSync(path.join(localesDir, loc, 'messages.json'), 'utf8'))
+    ).sort();
+    assert.deepEqual(keys, enKeys, `Locale ${loc} must have identical keys to en`);
+  }
+
+  const autofillSrc = fs.readFileSync(path.join(rootDir, 'src/content/autofill.ts'), 'utf8');
+  assert.equal(/\balert\s*\(/.test(autofillSrc), false, 'autofill.ts must not call window.alert');
+  assert.equal(autofillSrc.includes("attachShadow({ mode: 'closed' })"), true);
+  assert.equal(autofillSrc.includes('prefers-reduced-motion: reduce'), true);
+
+  assert.equal(maskAccountIdentifier('alice@example.com'), 'al***@example.com');
+  assert.equal(maskAccountIdentifier('a@b.co'), 'a*@b.co');
+});
+
+test('official OneUID #2563FF primary palette is applied across CSS and SVG assets', () => {
+  const rootDir = path.resolve(import.meta.dirname, '..');
+  const files = ['src/style.css', 'signer.html', 'public/icon.svg', 'public/favicon.svg'];
+  for (const rel of files) {
+    const content = fs.readFileSync(path.join(rootDir, rel), 'utf8');
+    assert.equal(/#2563eb/i.test(content), false, `${rel} must not use legacy #2563EB`);
+    assert.equal(/#2563ff/i.test(content), true, `${rel} must use official #2563FF`);
+  }
 });

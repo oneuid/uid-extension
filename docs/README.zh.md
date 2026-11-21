@@ -8,7 +8,7 @@
 
 ### 1. 加密会话绑定 (Cryptographic Session Binding)
 防止会话劫持和令牌窃取。身份验证成功后，UID Link 通过以下方式锁定会话：
-* 生成本地硬件设备指纹。
+* 生成本地浏览器环境指纹。
 * 为当前活动的 `sessionToken` 创建基于 HMAC 的绑定签名。
 * 向后端 API `/v1/auth/session-binding/register/` 安全注册绑定信息。
 * 在允许执行特权请求前对本地签名进行验证。
@@ -74,8 +74,8 @@
    ```
 2. 安装依赖并进行编译：
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
 3. 打开 `chrome://extensions/`，开启 **"开发者模式"**，点击 **"加载已解压的扩展程序"** 并选择编译生成的 **`dist/chrome/`** 文件夹。
 

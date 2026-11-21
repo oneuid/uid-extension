@@ -2,13 +2,22 @@
 
 import { isAllowedPdfFetchUrl, isTrustedUidOrigin, isTrustedUidUrl } from '../shared/origins';
 import {
+  type ActiveChallengeRecord,
+  clearActiveChallenge,
   clearStoredSessionToken,
   configureSessionStorageAccess,
+  getActiveChallenge,
   getBindingRecord,
+  getLinkedAt,
   getStoredSessionToken,
+  getVaultLocked,
+  maskAccountIdentifier,
   purgeLegacyPlaintextTokens,
+  setActiveChallenge,
   setBindingRecord,
   setStoredSessionToken,
+  setVaultLocked,
+  validateJwtStructureAndClaims,
   verifySessionJwt,
 } from './auth';
 
@@ -20,7 +29,9 @@ const USER_SCRIPT_ID = 'uid-user-sites';
 interface PendingChallenge {
   privateKey: CryptoKey;
   tabId?: number;
+  frameId?: number;
   origin?: string;
+  fillTargetId?: string;
   createdAt: number;
 }
 
@@ -206,7 +217,82 @@ export class SessionBinding {
 }
 
 async function getActiveSessionToken(): Promise<string | null> {
+  const locked = await getVaultLocked();
+  if (locked) return null;
   return getStoredSessionToken();
+}
+
+async function getVerifiedSessionState(): Promise<{
+  isPaired: boolean;
+  isLocked: boolean;
+  hasSession: boolean;
+  email?: string;
+  sub?: string;
+  linkedAt?: number | null;
+  exp?: number;
+  offline?: boolean;
+  error?: string;
+}> {
+  const token = await getStoredSessionToken();
+  if (!token) {
+    return { isPaired: false, isLocked: false, hasSession: false };
+  }
+
+  const precheck = validateJwtStructureAndClaims(token);
+  if (!precheck.valid) {
+    await clearStoredSessionToken();
+    return { isPaired: false, isLocked: false, hasSession: false, error: precheck.error };
+  }
+
+  const apiBase = await getApiBase();
+  const verified = await verifySessionJwt(token, apiBase);
+  if (!verified.valid) {
+    if (verified.jwksUnavailable) {
+      return {
+        isPaired: false,
+        isLocked: await getVaultLocked(),
+        hasSession: true,
+        offline: true,
+        error: verified.error || 'Could not verify session',
+      };
+    }
+    await clearStoredSessionToken();
+    return { isPaired: false, isLocked: false, hasSession: false, error: verified.error };
+  }
+
+  const isLocked = await getVaultLocked();
+  const linkedAt = await getLinkedAt();
+  const rawEmail =
+    verified.payload?.email ||
+    verified.payload?.username ||
+    verified.payload?.sub ||
+    '';
+
+  return {
+    isPaired: !isLocked,
+    isLocked,
+    hasSession: true,
+    email: rawEmail ? maskAccountIdentifier(String(rawEmail)) : undefined,
+    sub: verified.payload?.sub,
+    linkedAt,
+    exp: verified.payload?.exp,
+  };
+}
+
+async function openApprovalPopupWindow(token: string): Promise<boolean> {
+  if (!chrome.windows?.create) return false;
+  try {
+    await chrome.windows.create({
+      url: chrome.runtime.getURL(`approval.html?token=${encodeURIComponent(token)}`),
+      type: 'popup',
+      width: 396,
+      height: 580,
+      focused: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function updateDeclarativeRules(token: string) {
@@ -296,11 +382,32 @@ async function handleStartOOB(request: any, sender: chrome.runtime.MessageSender
 
   if (data.token) {
     recordChallengeToken(data.token);
+    const challengeOrigin =
+      sender.origin && !isExtensionPageSender(sender)
+        ? sender.origin
+        : typeof request.origin === 'string' && request.origin.startsWith('https://')
+          ? request.origin
+          : 'https://uid.one';
     pendingKeys.set(data.token, {
       privateKey: keyPair.privateKey,
       tabId: sender.tab?.id,
-      origin: sender.origin,
+      frameId: typeof sender.frameId === 'number' ? sender.frameId : 0,
+      origin: challengeOrigin,
       createdAt: Date.now(),
+    });
+    const matchNumber = String(data.match_number ?? data.verification_code ?? '');
+    const qrUrl = `https://uid.one/qr?challenge=${encodeURIComponent(data.token)}&client_id=uid-extension-client&client_name=Extension`;
+    await setActiveChallenge({
+      token: data.token,
+      mode: 'pair',
+      origin: challengeOrigin,
+      domain: String(request.domain || 'uid.one'),
+      matchNumber,
+      qrUrl,
+      targetTabId: sender.tab?.id,
+      targetFrameId: typeof sender.frameId === 'number' ? sender.frameId : 0,
+      createdAt: Date.now(),
+      status: 'PENDING',
     });
   }
 
@@ -322,6 +429,10 @@ async function handlePollStatus(request: any) {
   // Never decrypt or attach raw passwords onto polling responses.
   if (data.status === 'EXPIRED' || data.status === 'REJECTED') {
     pendingKeys.delete(request.token);
+    const current = await getActiveChallenge();
+    if (current && current.token === request.token) {
+      await setActiveChallenge({ ...current, status: data.status });
+    }
   }
 
   if (data && typeof data === 'object' && 'decrypted_password' in data) {
@@ -352,6 +463,7 @@ async function handleSavePairing(request: any, sender: chrome.runtime.MessageSen
   }
 
   await setStoredSessionToken(token);
+  await clearActiveChallenge();
   const binding = new SessionBinding();
   await binding.bindSession(token);
   await updateDeclarativeRules(token);
@@ -378,7 +490,7 @@ async function handleApproveChallenge(
 
   const identityToken = await getActiveSessionToken();
   if (!identityToken) {
-    throw new Error('Device not paired. Please pair first.');
+    throw new Error('Device not paired or vault is locked.');
   }
 
   const apiBase = await getApiBase();
@@ -398,12 +510,16 @@ async function handleApproveChallenge(
 }
 
 async function handlePushRequest(request: any, sender: chrome.runtime.MessageSender) {
+  if (await getVaultLocked()) {
+    throw new Error('Vault is locked. Unlock UID Link to continue.');
+  }
+
   const identityToken = await getActiveSessionToken();
   if (!identityToken) {
     throw new Error('Device not paired. Please pair first.');
   }
 
-  const senderOrigin = sender.origin;
+  const senderOrigin = sender.origin || '';
   if (!isExtensionPageSender(sender)) {
     const enabled = await isAutofillEnabledForOrigin(senderOrigin);
     if (!enabled) {
@@ -444,40 +560,68 @@ async function handlePushRequest(request: any, sender: chrome.runtime.MessageSen
 
   if (data.token) {
     recordChallengeToken(data.token);
+    const fillTargetId = typeof request.targetId === 'string' ? request.targetId.trim() : '';
+    const frameId = typeof sender.frameId === 'number' ? sender.frameId : 0;
     pendingKeys.set(data.token, {
       privateKey: keyPair.privateKey,
       tabId: sender.tab?.id,
+      frameId,
       origin: senderOrigin,
+      fillTargetId,
       createdAt: Date.now(),
+    });
+    const matchNumber = String(data.match_number ?? data.verification_code ?? '');
+    await setActiveChallenge({
+      token: data.token,
+      mode: 'fill',
+      origin: senderOrigin || `https://${String(request.domain || '')}`,
+      domain: String(request.domain || ''),
+      matchNumber,
+      targetTabId: sender.tab?.id,
+      targetFrameId: frameId,
+      fillTargetId,
+      createdAt: Date.now(),
+      status: 'PENDING',
     });
   }
   return data;
 }
 
 async function handleFillApprovedCredential(request: any, sender: chrome.runtime.MessageSender) {
-  if (sender.id !== chrome.runtime.id || !sender.tab?.id || !sender.origin) {
+  const isExtSender = isExtensionPageSender(sender);
+  if (!isExtSender && (sender.id !== chrome.runtime.id || !sender.tab?.id || !sender.origin)) {
     throw new Error('Unauthorized credential fill request.');
   }
 
-  const enabled = await isAutofillEnabledForOrigin(sender.origin);
-  if (!enabled) {
-    throw new Error('Vault password fill is not enabled for this site.');
+  if (await getVaultLocked()) {
+    throw new Error('Vault is locked.');
   }
 
   const challengeToken = typeof request.token === 'string' ? request.token : '';
   const encryptedPayload = typeof request.encrypted_payload === 'string' ? request.encrypted_payload : '';
-  const targetId = typeof request.targetId === 'string' ? request.targetId.trim() : '';
-
-  if (!challengeToken || !encryptedPayload || !targetId) {
-    throw new Error('Missing required fill parameters.');
-  }
-
   const pending = pendingKeys.get(challengeToken);
   if (!pending) {
     throw new Error('Private key not found for this challenge.');
   }
 
-  if (pending.tabId !== sender.tab.id || pending.origin !== sender.origin) {
+  const targetTabId = isExtSender ? pending.tabId : sender.tab?.id;
+  const targetOrigin = isExtSender ? pending.origin : sender.origin;
+  const targetId = isExtSender
+    ? (typeof request.targetId === 'string' && request.targetId.trim()) || pending.fillTargetId || ''
+    : typeof request.targetId === 'string'
+      ? request.targetId.trim()
+      : '';
+
+  if (!challengeToken || !encryptedPayload || !targetId || !targetTabId || !targetOrigin) {
+    throw new Error('Missing required fill parameters.');
+  }
+
+  const enabled = await isAutofillEnabledForOrigin(targetOrigin);
+  if (!enabled) {
+    throw new Error('Vault password fill is not enabled for this site.');
+  }
+
+  if (!isExtSender && (pending.tabId !== sender.tab?.id || pending.origin !== sender.origin)) {
     throw new Error('Challenge target mismatch.');
   }
 
@@ -494,9 +638,13 @@ async function handleFillApprovedCredential(request: any, sender: chrome.runtime
     pendingKeys.delete(challengeToken);
   }
 
-  const frameIds = typeof sender.frameId === 'number' ? [sender.frameId] : [0];
+  const frameIds = isExtSender
+    ? [typeof pending.frameId === 'number' ? pending.frameId : 0]
+    : typeof sender.frameId === 'number'
+      ? [sender.frameId]
+      : [0];
   const results = await chrome.scripting.executeScript({
-    target: { tabId: sender.tab.id, frameIds },
+    target: { tabId: targetTabId, frameIds },
     func: (fillTargetId: string, secretValue: string) => {
       const inputs = document.querySelectorAll<HTMLInputElement>('input[type="password"][data-uid-fill-target]');
       let target: HTMLInputElement | null = null;
@@ -526,6 +674,11 @@ async function handleFillApprovedCredential(request: any, sender: chrome.runtime
   const filled = Boolean(results?.[0]?.result);
   if (!filled) {
     throw new Error('Could not locate the approved password field.');
+  }
+
+  const active = await getActiveChallenge();
+  if (active && active.token === challengeToken) {
+    await setActiveChallenge({ ...active, status: 'FILLED' });
   }
 
   return { success: true };
@@ -708,7 +861,123 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     return true;
   } else if (request.type === 'CHECK_PAIRING') {
-    getActiveSessionToken().then((token) => sendResponse({ isPaired: !!token }));
+    getVerifiedSessionState()
+      .then((state) => sendResponse(state))
+      .catch((err) =>
+        sendResponse({ isPaired: false, isLocked: false, hasSession: false, error: err?.message || 'Verification failed' })
+      );
+    return true;
+  } else if (request.type === 'LOCK_SESSION') {
+    if (!isExtensionPageSender(sender)) {
+      sendResponse({ success: false, error: 'Unauthorized' });
+      return false;
+    }
+    setVaultLocked(true)
+      .then(async () => {
+        pendingKeys.clear();
+        await clearActiveChallenge();
+        try {
+          await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds: [1] });
+        } catch {}
+        sendResponse({ success: true });
+      })
+      .catch((err) => sendResponse({ success: false, error: err?.message || 'Lock failed' }));
+    return true;
+  } else if (request.type === 'UNLOCK_SESSION') {
+    if (!isExtensionPageSender(sender)) {
+      sendResponse({ success: false, error: 'Unauthorized' });
+      return false;
+    }
+    (async () => {
+      const token = await getStoredSessionToken();
+      if (!token) {
+        sendResponse({ success: false, error: 'No active session' });
+        return;
+      }
+      const apiBase = await getApiBase();
+      const verified = await verifySessionJwt(token, apiBase);
+      if (!verified.valid) {
+        if (!verified.jwksUnavailable) {
+          await clearStoredSessionToken();
+        }
+        sendResponse({ success: false, error: verified.error || 'Session expired' });
+        return;
+      }
+      await setVaultLocked(false);
+      await updateDeclarativeRules(token);
+      sendResponse({ success: true });
+    })().catch((err) => sendResponse({ success: false, error: err?.message || 'Unlock failed' }));
+    return true;
+  } else if (request.type === 'GET_ACTIVE_CHALLENGE') {
+    if (!isExtensionPageSender(sender)) {
+      sendResponse({ success: false, error: 'Unauthorized' });
+      return false;
+    }
+    getActiveChallenge()
+      .then((challenge) => sendResponse({ success: true, challenge }))
+      .catch((err) => sendResponse({ success: false, error: err?.message || 'Failed to read challenge' }));
+    return true;
+  } else if (request.type === 'CANCEL_ACTIVE_CHALLENGE') {
+    const token = typeof request.token === 'string' ? request.token : '';
+    const isExtSender = isExtensionPageSender(sender);
+    getActiveChallenge()
+      .then(async (current) => {
+        if (!isExtSender && current && current.origin && sender.origin !== current.origin) {
+          sendResponse({ success: false, error: 'Unauthorized' });
+          return;
+        }
+        if (token) {
+          pendingKeys.delete(token);
+        } else if (current?.token) {
+          pendingKeys.delete(current.token);
+        }
+        if (current && (!token || current.token === token)) {
+          await setActiveChallenge({ ...current, status: 'CANCELLED' });
+        }
+        sendResponse({ success: true });
+      })
+      .catch((err) => sendResponse({ success: false, error: err?.message || 'Cancel failed' }));
+    return true;
+  } else if (request.type === 'UPDATE_ACTIVE_CHALLENGE_STATUS') {
+    const token = typeof request.token === 'string' ? request.token : '';
+    const status = request.status as ActiveChallengeRecord['status'];
+    const error = typeof request.error === 'string' ? request.error : undefined;
+    const allowedStatuses = new Set(['PENDING', 'APPROVED', 'FILLED', 'REJECTED', 'EXPIRED', 'CANCELLED', 'ERROR']);
+    if (!token || !allowedStatuses.has(status)) {
+      sendResponse({ success: false, error: 'Invalid challenge status' });
+      return false;
+    }
+    const isExtSender = isExtensionPageSender(sender);
+    getActiveChallenge()
+      .then(async (current) => {
+        if (!isExtSender && current && current.origin && sender.origin !== current.origin) {
+          sendResponse({ success: false, error: 'Unauthorized' });
+          return;
+        }
+        if (current && current.token === token) {
+          await setActiveChallenge({ ...current, status, error });
+        }
+        sendResponse({ success: true });
+      })
+      .catch((err) => sendResponse({ success: false, error: err?.message || 'Update failed' }));
+    return true;
+  } else if (request.type === 'OPEN_CHALLENGE_WINDOW') {
+    const token = typeof request.token === 'string' ? request.token.trim() : '';
+    if (!token) {
+      sendResponse({ success: false, error: 'Missing token' });
+      return false;
+    }
+    (async () => {
+      if (!isExtensionPageSender(sender)) {
+        const current = await getActiveChallenge();
+        if (!current || current.token !== token || (current.origin && sender.origin !== current.origin)) {
+          sendResponse({ success: false, error: 'Unauthorized challenge window request' });
+          return;
+        }
+      }
+      const opened = await openApprovalPopupWindow(token);
+      sendResponse({ success: opened });
+    })().catch((err) => sendResponse({ success: false, error: err?.message || 'Window open failed' }));
     return true;
   } else if (request.type === 'GET_AUTOFILL_SITES') {
     if (!isExtensionPageSender(sender)) {

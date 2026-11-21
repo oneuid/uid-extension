@@ -2,18 +2,26 @@
 
 > **Repository**: `oneuid/uid-extension` (Cross-Browser WebExtension & Safari Extension for Session Binding, Opt-In DLP & Cryptographic Signing)
 > **Ecosystem**: OneUID
-> **Current version**: `v2.5.10` (2026-11-20)
+> **Current version**: `v2.5.11` (2026-11-21)
 
 ## Feature inventory
 
 | Module | Surface | Core capabilities |
 | :--- | :--- | :--- |
-| **Binding** | `src/` | Hardware device fingerprinting and HMAC session binding (`/v1/auth/session-binding/register/`) with MV3 session-only token storage and JWKS JWT verification |
+| **Binding** | `src/` | Browser environment fingerprinting and HMAC session binding (`/v1/auth/session-binding/register/`) with MV3 session-only token storage, vault lock/unlink controls, and JWKS JWT verification |
 | **Signer** | `src/` | Fail-closed in-browser PDF and webmail digital signature overlay supporting UID.one challenges, local PKCS#12 (`.p12`/`.pfx`) files, and optional HTTPS-only PKCS#11 local agent endpoints |
-| **Shield** | `src/` | Anti-phishing lookalike origin verification plus opt-in per-site vault password fill and individual default-off DLP, EXIF, analytics cookie, clipboard metadata audit, and tab-blur toggles |
-| **Targets** | `.github/workflows/` | Unified WebExtension manifest supporting Chrome, Edge, Brave, Firefox, and macOS/iOS Safari Web Extension packaging |
+| **Shield** | `src/` | Anti-phishing lookalike origin verification plus opt-in per-site vault password fill (`approval.html` + closed Shadow DOM), `options.html` settings, and individual default-off DLP, EXIF, analytics cookie, clipboard metadata audit, and tab-blur toggles |
+| **Targets** | `.github/workflows/` | Unified WebExtension manifest supporting Chrome, Edge, Brave, Firefox, and macOS/iOS Safari Web Extension packaging with PR verification gates |
 
 ## Release log
+
+### Version 2.5.11 - 2026-11-21
+
+- **[ADDED]** Added full popup session lifecycle and settings views (`#10`): in-popup QR browser linking (`Link this browser`), `Sign in on UID.one`, verified/unexpired session check (`CHECK_PAIRING`), masked account identifier and linked timestamp, `Lock` / `Unlock`, `Unlink`, account settings and `https://uid.one/data-privacy` account deletion link, loading/error/retry states, polite `aria-live` status region, and a dedicated `options.html` (`options_ui`) page managing all 5 default-off shields and allowed HTTPS autofill origins.
+- **[ADDED]** Added dedicated extension-chrome challenge verification (`approval.html`) and hardened `src/content/autofill.ts` (`#11`): moved pairing and approval into extension chrome with a closed Shadow DOM (`mode: 'closed'`) companion dialog, added 44×44 px icon and close hit targets, displayed relying-party origin and large `tabular-nums` match number, localized all strings and notices across all 14 locales (removing `window.alert`), honored `prefers-reduced-motion: reduce`, and separated recoverable Cancel, Reject, Expiry, Timeout, and Error states.
+- **[UPDATED]** Aligned UI chrome, toolbar icons (`16`/`32`/`48`/`128`/`512`), `store-assets/promo_tile.png`, `signer.html`, `src/style.css`, and `public/_locales/*/messages.json` with the official OneUID palette (`#2563FF`, `#1457FF`, `#6E9BFF`, `#7C3AED`, `#00D4FF`, `#0B1220`, `#1A2233`, `#E5E7EB`), light/dark WCAG AA contrast, >= 11 px captions, >= 44 px switch hit targets, and added `store-assets/LISTING_CHECKLIST.md` (`#12`).
+- **[FIXED]** Untracked stale root `.zip` archives (`uid-link-chrome.zip`, `uid-link-firefox.zip`), synchronized `package.json`, `manifest.json`, and `UPGRADE.md` at `v2.5.11`, and added `pull_request` CI checks in `.github/workflows/release.yml` enforcing zero tracked `.zip` files, version parity, `pnpm run typecheck`, `pnpm run build`, `pnpm run build:firefox`, and `pnpm test` (`#8`).
+- **[FIXED]** Renamed `public/screenshoots/` to `public/screenshots/`, removed unused Vite starter files (`src/counter.ts`, `src/assets/*`), updated `README.md` and `docs/README.*.md` to use `pnpm`, GitHub Releases downloads, accurate browser environment fingerprint wording, and screenshot links (`#9`).
 
 ### Version 2.5.10 - 2026-11-20
 

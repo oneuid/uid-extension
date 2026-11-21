@@ -8,7 +8,7 @@
 
 ### 1. Liaison de session cryptographique
 Prévient le détournement de session et le vol de jetons. Une fois authentifié, UID Link verrouille la session en :
-* Générant une empreinte numérique de l'appareil matériel local.
+* Générant une empreinte de l'environnement navigateur local.
 * Créant une signature liée par HMAC pour le `sessionToken` actif.
 * Enregistrant la liaison de manière sécurisée auprès de l'API backend `/v1/auth/session-binding/register/`.
 * Vérifiant la signature localement avant d'autoriser des requêtes privilégiées.
@@ -74,8 +74,8 @@ Choisissez l'une des deux méthodes simples ci-dessous pour installer l'extensio
    ```
 2. Installez les dépendances et compilez :
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
 3. Ouvrez `chrome://extensions/`, activez le **"Mode développeur"**, cliquez sur **"Charger l'extension non empaquetée"** et sélectionnez le dossier compilé **`dist/chrome/`**.
 

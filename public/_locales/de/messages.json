@@ -69,7 +69,7 @@
     "message": "Prüfung der digitalen Signatur"
   },
   "dialogDesc": {
-    "message": "Bitte öffnen Sie Ihre UID.one Mobile-App oder besuchen Sie <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>, um die übereinstimmende Nummer auszuwählen."
+    "message": "Bitte öffnen Sie Ihre UID.one Mobile-App oder besuchen Sie <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a>, um die übereinstimmende Nummer auszuwählen."
   },
   "dialogCancel": {
     "message": "Anfrage abbrechen"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Geben Sie eine gültige HTTPS-Agenten-URL für die Verbindung ein."
+  },
+  "tabStatus": {
+    "message": "Status"
+  },
+  "tabShields": {
+    "message": "Schutzschilde"
+  },
+  "openOptions": {
+    "message": "Optionen"
+  },
+  "loadingSession": {
+    "message": "Sitzung wird geprüft..."
+  },
+  "retryButton": {
+    "message": "Erneut versuchen"
+  },
+  "sessionCheckFailed": {
+    "message": "Ihre UID.one-Sitzung konnte nicht verifiziert werden."
+  },
+  "signInPrimary": {
+    "message": "Diesen Browser verknüpfen"
+  },
+  "signInWeb": {
+    "message": "Bei UID.one anmelden"
+  },
+  "vaultLocked": {
+    "message": "Tresor gesperrt"
+  },
+  "vaultLockedDesc": {
+    "message": "Entsperren Sie UID Link für Autofill und Signaturen."
+  },
+  "unlockButton": {
+    "message": "Entsperren"
+  },
+  "lockButton": {
+    "message": "Sperren"
+  },
+  "unlinkButton": {
+    "message": "Trennen"
+  },
+  "linkedAtLabel": {
+    "message": "Verknüpft: $1"
+  },
+  "accountLabel": {
+    "message": "Konto: $1"
+  },
+  "accountSettings": {
+    "message": "Kontoeinstellungen"
+  },
+  "deleteAccount": {
+    "message": "Konto löschen"
+  },
+  "deleteAccountHint": {
+    "message": "Die Kontolöschung wird unter Daten und Datenschutz auf UID.one verwaltet."
+  },
+  "statusUnlinked": {
+    "message": "Browser-Verknüpfung aufgehoben."
+  },
+  "statusLocked": {
+    "message": "Tresor gesperrt."
+  },
+  "statusUnlocked": {
+    "message": "Tresor entsperrt."
+  },
+  "pairBrowserTitle": {
+    "message": "Diesen Browser verknüpfen"
+  },
+  "pairBrowserDesc": {
+    "message": "Scannen Sie diesen QR-Code mit der UID.one-App und bestätigen Sie die Prüfnummer."
+  },
+  "matchNumberLabel": {
+    "message": "Prüfnummer"
+  },
+  "originLabel": {
+    "message": "Ursprung"
+  },
+  "challengeTitle": {
+    "message": "Tresor-Passwortausfüllung bestätigen"
+  },
+  "challengePairTitle": {
+    "message": "Browser-Verknüpfung bestätigen"
+  },
+  "challengeDesc": {
+    "message": "Prüfen Sie die Nummer auf Ihrem UID.one-Gerät. Formulare werden nie automatisch abgesendet."
+  },
+  "challengeWaiting": {
+    "message": "Warten auf Bestätigung..."
+  },
+  "challengeApproved": {
+    "message": "Bestätigt"
+  },
+  "challengeFilled": {
+    "message": "Passwort ausgefüllt"
+  },
+  "challengeFilledDesc": {
+    "message": "Prüfen Sie das Formular und senden Sie es manuell ab."
+  },
+  "challengeCancelled": {
+    "message": "Anfrage abgebrochen."
+  },
+  "challengeRejected": {
+    "message": "Anfrage wurde abgelehnt."
+  },
+  "challengeExpired": {
+    "message": "Anfrage abgelaufen. Bitte erneut versuchen."
+  },
+  "challengeTimedOut": {
+    "message": "Zeitüberschreitung. Bitte erneut versuchen."
+  },
+  "challengeFailed": {
+    "message": "Verifizierung fehlgeschlagen"
+  },
+  "challengeCancelBtn": {
+    "message": "Abbrechen"
+  },
+  "challengeApproveBtn": {
+    "message": "Bestätigen"
+  },
+  "challengeCloseBtn": {
+    "message": "Schließen"
+  },
+  "pairingSuccess": {
+    "message": "Gerät verknüpft"
+  },
+  "pairingSuccessDesc": {
+    "message": "Ihre Browsersitzung ist jetzt verifiziert."
+  },
+  "pairingTokenUnverified": {
+    "message": "Bestätigt. Anmeldung auf uid.one abschließen."
+  },
+  "extensionContextInvalid": {
+    "message": "Erweiterung aktualisiert. Seite neu laden und erneut versuchen."
+  },
+  "challengeInitFailed": {
+    "message": "Verifizierung konnte nicht gestartet werden: $1"
+  },
+  "fillFailedDesc": {
+    "message": "Passwortfeld konnte nicht ausgefüllt werden."
+  },
+  "openApprovalHint": {
+    "message": "Verifizierung im UID Link-Fenster fortsetzen."
+  },
+  "optionsTitle": {
+    "message": "UID Link-Einstellungen"
+  },
+  "optionsSubtitle": {
+    "message": "Konfigurieren Sie optionale Schutzschilde, erlaubte Autofill-Websites und Ihre verknüpfte Sitzung."
+  },
+  "optionsShieldsHeading": {
+    "message": "Datenschutzschilde"
+  },
+  "optionsShieldsDesc": {
+    "message": "Alle Schilde sind standardmäßig aus. Aktivieren Sie nur, was Sie benötigen."
+  },
+  "optionsSitesHeading": {
+    "message": "Erlaubte Autofill-Websites"
+  },
+  "optionsSitesDesc": {
+    "message": "Das Ausfüllen von Passwörtern läuft nur auf ausdrücklich erlaubten HTTPS-Seiten."
+  },
+  "optionsSitesEmpty": {
+    "message": "Noch keine Websites aktiviert. Fügen Sie unten eine HTTPS-Site hinzu."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Site hinzufügen"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Entfernen"
+  },
+  "optionsSiteInvalid": {
+    "message": "Geben Sie einen gültigen HTTPS-Ursprung an (z. B. https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "Website-Berechtigung wurde nicht erteilt."
+  },
+  "optionsAccountHeading": {
+    "message": "Konto und Sitzung"
+  },
+  "privacyPolicyLink": {
+    "message": "Datenschutzerklärung"
   }
 }

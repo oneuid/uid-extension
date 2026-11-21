@@ -69,7 +69,7 @@
     "message": "디지털 서명 인증"
   },
   "dialogDesc": {
-    "message": "UID.one 모바일 앱을 열거나 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>에 접속하여 일치하는 번호를 선택하세요."
+    "message": "UID.one 모바일 앱을 열거나 <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a>에 접속하여 일치하는 번호를 선택하세요."
   },
   "dialogCancel": {
     "message": "요청 취소"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "연결하려면 유효한 HTTPS 에이전트 엔드포인트 URL을 입력하세요."
+  },
+  "tabStatus": {
+    "message": "상태"
+  },
+  "tabShields": {
+    "message": "보호"
+  },
+  "openOptions": {
+    "message": "옵션"
+  },
+  "loadingSession": {
+    "message": "세션 확인 중..."
+  },
+  "retryButton": {
+    "message": "다시 시도"
+  },
+  "sessionCheckFailed": {
+    "message": "UID.one 세션을 확인하지 못했습니다."
+  },
+  "signInPrimary": {
+    "message": "이 브라우저 연결"
+  },
+  "signInWeb": {
+    "message": "UID.one에서 로그인"
+  },
+  "vaultLocked": {
+    "message": "보관함 잠김"
+  },
+  "vaultLockedDesc": {
+    "message": "자동 입력과 서명을 사용하려면 UID Link 잠금을 해제하세요."
+  },
+  "unlockButton": {
+    "message": "잠금 해제"
+  },
+  "lockButton": {
+    "message": "잠금"
+  },
+  "unlinkButton": {
+    "message": "연결 해제"
+  },
+  "linkedAtLabel": {
+    "message": "연결됨: $1"
+  },
+  "accountLabel": {
+    "message": "계정: $1"
+  },
+  "accountSettings": {
+    "message": "계정 설정"
+  },
+  "deleteAccount": {
+    "message": "계정 삭제"
+  },
+  "deleteAccountHint": {
+    "message": "계정 삭제는 UID.one 데이터 및 개인정보 보호에서 관리됩니다."
+  },
+  "statusUnlinked": {
+    "message": "브라우저 연결이 해제되었습니다."
+  },
+  "statusLocked": {
+    "message": "보관함이 잠겼습니다."
+  },
+  "statusUnlocked": {
+    "message": "보관함 잠금이 해제되었습니다."
+  },
+  "pairBrowserTitle": {
+    "message": "이 브라우저 연결"
+  },
+  "pairBrowserDesc": {
+    "message": "UID.one 모바일 앱으로 이 QR 코드를 스캔하고 일치 번호를 확인하세요."
+  },
+  "matchNumberLabel": {
+    "message": "일치 번호"
+  },
+  "originLabel": {
+    "message": "출처"
+  },
+  "challengeTitle": {
+    "message": "보관함 비밀번호 입력 확인"
+  },
+  "challengePairTitle": {
+    "message": "브라우저 연결 확인"
+  },
+  "challengeDesc": {
+    "message": "UID.one 기기에서 일치 번호를 확인하세요. 양식은 자동 제출되지 않습니다."
+  },
+  "challengeWaiting": {
+    "message": "승인 대기 중..."
+  },
+  "challengeApproved": {
+    "message": "승인됨"
+  },
+  "challengeFilled": {
+    "message": "비밀번호가 입력되었습니다"
+  },
+  "challengeFilledDesc": {
+    "message": "양식을 확인한 후 준비되면 직접 제출하세요."
+  },
+  "challengeCancelled": {
+    "message": "요청이 취소되었습니다."
+  },
+  "challengeRejected": {
+    "message": "요청이 거부되었습니다."
+  },
+  "challengeExpired": {
+    "message": "요청이 만료되었습니다. 다시 시도하세요."
+  },
+  "challengeTimedOut": {
+    "message": "요청 시간이 초과되었습니다. 다시 시도하세요."
+  },
+  "challengeFailed": {
+    "message": "확인 실패"
+  },
+  "challengeCancelBtn": {
+    "message": "취소"
+  },
+  "challengeApproveBtn": {
+    "message": "승인"
+  },
+  "challengeCloseBtn": {
+    "message": "닫기"
+  },
+  "pairingSuccess": {
+    "message": "기기가 연결되었습니다"
+  },
+  "pairingSuccessDesc": {
+    "message": "브라우저 세션이 확인되었습니다."
+  },
+  "pairingTokenUnverified": {
+    "message": "승인되었습니다. uid.one에서 로그인을 완료하세요."
+  },
+  "extensionContextInvalid": {
+    "message": "확장 프로그램이 업데이트되었습니다. 페이지를 새로고침하세요."
+  },
+  "challengeInitFailed": {
+    "message": "확인을 시작하지 못했습니다: $1"
+  },
+  "fillFailedDesc": {
+    "message": "비밀번호 입력란을 채우지 못했습니다."
+  },
+  "openApprovalHint": {
+    "message": "UID Link 창에서 확인을 계속하세요."
+  },
+  "optionsTitle": {
+    "message": "UID Link 설정"
+  },
+  "optionsSubtitle": {
+    "message": "선택형 보호 쉴드, 자동 입력 허용 사이트 및 연결된 세션을 설정합니다."
+  },
+  "optionsShieldsHeading": {
+    "message": "개인정보 보호 쉴드"
+  },
+  "optionsShieldsDesc": {
+    "message": "모든 쉴드는 기본적으로 꺼져 있습니다. 필요한 항목만 켜세요."
+  },
+  "optionsSitesHeading": {
+    "message": "자동 입력 허용 사이트"
+  },
+  "optionsSitesDesc": {
+    "message": "비밀번호 입력은 명시적으로 허용한 HTTPS 사이트에서만 작동합니다."
+  },
+  "optionsSitesEmpty": {
+    "message": "활성화된 사이트가 없습니다. 아래에서 HTTPS 사이트를 추가하거나 팝업에서 켜세요."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "사이트 추가"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "제거"
+  },
+  "optionsSiteInvalid": {
+    "message": "유효한 서드파티 HTTPS 출처를 입력하세요 (예: https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "사이트 권한이 부여되지 않았습니다."
+  },
+  "optionsAccountHeading": {
+    "message": "계정 및 세션"
+  },
+  "privacyPolicyLink": {
+    "message": "개인정보 처리방침"
   }
 }

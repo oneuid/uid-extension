@@ -69,7 +69,7 @@
     "message": "การยืนยันลายมือชื่อดิจิทัล"
   },
   "dialogDesc": {
-    "message": "โปรดเปิดแอปมือถือ UID.one หรือไปที่ <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> เพื่อเลือกหมายเลขที่ตรงกัน"
+    "message": "โปรดเปิดแอปมือถือ UID.one หรือไปที่ <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> เพื่อเลือกหมายเลขที่ตรงกัน"
   },
   "dialogCancel": {
     "message": "ยกเลิกคำขอ"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "ป้อน URL ปลายทาง HTTPS ของเอเจนต์ที่ถูกต้องเพื่อเชื่อมต่อ"
+  },
+  "tabStatus": {
+    "message": "สถานะ"
+  },
+  "tabShields": {
+    "message": "โล่ป้องกัน"
+  },
+  "openOptions": {
+    "message": "ตัวเลือก"
+  },
+  "loadingSession": {
+    "message": "กำลังตรวจสอบเซสชัน..."
+  },
+  "retryButton": {
+    "message": "ลองอีกครั้ง"
+  },
+  "sessionCheckFailed": {
+    "message": "ไม่สามารถยืนยันเซสชัน UID.one ของคุณได้"
+  },
+  "signInPrimary": {
+    "message": "เชื่อมโยงเบราว์เซอร์นี้"
+  },
+  "signInWeb": {
+    "message": "ลงชื่อเข้าใช้บน UID.one"
+  },
+  "vaultLocked": {
+    "message": "ห้องนิรภัยถูกล็อก"
+  },
+  "vaultLockedDesc": {
+    "message": "ปลดล็อก UID Link เพื่อใช้การกรอกอัตโนมัติและการลงนาม"
+  },
+  "unlockButton": {
+    "message": "ปลดล็อก"
+  },
+  "lockButton": {
+    "message": "ล็อก"
+  },
+  "unlinkButton": {
+    "message": "ยกเลิกการเชื่อมโยง"
+  },
+  "linkedAtLabel": {
+    "message": "เชื่อมโยงเมื่อ: $1"
+  },
+  "accountLabel": {
+    "message": "บัญชี: $1"
+  },
+  "accountSettings": {
+    "message": "การตั้งค่าบัญชี"
+  },
+  "deleteAccount": {
+    "message": "ลบบัญชี"
+  },
+  "deleteAccountHint": {
+    "message": "การลบบัญชีจัดการได้ในหน้าข้อมูลและความเป็นส่วนตัวบน UID.one"
+  },
+  "statusUnlinked": {
+    "message": "ยกเลิกการเชื่อมโยงเบราว์เซอร์แล้ว"
+  },
+  "statusLocked": {
+    "message": "ล็อกห้องนิรภัยแล้ว"
+  },
+  "statusUnlocked": {
+    "message": "ปลดล็อกห้องนิรภัยแล้ว"
+  },
+  "pairBrowserTitle": {
+    "message": "เชื่อมโยงเบราว์เซอร์นี้"
+  },
+  "pairBrowserDesc": {
+    "message": "สแกนคิวอาร์โค้ดนี้ด้วยแอป UID.one และยืนยันหมายเลขที่ตรงกัน"
+  },
+  "matchNumberLabel": {
+    "message": "หมายเลขยืนยัน"
+  },
+  "originLabel": {
+    "message": "ต้นทาง"
+  },
+  "challengeTitle": {
+    "message": "ยืนยันการกรอกรหัสผ่านจากห้องนิรภัย"
+  },
+  "challengePairTitle": {
+    "message": "ยืนยันการเชื่อมโยงเบราว์เซอร์"
+  },
+  "challengeDesc": {
+    "message": "ตรวจสอบหมายเลขที่ตรงกันบนอุปกรณ์ UID.one ของคุณ แบบฟอร์มจะไม่ถูกส่งโดยอัตโนมัติ"
+  },
+  "challengeWaiting": {
+    "message": "กำลังรอการอนุมัติ..."
+  },
+  "challengeApproved": {
+    "message": "อนุมัติแล้ว"
+  },
+  "challengeFilled": {
+    "message": "กรอกรหัสผ่านแล้ว"
+  },
+  "challengeFilledDesc": {
+    "message": "ตรวจสอบแบบฟอร์มแล้วกดส่งด้วยตนเองเมื่อพร้อม"
+  },
+  "challengeCancelled": {
+    "message": "ยกเลิกคำขอแล้ว"
+  },
+  "challengeRejected": {
+    "message": "คำขอถูกปฏิเสธ"
+  },
+  "challengeExpired": {
+    "message": "คำขอหมดอายุแล้ว โปรดลองอีกครั้ง"
+  },
+  "challengeTimedOut": {
+    "message": "คำขอหมดเวลาเชื่อมต่อ โปรดลองอีกครั้ง"
+  },
+  "challengeFailed": {
+    "message": "การยืนยันล้มเหลว"
+  },
+  "challengeCancelBtn": {
+    "message": "ยกเลิก"
+  },
+  "challengeApproveBtn": {
+    "message": "อนุมัติ"
+  },
+  "challengeCloseBtn": {
+    "message": "ปิด"
+  },
+  "pairingSuccess": {
+    "message": "เชื่อมโยงอุปกรณ์แล้ว"
+  },
+  "pairingSuccessDesc": {
+    "message": "เซสชันเบราว์เซอร์ของคุณได้รับการยืนยันแล้ว"
+  },
+  "pairingTokenUnverified": {
+    "message": "อนุมัติแล้ว โปรดลงชื่อเข้าใช้ต่อบน uid.one"
+  },
+  "extensionContextInvalid": {
+    "message": "อัปเดตส่วนขยายแล้ว โปรดรีเฟรชหน้าและลองอีกครั้ง"
+  },
+  "challengeInitFailed": {
+    "message": "ไม่สามารถเริ่มการยืนยันได้: $1"
+  },
+  "fillFailedDesc": {
+    "message": "ไม่สามารถกรอกช่องรหัสผ่านได้"
+  },
+  "openApprovalHint": {
+    "message": "ดำเนินการยืนยันต่อในหน้าต่าง UID Link"
+  },
+  "optionsTitle": {
+    "message": "การตั้งค่า UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "ตั้งค่าโล่ความเป็นส่วนตัวแบบเลือกเปิด เว็บไซต์ที่อนุญาตให้กรอกอัตโนมัติ และเซสชันที่เชื่อมโยง"
+  },
+  "optionsShieldsHeading": {
+    "message": "โล่ความเป็นส่วนตัว"
+  },
+  "optionsShieldsDesc": {
+    "message": "โล่ทั้งหมดปิดอยู่โดยค่าเริ่มต้น เปิดเฉพาะรายการที่ต้องการ"
+  },
+  "optionsSitesHeading": {
+    "message": "เว็บไซต์ที่อนุญาตให้กรอกอัตโนมัติ"
+  },
+  "optionsSitesDesc": {
+    "message": "การกรอกรหัสผ่านทำงานเฉพาะบนเว็บไซต์ HTTPS ที่คุณอนุญาตเท่านั้น"
+  },
+  "optionsSitesEmpty": {
+    "message": "ยังไม่มีเว็บไซต์ที่เปิดใช้งาน เพิ่มเว็บไซต์ HTTPS ด้านล่างหรือเปิดจากป๊อปอัป"
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "เพิ่มเว็บไซต์"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "ลบ"
+  },
+  "optionsSiteInvalid": {
+    "message": "กรอกต้นทาง HTTPS ที่ถูกต้อง (เช่น https://example.com)"
+  },
+  "optionsSitePermDenied": {
+    "message": "ไม่ได้รับอนุญาตสิทธิ์ของเว็บไซต์"
+  },
+  "optionsAccountHeading": {
+    "message": "บัญชีและเซสชัน"
+  },
+  "privacyPolicyLink": {
+    "message": "นโยบายความเป็นส่วนตัว"
   }
 }

@@ -69,7 +69,7 @@
     "message": "Xác thực chữ ký số"
   },
   "dialogDesc": {
-    "message": "Vui lòng mở ứng dụng di động UID.one hoặc truy cập <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> để chọn số trùng khớp bên dưới."
+    "message": "Vui lòng mở ứng dụng di động UID.one hoặc truy cập <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> để chọn số trùng khớp bên dưới."
   },
   "dialogCancel": {
     "message": "Hủy yêu cầu"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Nhập URL HTTPS hợp lệ của agent để kết nối."
+  },
+  "tabStatus": {
+    "message": "Trạng thái"
+  },
+  "tabShields": {
+    "message": "Lá chắn"
+  },
+  "openOptions": {
+    "message": "Tùy chọn"
+  },
+  "loadingSession": {
+    "message": "Đang kiểm tra phiên..."
+  },
+  "retryButton": {
+    "message": "Thử lại"
+  },
+  "sessionCheckFailed": {
+    "message": "Không thể xác minh phiên UID.one của bạn."
+  },
+  "signInPrimary": {
+    "message": "Liên kết trình duyệt này"
+  },
+  "signInWeb": {
+    "message": "Đăng nhập trên UID.one"
+  },
+  "vaultLocked": {
+    "message": "Két đã khóa"
+  },
+  "vaultLockedDesc": {
+    "message": "Mở khóa UID Link để sử dụng tự động điền và ký số."
+  },
+  "unlockButton": {
+    "message": "Mở khóa"
+  },
+  "lockButton": {
+    "message": "Khóa"
+  },
+  "unlinkButton": {
+    "message": "Hủy liên kết"
+  },
+  "linkedAtLabel": {
+    "message": "Đã liên kết: $1"
+  },
+  "accountLabel": {
+    "message": "Tài khoản: $1"
+  },
+  "accountSettings": {
+    "message": "Cài đặt tài khoản"
+  },
+  "deleteAccount": {
+    "message": "Xóa tài khoản"
+  },
+  "deleteAccountHint": {
+    "message": "Việc xóa tài khoản được quản lý tại mục Dữ liệu và quyền riêng tư trên UID.one."
+  },
+  "statusUnlinked": {
+    "message": "Đã hủy liên kết trình duyệt."
+  },
+  "statusLocked": {
+    "message": "Đã khóa két."
+  },
+  "statusUnlocked": {
+    "message": "Đã mở khóa két."
+  },
+  "pairBrowserTitle": {
+    "message": "Liên kết trình duyệt này"
+  },
+  "pairBrowserDesc": {
+    "message": "Quét mã QR này bằng ứng dụng UID.one và xác nhận số trùng khớp."
+  },
+  "matchNumberLabel": {
+    "message": "Số đối chiếu"
+  },
+  "originLabel": {
+    "message": "Nguồn gốc"
+  },
+  "challengeTitle": {
+    "message": "Xác nhận điền mật khẩu két"
+  },
+  "challengePairTitle": {
+    "message": "Xác nhận liên kết trình duyệt"
+  },
+  "challengeDesc": {
+    "message": "Đối chiếu số xác nhận trên thiết bị UID.one của bạn. Biểu mẫu không tự động gửi."
+  },
+  "challengeWaiting": {
+    "message": "Đang chờ phê duyệt..."
+  },
+  "challengeApproved": {
+    "message": "Đã phê duyệt"
+  },
+  "challengeFilled": {
+    "message": "Đã điền mật khẩu"
+  },
+  "challengeFilledDesc": {
+    "message": "Kiểm tra lại biểu mẫu và nhấn gửi thủ công khi sẵn sàng."
+  },
+  "challengeCancelled": {
+    "message": "Đã hủy yêu cầu."
+  },
+  "challengeRejected": {
+    "message": "Yêu cầu đã bị từ chối."
+  },
+  "challengeExpired": {
+    "message": "Yêu cầu đã hết hạn. Vui lòng thử lại."
+  },
+  "challengeTimedOut": {
+    "message": "Yêu cầu quá thời gian chờ. Vui lòng thử lại."
+  },
+  "challengeFailed": {
+    "message": "Xác minh thất bại"
+  },
+  "challengeCancelBtn": {
+    "message": "Hủy"
+  },
+  "challengeApproveBtn": {
+    "message": "Phê duyệt"
+  },
+  "challengeCloseBtn": {
+    "message": "Đóng"
+  },
+  "pairingSuccess": {
+    "message": "Đã liên kết thiết bị"
+  },
+  "pairingSuccessDesc": {
+    "message": "Phiên trình duyệt của bạn đã được xác minh."
+  },
+  "pairingTokenUnverified": {
+    "message": "Đã phê duyệt. Hoàn tất đăng nhập trên uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "Tiện ích vừa cập nhật. Vui lòng tải lại trang và thử lại."
+  },
+  "challengeInitFailed": {
+    "message": "Không thể bắt đầu xác minh: $1"
+  },
+  "fillFailedDesc": {
+    "message": "Không thể điền vào trường mật khẩu."
+  },
+  "openApprovalHint": {
+    "message": "Tiếp tục xác minh trong cửa sổ UID Link."
+  },
+  "optionsTitle": {
+    "message": "Cài đặt UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "Cấu hình lá chắn quyền riêng tư tùy chọn, trang web được phép tự động điền và phiên đã liên kết."
+  },
+  "optionsShieldsHeading": {
+    "message": "Lá chắn quyền riêng tư"
+  },
+  "optionsShieldsDesc": {
+    "message": "Tất cả lá chắn mặc định tắt. Chỉ bật những mục bạn cần."
+  },
+  "optionsSitesHeading": {
+    "message": "Trang web được phép tự động điền"
+  },
+  "optionsSitesDesc": {
+    "message": "Tự động điền mật khẩu chỉ chạy trên các trang HTTPS bạn cho phép rõ ràng."
+  },
+  "optionsSitesEmpty": {
+    "message": "Chưa có trang web nào được bật. Thêm trang HTTPS bên dưới hoặc bật từ popup."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Thêm trang"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Xóa"
+  },
+  "optionsSiteInvalid": {
+    "message": "Nhập nguồn HTTPS bên thứ ba hợp lệ (ví dụ: https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "Quyền truy cập trang web chưa được cấp."
+  },
+  "optionsAccountHeading": {
+    "message": "Tài khoản và phiên"
+  },
+  "privacyPolicyLink": {
+    "message": "Chính sách bảo mật"
   }
 }

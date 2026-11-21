@@ -30,7 +30,7 @@ To achieve the highest level of security and client-side trust, **UID Link** (Br
 
 ### 1. Cryptographic Session Binding
 Prevents session hijacking and token theft. Upon authentication, UID Link locks down the session by:
-- Generating a local hardware device fingerprint.
+- Generating a local browser environment fingerprint (derived from user-agent, language, screen metrics, timezone, and hardware concurrency).
 - Creating an HMAC-bound signature for the active `sessionToken`.
 - Registering the binding securely with the backend API `/v1/auth/session-binding/register/`.
 - Verifying the signature locally before allowing privileged requests.
@@ -84,7 +84,7 @@ Localized across **14 canonical locales** (`ar`, `de`, `en`, `es`, `fr`, `it`, `
 Choose one of the two methods below to install the extension:
 
 ### Option 1: Install Prebuilt (Recommended & Simplest)
-1. Download **`uid-link-chrome.zip`** (for Chrome, Edge, Brave) or **`uid-link-firefox.zip`** (for Firefox) from the root of this repository.
+1. Download **`uid-link-chrome.zip`** (for Chrome, Edge, Brave) or **`uid-link-firefox.zip`** (for Firefox) from the [GitHub Releases](https://github.com/oneuid/uid-extension/releases) page.
 2. Extract the downloaded zip file into a folder on your computer.
 3. Open your browser and navigate to `chrome://extensions/` (or `about:debugging` in Firefox).
 4. Turn on **"Developer mode"** in the top-right corner.
@@ -100,8 +100,8 @@ Choose one of the two methods below to install the extension:
    ```
 2. Install dependencies and compile:
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
 3. Open `chrome://extensions/`, turn on **"Developer mode"**, click **"Load unpacked"** and select the compiled **`dist/chrome/`** folder.
 
@@ -112,8 +112,8 @@ Since Apple Safari Web Extensions must be wrapped inside a native macOS/iOS app 
 
 1. **Build the extension source**:
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
    This compiles the extension files into the standard Manifest V3 compliant `dist/chrome/` folder.
 
@@ -131,6 +131,13 @@ Since Apple Safari Web Extensions must be wrapped inside a native macOS/iOS app 
    - Open **Safari** -> **Settings** -> **Advanced**, check **"Show features for web developers"** (or **"Show Develop menu in menu bar"** depending on macOS version).
    - In Safari's menu bar, click **Develop** -> check **"Allow Unsigned Extensions"**.
    - Go to **Safari** -> **Settings** -> **Extensions** and check the box next to **UID Link**.
+
+---
+
+## 📸 Screenshots
+
+- Popup interface: [`public/screenshots/popup.png`](public/screenshots/popup.png)
+- PDF digital signer: [`public/screenshots/pdf_signer.png`](public/screenshots/pdf_signer.png)
 
 ---
 

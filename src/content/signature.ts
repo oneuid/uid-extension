@@ -127,29 +127,29 @@ export class EmailSignatureGuard {
           <span style="font-size: 11px; font-weight: 600; color: #10b981;">Sovereign verification</span>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(51, 65, 85, 0.5); padding-top: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(229, 231, 235, 0.16); padding-top: 20px;">
           <div>
-            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Signer identity (DID)</div>
-            <div style="font-size: 13px; font-weight: 600; color: #F8FAFC; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px; word-break: break-all;">${signer}</div>
+            <div style="font-size: 11px; color: #CBD5E1; font-weight: 500; margin-bottom: 4px;">Signer identity (DID)</div>
+            <div style="font-size: 13px; font-weight: 600; color: #F8FAFC; background: #1A2233; border: 1px solid rgba(229, 231, 235, 0.18); padding: 8px 12px; border-radius: 10px; word-break: break-all;">${signer}</div>
           </div>
 
           <div>
-            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Content integrity hash (SHA-256)</div>
-            <div style="font-size: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; color: #CBD5E1; background: #060B14; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px; word-break: break-all; user-select: all;">${hash}</div>
+            <div style="font-size: 11px; color: #CBD5E1; font-weight: 500; margin-bottom: 4px;">Content integrity hash (SHA-256)</div>
+            <div style="font-size: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; color: #E5E7EB; background: #0B1220; border: 1px solid rgba(229, 231, 235, 0.18); padding: 8px 12px; border-radius: 10px; word-break: break-all; user-select: all;">${hash}</div>
           </div>
 
           <div id="uid-modal-key-section">
-            <div style="font-size: 11px; color: #94A3B8; font-weight: 500; margin-bottom: 4px;">Active public key (RSA 2048-bit)</div>
-            <div style="font-size: 12px; color: #CBD5E1; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: #111A2E; border: 1px solid rgba(51, 65, 85, 0.6); padding: 8px 12px; border-radius: 10px;" id="uid-modal-toggle-key">
+            <div style="font-size: 11px; color: #CBD5E1; font-weight: 500; margin-bottom: 4px;">Active public key (RSA 2048-bit)</div>
+            <div style="font-size: 12px; color: #E5E7EB; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: #1A2233; border: 1px solid rgba(229, 231, 235, 0.18); padding: 8px 12px; border-radius: 10px; min-height: 44px; box-sizing: border-box;" id="uid-modal-toggle-key">
               <span>Show public key PEM</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="uid-modal-arrow" style="transition: transform 0.15s ease;"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
-            <textarea readonly id="uid-modal-pubkey-text" style="display: none; width: 100%; height: 100px; background: #060B14; color: #94A3B8; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; border: 1px solid rgba(51, 65, 85, 0.6); border-radius: 10px; padding: 8px; margin-top: 8px; resize: none; box-sizing: border-box; outline: none;"></textarea>
+            <textarea readonly id="uid-modal-pubkey-text" style="display: none; width: 100%; height: 100px; background: #0B1220; color: #CBD5E1; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; border: 1px solid rgba(229, 231, 235, 0.18); border-radius: 10px; padding: 8px; margin-top: 8px; resize: none; box-sizing: border-box; outline: none;"></textarea>
           </div>
         </div>
 
         <div style="margin-top: 28px;">
-          <button type="button" id="uid-modal-close-btn" style="width: 100%; padding: 11px; border-radius: 10px; background: #2563EB; border: none; color: #FFFFFF; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease;">Close</button>
+          <button type="button" id="uid-modal-close-btn" style="width: 100%; min-height: 44px; padding: 11px; border-radius: 10px; background: #2563FF; border: none; color: #FFFFFF; font-size: 13px; font-weight: 600; cursor: pointer; transition: background-color 0.15s ease;">Close</button>
         </div>
       `;
 
@@ -752,15 +752,15 @@ export class ComposerFloatingSignButton {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 34px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         cursor: pointer;
         transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
         user-select: none;
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-        background: ${isMatch ? '#2563eb' : '#94a3b8'};
-        border: 1px solid ${isMatch ? '#1d4ed8' : '#cbd5e1'};
+        background: ${isMatch ? '#2563FF' : '#94a3b8'};
+        border: 1px solid ${isMatch ? '#1457FF' : '#cbd5e1'};
         color: #ffffff;
       `;
 
@@ -771,7 +771,7 @@ export class ComposerFloatingSignButton {
             this.activeButton.style.background = '#64748b';
             this.activeButton.style.borderColor = '#475569';
           } else {
-            this.activeButton.style.background = '#1d4ed8';
+            this.activeButton.style.background = '#1457FF';
           }
         }
       };
@@ -783,7 +783,7 @@ export class ComposerFloatingSignButton {
             this.activeButton.style.background = '#94a3b8';
             this.activeButton.style.borderColor = '#cbd5e1';
           } else {
-            this.activeButton.style.background = '#2563eb';
+            this.activeButton.style.background = '#2563FF';
           }
         }
       };
@@ -803,9 +803,9 @@ export class ComposerFloatingSignButton {
       tooltip.className = 'uid-floating-tooltip';
       tooltip.style.cssText = `
         position: absolute;
-        bottom: 42px;
+        bottom: 48px;
         right: 0;
-        background: #0f172a;
+        background: #0B1220;
         color: #f8fafc;
         padding: 8px 12px;
         border-radius: 6px;
@@ -914,8 +914,8 @@ export class EmailAITrustFilter {
       }
       .uid-ai-safe {
         background: #eff6ff;
-        border: 1px solid #3b82f6;
-        color: #1e40af;
+        border: 1px solid #2563FF;
+        color: #1457FF;
       }
       .uid-ai-unverified {
         background: #fff1f2;

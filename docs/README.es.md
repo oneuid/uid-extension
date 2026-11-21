@@ -8,7 +8,7 @@
 
 ### 1. Enlace criptográfico de sesión
 Previene el secuestro de sesión y el robo de tokens. Una vez autenticado, UID Link bloquea la sesión mediante:
-* Generación de una huella digital del dispositivo de hardware local.
+* Generación de una huella del entorno del navegador local.
 * Creación de una firma vinculada por HMAC para el `sessionToken` activo.
 * Registro seguro del enlace en la API del backend `/v1/auth/session-binding/register/`.
 * Verificación de la firma localmente antes de permitir peticiones privilegiadas.
@@ -74,8 +74,8 @@ Elija uno de los dos métodos sencillos siguientes para instalar la extensión:
    ```
 2. Instale las dependencias y compile:
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
 3. Abra `chrome://extensions/`, active el **"Modo desarrollador"**, haga clic en **"Cargar descomprimida"** y seleccione la carpeta compilada **`dist/chrome/`**.
 

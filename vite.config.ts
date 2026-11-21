@@ -15,7 +15,9 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     webExtension({
       additionalInputs: [
-        "signer.html"
+        "signer.html",
+        "options.html",
+        "approval.html"
       ],
       manifest: () => {
         const manifestString = fs.readFileSync('./manifest.json', 'utf-8');

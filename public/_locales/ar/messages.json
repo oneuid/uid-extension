@@ -69,7 +69,7 @@
     "message": "التحقق من التوقيع الرقمي"
   },
   "dialogDesc": {
-    "message": "يرجى فتح تطبيق الجوال UID.one أو زيارة <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> لاختيار الرقم المطابق."
+    "message": "يرجى فتح تطبيق الجوال UID.one أو زيارة <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> لاختيار الرقم المطابق."
   },
   "dialogCancel": {
     "message": "إلغاء الطلب"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "أدخل عنوان URL صالحا لوكيل HTTPS للاتصال."
+  },
+  "tabStatus": {
+    "message": "الحالة"
+  },
+  "tabShields": {
+    "message": "الدروع"
+  },
+  "openOptions": {
+    "message": "الخيارات"
+  },
+  "loadingSession": {
+    "message": "جارٍ التحقق من الجلسة..."
+  },
+  "retryButton": {
+    "message": "إعادة المحاولة"
+  },
+  "sessionCheckFailed": {
+    "message": "تعذر التحقق من جلسة UID.one الخاصة بك."
+  },
+  "signInPrimary": {
+    "message": "ربط هذا المتصفح"
+  },
+  "signInWeb": {
+    "message": "تسجيل الدخول عبر UID.one"
+  },
+  "vaultLocked": {
+    "message": "الخزنة مقفلة"
+  },
+  "vaultLockedDesc": {
+    "message": "افتح قفل UID Link لاستخدام الملء التلقائي والتوقيع."
+  },
+  "unlockButton": {
+    "message": "فتح القفل"
+  },
+  "lockButton": {
+    "message": "قفل"
+  },
+  "unlinkButton": {
+    "message": "إلغاء الربط"
+  },
+  "linkedAtLabel": {
+    "message": "تم الربط: $1"
+  },
+  "accountLabel": {
+    "message": "الحساب: $1"
+  },
+  "accountSettings": {
+    "message": "إعدادات الحساب"
+  },
+  "deleteAccount": {
+    "message": "حذف الحساب"
+  },
+  "deleteAccountHint": {
+    "message": "تتم إدارة حذف الحساب من قسم البيانات والخصوصية في UID.one."
+  },
+  "statusUnlinked": {
+    "message": "تم إلغاء ربط المتصفح."
+  },
+  "statusLocked": {
+    "message": "تم قفل الخزنة."
+  },
+  "statusUnlocked": {
+    "message": "تم فتح قفل الخزنة."
+  },
+  "pairBrowserTitle": {
+    "message": "ربط هذا المتصفح"
+  },
+  "pairBrowserDesc": {
+    "message": "امسح رمز QR هذا بتطبيق UID.one وأكّد الرقم المطابق."
+  },
+  "matchNumberLabel": {
+    "message": "الرقم المطابق"
+  },
+  "originLabel": {
+    "message": "المصدر"
+  },
+  "challengeTitle": {
+    "message": "تأكيد تعبئة كلمة مرور الخزنة"
+  },
+  "challengePairTitle": {
+    "message": "تأكيد ربط المتصفح"
+  },
+  "challengeDesc": {
+    "message": "تحقق من الرقم المطابق على جهاز UID.one الخاص بك. لن يتم إرسال النماذج تلقائيًا."
+  },
+  "challengeWaiting": {
+    "message": "بانتظار الموافقة..."
+  },
+  "challengeApproved": {
+    "message": "تمت الموافقة"
+  },
+  "challengeFilled": {
+    "message": "تمت تعبئة كلمة المرور"
+  },
+  "challengeFilledDesc": {
+    "message": "راجع النموذج وأرسله يدويًا عندما تكون جاهزًا."
+  },
+  "challengeCancelled": {
+    "message": "تم إلغاء الطلب."
+  },
+  "challengeRejected": {
+    "message": "تم رفض الطلب."
+  },
+  "challengeExpired": {
+    "message": "انتهت صلاحية الطلب. يرجى المحاولة مرة أخرى."
+  },
+  "challengeTimedOut": {
+    "message": "انتهت مهلة الطلب. يرجى المحاولة مرة أخرى."
+  },
+  "challengeFailed": {
+    "message": "فشل التحقق"
+  },
+  "challengeCancelBtn": {
+    "message": "إلغاء"
+  },
+  "challengeApproveBtn": {
+    "message": "موافقة"
+  },
+  "challengeCloseBtn": {
+    "message": "إغلاق"
+  },
+  "pairingSuccess": {
+    "message": "تم ربط الجهاز"
+  },
+  "pairingSuccessDesc": {
+    "message": "تم التحقق من جلسة متصفحك الآن."
+  },
+  "pairingTokenUnverified": {
+    "message": "تمت الموافقة. أكمل تسجيل الدخول على uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "تم تحديث الإضافة. أعد تحميل الصفحة وحاول مرة أخرى."
+  },
+  "challengeInitFailed": {
+    "message": "تعذر بدء التحقق: $1"
+  },
+  "fillFailedDesc": {
+    "message": "تعذر تعبئة حقل كلمة المرور."
+  },
+  "openApprovalHint": {
+    "message": "تابع التحقق في نافذة UID Link."
+  },
+  "optionsTitle": {
+    "message": "إعدادات UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "اضبط دروع الخصوصية الاختيارية والمواقع المسموح لها بالتعبئة التلقائية وجلستك المرتبطة."
+  },
+  "optionsShieldsHeading": {
+    "message": "دروع الخصوصية"
+  },
+  "optionsShieldsDesc": {
+    "message": "جميع الدروع متوقفة افتراضيًا. فعّل ما تحتاجه فقط."
+  },
+  "optionsSitesHeading": {
+    "message": "المواقع المسموح لها بالتعبئة التلقائية"
+  },
+  "optionsSitesDesc": {
+    "message": "تعمل تعبئة كلمات المرور فقط على مواقع HTTPS التي تسمح بها صراحة."
+  },
+  "optionsSitesEmpty": {
+    "message": "لا توجد مواقع مفعّلة بعد. أضف موقع HTTPS أدناه أو فعّله من النافذة المنبثقة."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "إضافة موقع"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "إزالة"
+  },
+  "optionsSiteInvalid": {
+    "message": "أدخل مصدر HTTPS صالحًا لطرف ثالث (مثل https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "لم يتم منح إذن الموقع."
+  },
+  "optionsAccountHeading": {
+    "message": "الحساب والجلسة"
+  },
+  "privacyPolicyLink": {
+    "message": "سياسة الخصوصية"
   }
 }

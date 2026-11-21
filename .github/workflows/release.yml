@@ -1,6 +1,9 @@
 name: Release Extension
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -16,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (e.g. v2.5.5)"
+        description: "Release tag (e.g. v2.5.11)"
         required: false
         default: ""
 
@@ -29,11 +32,28 @@ permissions:
 
 jobs:
   build-extensions:
-    name: Build Chrome, Edge & Firefox Extensions (Ubuntu 1x)
+    name: Verify & Build Chrome, Edge & Firefox Extensions (Ubuntu 1x)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Verify no zip artifacts are tracked in git
+        run: |
+          if [ -n "$(git ls-files '*.zip')" ]; then
+            echo "Error: Built zip files must not be tracked in git:"
+            git ls-files '*.zip'
+            exit 1
+          fi
+
+      - name: Verify manifest.json and package.json versions match
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          MAN_VER=$(node -p "require('./manifest.json').version")
+          if [ "$PKG_VER" != "$MAN_VER" ]; then
+            echo "Version drift: package.json ($PKG_VER) != manifest.json ($MAN_VER)"
+            exit 1
+          fi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -49,8 +69,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        run: pnpm run typecheck
+
       - name: Build and Package Extensions
         run: pnpm run build:publish
+
+      - name: Run Unit & Bundle Security Tests
+        run: pnpm test
 
       - name: Upload Chrome Extension Artifact
         uses: actions/upload-artifact@v4

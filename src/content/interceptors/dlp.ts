@@ -139,7 +139,7 @@ export async function showDLPWarning(options: DLPWarningOptions): Promise<void> 
       critical: '#dc2626',
       high: '#ea580c',
       medium: '#d97706',
-      low: '#2563EB',
+      low: '#2563FF',
     }[options.result.riskLevel];
 
     overlay.innerHTML = `
@@ -191,13 +191,13 @@ export async function showDLPWarning(options: DLPWarningOptions): Promise<void> 
           ${options.onAllow ? `
             <button type="button" id="uid-dlp-allow" style="
               background:#ffffff;border:1px solid #CBD5E1;
-              color:#334155;padding:8px 16px;border-radius:8px;
+              color:#334155;min-height:44px;padding:8px 16px;border-radius:8px;
               cursor:pointer;font-size:13px;font-weight:600
             ">Send anyway</button>
           ` : ''}
           <button type="button" id="uid-dlp-block" style="
-            background:#2563EB;color:#ffffff;
-            border:none;padding:8px 20px;border-radius:8px;
+            background:#2563FF;color:#ffffff;
+            border:none;min-height:44px;padding:8px 20px;border-radius:8px;
             cursor:pointer;font-size:13px;font-weight:600
           ">Do not send</button>
         </div>

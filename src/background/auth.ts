@@ -291,6 +291,43 @@ async function fetchJwksForApiBase(apiBase: string): Promise<JsonWebKey[]> {
   return [];
 }
 
+export interface ActiveChallengeRecord {
+  token: string;
+  mode: 'pair' | 'fill';
+  origin: string;
+  domain: string;
+  matchNumber: string;
+  qrUrl?: string;
+  targetTabId?: number;
+  targetFrameId?: number;
+  fillTargetId?: string;
+  createdAt: number;
+  status: 'PENDING' | 'APPROVED' | 'FILLED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED' | 'ERROR';
+  error?: string;
+}
+
+const SESSION_LOCKED_KEY = 'oneuid_vault_locked';
+const SESSION_LINKED_AT_KEY = 'oneuid_linked_at';
+const ACTIVE_CHALLENGE_KEY = 'oneuid_active_challenge';
+
+let memoryVaultLocked = false;
+let memoryLinkedAt: number | null = null;
+let memoryActiveChallenge: ActiveChallengeRecord | null = null;
+
+export function maskAccountIdentifier(raw: string): string {
+  const val = raw.trim();
+  if (!val) return 'u***';
+  const atIdx = val.indexOf('@');
+  if (atIdx > 0) {
+    const local = val.slice(0, atIdx);
+    const domain = val.slice(atIdx + 1);
+    const maskedLocal = local.length <= 2 ? `${local[0] || '*'}*` : `${local.slice(0, 2)}***`;
+    return `${maskedLocal}@${domain}`;
+  }
+  if (val.length <= 4) return `${val[0] || '*'}***`;
+  return `${val.slice(0, 2)}***${val.slice(-2)}`;
+}
+
 /**
  * Verifies JWT structure, claims (`iss`, `aud`, `exp`, `nbf`), and cryptographic signature
  * against the live UID.one JWKS endpoint.
@@ -298,13 +335,16 @@ async function fetchJwksForApiBase(apiBase: string): Promise<JsonWebKey[]> {
 export async function verifySessionJwt(
   token: string,
   apiBase: string
-): Promise<JwtVerificationResult> {
+): Promise<JwtVerificationResult & { jwksUnavailable?: boolean }> {
   const precheck = validateJwtStructureAndClaims(token);
   if (!precheck.valid) {
     return { valid: false, error: precheck.error };
   }
 
   const keys = await fetchJwksForApiBase(apiBase);
+  if (keys.length === 0) {
+    return { valid: false, error: 'Unable to fetch JWKS keys', jwksUnavailable: true };
+  }
   return verifyJwtWithJwks(token, keys);
 }
 
@@ -347,23 +387,119 @@ export async function getStoredSessionToken(): Promise<string | null> {
 
 export async function setStoredSessionToken(token: string): Promise<void> {
   memorySessionToken = token;
+  memoryVaultLocked = false;
+  memoryLinkedAt = Date.now();
   await purgeLegacyPlaintextTokens();
   try {
     if (chrome.storage?.session) {
-      await chrome.storage.session.set({ [SESSION_STORAGE_KEY]: token });
+      await chrome.storage.session.set({
+        [SESSION_STORAGE_KEY]: token,
+        [SESSION_LOCKED_KEY]: false,
+        [SESSION_LINKED_AT_KEY]: memoryLinkedAt,
+      });
     }
   } catch {
     // Keep in memory if session storage is unavailable
   }
 }
 
+export async function getVaultLocked(): Promise<boolean> {
+  if (memoryVaultLocked) return true;
+  try {
+    if (chrome.storage?.session) {
+      const stored = await chrome.storage.session.get([SESSION_LOCKED_KEY]);
+      const locked = stored[SESSION_LOCKED_KEY] === true;
+      memoryVaultLocked = locked;
+      return locked;
+    }
+  } catch {
+    // In-memory fallback
+  }
+  return memoryVaultLocked;
+}
+
+export async function setVaultLocked(locked: boolean): Promise<void> {
+  memoryVaultLocked = locked;
+  try {
+    if (chrome.storage?.session) {
+      await chrome.storage.session.set({ [SESSION_LOCKED_KEY]: locked });
+    }
+  } catch {
+    // In-memory fallback
+  }
+}
+
+export async function getLinkedAt(): Promise<number | null> {
+  if (memoryLinkedAt) return memoryLinkedAt;
+  try {
+    if (chrome.storage?.session) {
+      const stored = await chrome.storage.session.get([SESSION_LINKED_AT_KEY]);
+      const val = stored[SESSION_LINKED_AT_KEY];
+      if (typeof val === 'number' && Number.isFinite(val)) {
+        memoryLinkedAt = val;
+        return val;
+      }
+    }
+  } catch {
+    // In-memory fallback
+  }
+  return null;
+}
+
+export async function getActiveChallenge(): Promise<ActiveChallengeRecord | null> {
+  if (memoryActiveChallenge) return memoryActiveChallenge;
+  try {
+    if (chrome.storage?.session) {
+      const stored = await chrome.storage.session.get([ACTIVE_CHALLENGE_KEY]);
+      const rec = stored[ACTIVE_CHALLENGE_KEY] as ActiveChallengeRecord | undefined;
+      if (rec && typeof rec.token === 'string') {
+        memoryActiveChallenge = rec;
+        return rec;
+      }
+    }
+  } catch {
+    // In-memory fallback
+  }
+  return null;
+}
+
+export async function setActiveChallenge(record: ActiveChallengeRecord): Promise<void> {
+  memoryActiveChallenge = record;
+  try {
+    if (chrome.storage?.session) {
+      await chrome.storage.session.set({ [ACTIVE_CHALLENGE_KEY]: record });
+    }
+  } catch {
+    // In-memory fallback
+  }
+}
+
+export async function clearActiveChallenge(): Promise<void> {
+  memoryActiveChallenge = null;
+  try {
+    if (chrome.storage?.session) {
+      await chrome.storage.session.remove([ACTIVE_CHALLENGE_KEY]);
+    }
+  } catch {
+    // In-memory fallback
+  }
+}
+
 export async function clearStoredSessionToken(): Promise<void> {
   memorySessionToken = null;
+  memoryVaultLocked = false;
+  memoryLinkedAt = null;
+  memoryActiveChallenge = null;
   memoryBindingStore.clear();
   await purgeLegacyPlaintextTokens();
   try {
     if (chrome.storage?.session) {
-      await chrome.storage.session.remove([SESSION_STORAGE_KEY]);
+      await chrome.storage.session.remove([
+        SESSION_STORAGE_KEY,
+        SESSION_LOCKED_KEY,
+        SESSION_LINKED_AT_KEY,
+        ACTIVE_CHALLENGE_KEY,
+      ]);
     }
   } catch {
     // Ignore cleanup errors

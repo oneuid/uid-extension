@@ -69,7 +69,7 @@
     "message": "Verifica della firma digitale"
   },
   "dialogDesc": {
-    "message": "Apri l'app mobile UID.one o visita <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> per selezionare il numero corrispondente."
+    "message": "Apri l'app mobile UID.one o visita <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> per selezionare il numero corrispondente."
   },
   "dialogCancel": {
     "message": "Annulla richiesta"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Inserisci un URL HTTPS valido dell’agente per connetterti."
+  },
+  "tabStatus": {
+    "message": "Stato"
+  },
+  "tabShields": {
+    "message": "Scudi"
+  },
+  "openOptions": {
+    "message": "Opzioni"
+  },
+  "loadingSession": {
+    "message": "Verifica della sessione..."
+  },
+  "retryButton": {
+    "message": "Riprova"
+  },
+  "sessionCheckFailed": {
+    "message": "Impossibile verificare la sessione UID.one."
+  },
+  "signInPrimary": {
+    "message": "Collega questo browser"
+  },
+  "signInWeb": {
+    "message": "Accedi su UID.one"
+  },
+  "vaultLocked": {
+    "message": "Cassaforte bloccata"
+  },
+  "vaultLockedDesc": {
+    "message": "Sblocca UID Link per usare compilazione e firma."
+  },
+  "unlockButton": {
+    "message": "Sblocca"
+  },
+  "lockButton": {
+    "message": "Blocca"
+  },
+  "unlinkButton": {
+    "message": "Scollega"
+  },
+  "linkedAtLabel": {
+    "message": "Collegato: $1"
+  },
+  "accountLabel": {
+    "message": "Account: $1"
+  },
+  "accountSettings": {
+    "message": "Impostazioni account"
+  },
+  "deleteAccount": {
+    "message": "Elimina account"
+  },
+  "deleteAccountHint": {
+    "message": "L'eliminazione dell'account è gestita in Dati e privacy su UID.one."
+  },
+  "statusUnlinked": {
+    "message": "Browser scollegato."
+  },
+  "statusLocked": {
+    "message": "Cassaforte bloccata."
+  },
+  "statusUnlocked": {
+    "message": "Cassaforte sbloccata."
+  },
+  "pairBrowserTitle": {
+    "message": "Collega questo browser"
+  },
+  "pairBrowserDesc": {
+    "message": "Scansiona questo codice QR con l'app UID.one e conferma il numero."
+  },
+  "matchNumberLabel": {
+    "message": "Numero di verifica"
+  },
+  "originLabel": {
+    "message": "Origine"
+  },
+  "challengeTitle": {
+    "message": "Conferma compilazione password"
+  },
+  "challengePairTitle": {
+    "message": "Conferma collegamento browser"
+  },
+  "challengeDesc": {
+    "message": "Verifica il numero sul dispositivo UID.one. I moduli non vengono mai inviati automaticamente."
+  },
+  "challengeWaiting": {
+    "message": "In attesa di approvazione..."
+  },
+  "challengeApproved": {
+    "message": "Approvato"
+  },
+  "challengeFilled": {
+    "message": "Password compilata"
+  },
+  "challengeFilledDesc": {
+    "message": "Controlla il modulo e invialo manualmente quando sei pronto."
+  },
+  "challengeCancelled": {
+    "message": "Richiesta annullata."
+  },
+  "challengeRejected": {
+    "message": "La richiesta è stata rifiutata."
+  },
+  "challengeExpired": {
+    "message": "Richiesta scaduta. Riprova."
+  },
+  "challengeTimedOut": {
+    "message": "Richiesta scaduta per timeout. Riprova."
+  },
+  "challengeFailed": {
+    "message": "Verifica non riuscita"
+  },
+  "challengeCancelBtn": {
+    "message": "Annulla"
+  },
+  "challengeApproveBtn": {
+    "message": "Approva"
+  },
+  "challengeCloseBtn": {
+    "message": "Chiudi"
+  },
+  "pairingSuccess": {
+    "message": "Dispositivo collegato"
+  },
+  "pairingSuccessDesc": {
+    "message": "La sessione del browser è ora verificata."
+  },
+  "pairingTokenUnverified": {
+    "message": "Approvato. Completa l'accesso su uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "Estensione aggiornata. Ricarica la pagina e riprova."
+  },
+  "challengeInitFailed": {
+    "message": "Impossibile avviare la verifica: $1"
+  },
+  "fillFailedDesc": {
+    "message": "Impossibile compilare il campo password."
+  },
+  "openApprovalHint": {
+    "message": "Continua la verifica nella finestra UID Link."
+  },
+  "optionsTitle": {
+    "message": "Impostazioni UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "Configura gli scudi opzionali, i siti consentiti per la compilazione e la sessione collegata."
+  },
+  "optionsShieldsHeading": {
+    "message": "Scudi per la privacy"
+  },
+  "optionsShieldsDesc": {
+    "message": "Tutti gli scudi sono disattivati per impostazione predefinita. Attiva solo quelli necessari."
+  },
+  "optionsSitesHeading": {
+    "message": "Siti consentiti per la compilazione"
+  },
+  "optionsSitesDesc": {
+    "message": "La compilazione funziona solo sui siti HTTPS autorizzati esplicitamente."
+  },
+  "optionsSitesEmpty": {
+    "message": "Nessun sito abilitato. Aggiungi un sito HTTPS qui sotto o attivalo dal popup."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Aggiungi sito"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Rimuovi"
+  },
+  "optionsSiteInvalid": {
+    "message": "Inserisci un'origine HTTPS di terze parti valida (es. https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "Autorizzazione del sito non concessa."
+  },
+  "optionsAccountHeading": {
+    "message": "Account e sessione"
+  },
+  "privacyPolicyLink": {
+    "message": "Informativa sulla privacy"
   }
 }

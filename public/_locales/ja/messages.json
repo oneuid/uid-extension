@@ -69,7 +69,7 @@
     "message": "電子署名の確認"
   },
   "dialogDesc": {
-    "message": "UID.one モバイルアプリを開くか、<a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> にアクセスして一致する番号を選択してください。"
+    "message": "UID.one モバイルアプリを開くか、<a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> にアクセスして一致する番号を選択してください。"
   },
   "dialogCancel": {
     "message": "リクエストをキャンセル"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "接続するには有効な HTTPS エージェント URL を入力してください。"
+  },
+  "tabStatus": {
+    "message": "ステータス"
+  },
+  "tabShields": {
+    "message": "シールド"
+  },
+  "openOptions": {
+    "message": "オプション"
+  },
+  "loadingSession": {
+    "message": "セッションを確認中..."
+  },
+  "retryButton": {
+    "message": "再試行"
+  },
+  "sessionCheckFailed": {
+    "message": "UID.one セッションを検証できませんでした。"
+  },
+  "signInPrimary": {
+    "message": "このブラウザを連携"
+  },
+  "signInWeb": {
+    "message": "UID.one でサインイン"
+  },
+  "vaultLocked": {
+    "message": "保管庫はロック中"
+  },
+  "vaultLockedDesc": {
+    "message": "自動入力と署名を使うには UID Link のロックを解除してください。"
+  },
+  "unlockButton": {
+    "message": "ロック解除"
+  },
+  "lockButton": {
+    "message": "ロック"
+  },
+  "unlinkButton": {
+    "message": "連携解除"
+  },
+  "linkedAtLabel": {
+    "message": "連携日時: $1"
+  },
+  "accountLabel": {
+    "message": "アカウント: $1"
+  },
+  "accountSettings": {
+    "message": "アカウント設定"
+  },
+  "deleteAccount": {
+    "message": "アカウントを削除"
+  },
+  "deleteAccountHint": {
+    "message": "アカウント削除は UID.one の「データとプライバシー」で管理されます。"
+  },
+  "statusUnlinked": {
+    "message": "ブラウザの連携を解除しました。"
+  },
+  "statusLocked": {
+    "message": "保管庫をロックしました。"
+  },
+  "statusUnlocked": {
+    "message": "保管庫のロックを解除しました。"
+  },
+  "pairBrowserTitle": {
+    "message": "このブラウザを連携"
+  },
+  "pairBrowserDesc": {
+    "message": "UID.one モバイルアプリでこの QR コードをスキャンし、一致番号を確認してください。"
+  },
+  "matchNumberLabel": {
+    "message": "一致番号"
+  },
+  "originLabel": {
+    "message": "オリジン"
+  },
+  "challengeTitle": {
+    "message": "保管庫パスワードの入力を確認"
+  },
+  "challengePairTitle": {
+    "message": "ブラウザ連携の確認"
+  },
+  "challengeDesc": {
+    "message": "UID.one デバイスで一致番号を確認してください。フォームは自動送信されません。"
+  },
+  "challengeWaiting": {
+    "message": "承認を待っています..."
+  },
+  "challengeApproved": {
+    "message": "承認済み"
+  },
+  "challengeFilled": {
+    "message": "パスワードを入力しました"
+  },
+  "challengeFilledDesc": {
+    "message": "フォームを確認し、準備ができたら手動で送信してください。"
+  },
+  "challengeCancelled": {
+    "message": "リクエストはキャンセルされました。"
+  },
+  "challengeRejected": {
+    "message": "リクエストが拒否されました。"
+  },
+  "challengeExpired": {
+    "message": "リクエストの有効期限が切れました。もう一度お試しください。"
+  },
+  "challengeTimedOut": {
+    "message": "リクエストがタイムアウトしました。もう一度お試しください。"
+  },
+  "challengeFailed": {
+    "message": "確認に失敗しました"
+  },
+  "challengeCancelBtn": {
+    "message": "キャンセル"
+  },
+  "challengeApproveBtn": {
+    "message": "承認"
+  },
+  "challengeCloseBtn": {
+    "message": "閉じる"
+  },
+  "pairingSuccess": {
+    "message": "デバイスを連携しました"
+  },
+  "pairingSuccessDesc": {
+    "message": "ブラウザセッションが検証されました。"
+  },
+  "pairingTokenUnverified": {
+    "message": "承認されました。uid.one でサインインを完了してください。"
+  },
+  "extensionContextInvalid": {
+    "message": "拡張機能が更新されました。ページを再読み込みしてください。"
+  },
+  "challengeInitFailed": {
+    "message": "確認を開始できませんでした: $1"
+  },
+  "fillFailedDesc": {
+    "message": "パスワード欄に入力できませんでした。"
+  },
+  "openApprovalHint": {
+    "message": "UID Link ウィンドウで確認を続行してください。"
+  },
+  "optionsTitle": {
+    "message": "UID Link 設定"
+  },
+  "optionsSubtitle": {
+    "message": "オプトイン保護シールド、自動入力を許可するサイト、連携済みセッションを設定します。"
+  },
+  "optionsShieldsHeading": {
+    "message": "プライバシーシールド"
+  },
+  "optionsShieldsDesc": {
+    "message": "すべてのシールドは既定でオフです。必要なものだけを有効にしてください。"
+  },
+  "optionsSitesHeading": {
+    "message": "自動入力を許可したサイト"
+  },
+  "optionsSitesDesc": {
+    "message": "パスワード入力は明示的に許可した HTTPS サイトでのみ動作します。"
+  },
+  "optionsSitesEmpty": {
+    "message": "有効なサイトはありません。下から HTTPS サイトを追加するかポップアップで有効にしてください。"
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "サイトを追加"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "削除"
+  },
+  "optionsSiteInvalid": {
+    "message": "有効なサードパーティの HTTPS オリジンを入力してください（例: https://example.com）。"
+  },
+  "optionsSitePermDenied": {
+    "message": "サイト権限が許可されませんでした。"
+  },
+  "optionsAccountHeading": {
+    "message": "アカウントとセッション"
+  },
+  "privacyPolicyLink": {
+    "message": "プライバシーポリシー"
   }
 }

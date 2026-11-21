@@ -69,7 +69,7 @@
     "message": "Проверка цифровой подписи"
   },
   "dialogDesc": {
-    "message": "Откройте мобильное приложение UID.one или перейдите на <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a>, чтобы выбрать совпадающее число."
+    "message": "Откройте мобильное приложение UID.one или перейдите на <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a>, чтобы выбрать совпадающее число."
   },
   "dialogCancel": {
     "message": "Отменить запрос"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Введите действительный HTTPS-адрес агента для подключения."
+  },
+  "tabStatus": {
+    "message": "Статус"
+  },
+  "tabShields": {
+    "message": "Щиты"
+  },
+  "openOptions": {
+    "message": "Настройки"
+  },
+  "loadingSession": {
+    "message": "Проверка сеанса..."
+  },
+  "retryButton": {
+    "message": "Повторить"
+  },
+  "sessionCheckFailed": {
+    "message": "Не удалось проверить сеанс UID.one."
+  },
+  "signInPrimary": {
+    "message": "Привязать этот браузер"
+  },
+  "signInWeb": {
+    "message": "Войти на UID.one"
+  },
+  "vaultLocked": {
+    "message": "Хранилище заблокировано"
+  },
+  "vaultLockedDesc": {
+    "message": "Разблокируйте UID Link для автозаполнения и подписи."
+  },
+  "unlockButton": {
+    "message": "Разблокировать"
+  },
+  "lockButton": {
+    "message": "Заблокировать"
+  },
+  "unlinkButton": {
+    "message": "Отвязать"
+  },
+  "linkedAtLabel": {
+    "message": "Привязан: $1"
+  },
+  "accountLabel": {
+    "message": "Аккаунт: $1"
+  },
+  "accountSettings": {
+    "message": "Настройки аккаунта"
+  },
+  "deleteAccount": {
+    "message": "Удалить аккаунт"
+  },
+  "deleteAccountHint": {
+    "message": "Удаление аккаунта выполняется в разделе «Данные и конфиденциальность» на UID.one."
+  },
+  "statusUnlinked": {
+    "message": "Браузер отвязан."
+  },
+  "statusLocked": {
+    "message": "Хранилище заблокировано."
+  },
+  "statusUnlocked": {
+    "message": "Хранилище разблокировано."
+  },
+  "pairBrowserTitle": {
+    "message": "Привязать этот браузер"
+  },
+  "pairBrowserDesc": {
+    "message": "Отсканируйте этот QR-код в приложении UID.one и подтвердите проверочное число."
+  },
+  "matchNumberLabel": {
+    "message": "Проверочное число"
+  },
+  "originLabel": {
+    "message": "Источник"
+  },
+  "challengeTitle": {
+    "message": "Подтвердить ввод пароля"
+  },
+  "challengePairTitle": {
+    "message": "Подтвердить привязку браузера"
+  },
+  "challengeDesc": {
+    "message": "Сверьте число на устройстве UID.one. Формы никогда не отправляются автоматически."
+  },
+  "challengeWaiting": {
+    "message": "Ожидание подтверждения..."
+  },
+  "challengeApproved": {
+    "message": "Одобрено"
+  },
+  "challengeFilled": {
+    "message": "Пароль заполнен"
+  },
+  "challengeFilledDesc": {
+    "message": "Проверьте форму и отправьте её вручную, когда будете готовы."
+  },
+  "challengeCancelled": {
+    "message": "Запрос отменён."
+  },
+  "challengeRejected": {
+    "message": "Запрос отклонён."
+  },
+  "challengeExpired": {
+    "message": "Срок запроса истёк. Повторите попытку."
+  },
+  "challengeTimedOut": {
+    "message": "Время ожидания истекло. Повторите попытку."
+  },
+  "challengeFailed": {
+    "message": "Ошибка проверки"
+  },
+  "challengeCancelBtn": {
+    "message": "Отмена"
+  },
+  "challengeApproveBtn": {
+    "message": "Одобрить"
+  },
+  "challengeCloseBtn": {
+    "message": "Закрыть"
+  },
+  "pairingSuccess": {
+    "message": "Устройство привязано"
+  },
+  "pairingSuccessDesc": {
+    "message": "Ваш сеанс браузера теперь подтверждён."
+  },
+  "pairingTokenUnverified": {
+    "message": "Одобрено. Завершите вход на uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "Расширение обновлено. Обновите страницу и повторите."
+  },
+  "challengeInitFailed": {
+    "message": "Не удалось начать проверку: $1"
+  },
+  "fillFailedDesc": {
+    "message": "Не удалось заполнить поле пароля."
+  },
+  "openApprovalHint": {
+    "message": "Продолжите проверку в окне UID Link."
+  },
+  "optionsTitle": {
+    "message": "Настройки UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "Настройте дополнительные щиты, разрешённые сайты автозаполнения и привязанный сеанс."
+  },
+  "optionsShieldsHeading": {
+    "message": "Щиты конфиденциальности"
+  },
+  "optionsShieldsDesc": {
+    "message": "Все щиты отключены по умолчанию. Включайте только нужные."
+  },
+  "optionsSitesHeading": {
+    "message": "Разрешённые сайты автозаполнения"
+  },
+  "optionsSitesDesc": {
+    "message": "Автозаполнение паролей работает только на явно разрешённых HTTPS-сайтах."
+  },
+  "optionsSitesEmpty": {
+    "message": "Разрешённых сайтов пока нет. Добавьте HTTPS-сайт ниже или включите во всплывающем окне."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Добавить сайт"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Удалить"
+  },
+  "optionsSiteInvalid": {
+    "message": "Введите корректный сторонний HTTPS-источник (например, https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "Разрешение для сайта не предоставлено."
+  },
+  "optionsAccountHeading": {
+    "message": "Аккаунт и сеанс"
+  },
+  "privacyPolicyLink": {
+    "message": "Политика конфиденциальности"
   }
 }

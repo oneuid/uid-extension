@@ -9,13 +9,14 @@
   <style>
     :root {
       --bg-dark: #0B1220;
-      --surface-elevated: #111A2E;
-      --card-bg: rgba(17, 26, 46, 0.85);
-      --card-border: rgba(51, 65, 85, 0.6);
+      --surface-elevated: #1A2233;
+      --card-bg: rgba(26, 34, 51, 0.9);
+      --card-border: rgba(229, 231, 235, 0.16);
       --text-primary: #F8FAFC;
-      --text-muted: #94A3B8;
-      --primary-glow: #2563EB;
-      --primary-hover: #3B82F6;
+      --text-muted: #CBD5E1;
+      --primary-glow: #2563FF;
+      --primary-hover: #1457FF;
+      --accent-link: #6E9BFF;
       --success-glow: #10B981;
       --warning-glow: #F59E0B;
       --radius-lg: 14px;
@@ -31,6 +32,7 @@
       padding: 0;
       background-color: var(--bg-dark);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 13px;
       color: var(--text-primary);
       min-height: 100dvh;
       height: 100dvh;
@@ -60,9 +62,7 @@
       font-weight: 700;
       font-size: 16px;
       letter-spacing: -0.01em;
-      background: linear-gradient(135deg, #60A5FA, #2563EB);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-primary);
     }
 
     .brand-dot {
@@ -78,8 +78,8 @@
       display: flex;
       flex: 1;
       overflow: hidden;
-      background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 60%),
-                  radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.04), transparent 50%),
+      background: radial-gradient(circle at top right, rgba(37, 99, 255, 0.1), transparent 60%),
+                  radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.05), transparent 50%),
                   var(--bg-dark);
     }
 
@@ -87,7 +87,7 @@
     .sidebar {
       width: 320px;
       border-inline-end: 1px solid var(--card-border);
-      background: rgba(17, 26, 46, 0.55);
+      background: rgba(26, 34, 51, 0.6);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       padding: 20px;
@@ -100,7 +100,7 @@
     }
 
     .panel-card {
-      background: rgba(17, 26, 46, 0.65);
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 16px;
@@ -465,16 +465,16 @@
           <div id="usb-status-card" style="border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 12px; background: rgba(11, 18, 32, 0.6); font-size: 11px; display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelAgentStatus">CA client app:</span>
-              <span id="agent-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);" data-i18n="pdfSignerAgentOffline">Offline</span>
+              <span id="agent-status-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: var(--text-muted);" data-i18n="pdfSignerAgentOffline">Offline</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-weight: 600; color: var(--text-muted);" data-i18n="pdfSignerLabelUsbStatus">USB token:</span>
-              <span id="usb-status-badge" style="padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; background: rgba(255, 255, 255, 0.05); color: var(--text-muted);" data-i18n="pdfSignerUsbUnknown">Unknown</span>
+              <span id="usb-status-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: var(--text-muted);" data-i18n="pdfSignerUsbUnknown">Unknown</span>
             </div>
-            <div id="usb-token-info" style="color: var(--text-muted); line-height: 1.4; margin-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 6px;" data-i18n="pdfSignerUsbNoDetect">No USB token detected. Plug in your USB token and click detect.</div>
+            <div id="usb-token-info" style="color: var(--text-muted); line-height: 1.4; margin-top: 4px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 6px;" data-i18n="pdfSignerUsbNoDetect">No USB token detected. Plug in your USB token and click detect.</div>
           </div>
 
-          <button class="btn-nav" id="btn-detect-certs" type="button" style="width: 100%; height: 34px; padding: 8px; font-size: 11px; font-weight: 600; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 6px; background: rgba(37, 99, 235, 0.14); border: 1px solid rgba(37, 99, 235, 0.35); color: #60A5FA; cursor: pointer; margin-top: 4px;">
+          <button class="btn-nav" id="btn-detect-certs" type="button" style="width: 100%; min-height: 44px; padding: 8px; font-size: 12px; font-weight: 600; border-radius: var(--radius-md); display: flex; justify-content: center; align-items: center; gap: 6px; background: rgba(37, 99, 255, 0.14); border: 1px solid rgba(37, 99, 255, 0.35); color: #6E9BFF; cursor: pointer; margin-top: 4px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
             <span data-i18n="pdfSignerButtonDetect">Detect USB CA app</span>
           </button>
@@ -506,8 +506,8 @@
       <!-- Manual Upload -->
       <div class="panel-card file-picker-card" id="manual-picker-card" style="display: none;">
         <div class="file-picker-icon">📁</div>
-        <div style="font-size: 12px; font-weight: 600;">Choose local PDF</div>
-        <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Or drag PDF here</div>
+        <div style="font-size: 13px; font-weight: 600;">Choose local PDF</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Or drag PDF here</div>
         <input type="file" id="manual-file-input" accept="application/pdf" style="display: none;">
       </div>
 

@@ -69,7 +69,7 @@
     "message": "Digital signature verification"
   },
   "dialogDesc": {
-    "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> to select the matching number."
+    "message": "Please open your UID.one mobile app or visit <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> to select the matching number."
   },
   "dialogCancel": {
     "message": "Cancel request"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Enter a valid HTTPS agent endpoint URL to connect."
+  },
+  "tabStatus": {
+    "message": "Status"
+  },
+  "tabShields": {
+    "message": "Shields"
+  },
+  "openOptions": {
+    "message": "Options"
+  },
+  "loadingSession": {
+    "message": "Checking session..."
+  },
+  "retryButton": {
+    "message": "Retry"
+  },
+  "sessionCheckFailed": {
+    "message": "Could not verify your UID.one session."
+  },
+  "signInPrimary": {
+    "message": "Link this browser"
+  },
+  "signInWeb": {
+    "message": "Sign in on UID.one"
+  },
+  "vaultLocked": {
+    "message": "Vault locked"
+  },
+  "vaultLockedDesc": {
+    "message": "Unlock UID Link to use autofill and signing."
+  },
+  "unlockButton": {
+    "message": "Unlock"
+  },
+  "lockButton": {
+    "message": "Lock"
+  },
+  "unlinkButton": {
+    "message": "Unlink"
+  },
+  "linkedAtLabel": {
+    "message": "Linked: $1"
+  },
+  "accountLabel": {
+    "message": "Account: $1"
+  },
+  "accountSettings": {
+    "message": "Account settings"
+  },
+  "deleteAccount": {
+    "message": "Delete account"
+  },
+  "deleteAccountHint": {
+    "message": "Account deletion is managed in UID.one Data and privacy."
+  },
+  "statusUnlinked": {
+    "message": "Browser unlinked."
+  },
+  "statusLocked": {
+    "message": "Vault locked."
+  },
+  "statusUnlocked": {
+    "message": "Vault unlocked."
+  },
+  "pairBrowserTitle": {
+    "message": "Link this browser"
+  },
+  "pairBrowserDesc": {
+    "message": "Scan this QR code with the UID.one mobile app and confirm the match number."
+  },
+  "matchNumberLabel": {
+    "message": "Match number"
+  },
+  "originLabel": {
+    "message": "Origin"
+  },
+  "challengeTitle": {
+    "message": "Confirm vault password fill"
+  },
+  "challengePairTitle": {
+    "message": "Confirm browser link"
+  },
+  "challengeDesc": {
+    "message": "Verify the match number on your UID.one device. Forms never auto-submit."
+  },
+  "challengeWaiting": {
+    "message": "Waiting for approval..."
+  },
+  "challengeApproved": {
+    "message": "Approved"
+  },
+  "challengeFilled": {
+    "message": "Password filled"
+  },
+  "challengeFilledDesc": {
+    "message": "Review the form and submit manually when ready."
+  },
+  "challengeCancelled": {
+    "message": "Request cancelled."
+  },
+  "challengeRejected": {
+    "message": "Request was rejected."
+  },
+  "challengeExpired": {
+    "message": "Request expired. Please try again."
+  },
+  "challengeTimedOut": {
+    "message": "Request timed out. Please try again."
+  },
+  "challengeFailed": {
+    "message": "Verification failed"
+  },
+  "challengeCancelBtn": {
+    "message": "Cancel"
+  },
+  "challengeApproveBtn": {
+    "message": "Approve"
+  },
+  "challengeCloseBtn": {
+    "message": "Close"
+  },
+  "pairingSuccess": {
+    "message": "Device linked"
+  },
+  "pairingSuccessDesc": {
+    "message": "Your browser session is now verified."
+  },
+  "pairingTokenUnverified": {
+    "message": "Approved. Finish signing in on uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "Extension updated. Refresh the page and try again."
+  },
+  "challengeInitFailed": {
+    "message": "Failed to start verification: $1"
+  },
+  "fillFailedDesc": {
+    "message": "Could not fill the password field."
+  },
+  "openApprovalHint": {
+    "message": "Continue verification in the UID Link window."
+  },
+  "optionsTitle": {
+    "message": "UID Link settings"
+  },
+  "optionsSubtitle": {
+    "message": "Configure opt-in privacy shields, allowed autofill sites, and your linked session."
+  },
+  "optionsShieldsHeading": {
+    "message": "Privacy shields"
+  },
+  "optionsShieldsDesc": {
+    "message": "All shields are off by default. Enable only what you need."
+  },
+  "optionsSitesHeading": {
+    "message": "Allowed autofill sites"
+  },
+  "optionsSitesDesc": {
+    "message": "Vault password fill runs only on HTTPS sites you explicitly allow."
+  },
+  "optionsSitesEmpty": {
+    "message": "No sites enabled yet. Add an HTTPS site below or toggle it from the popup."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Add site"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Remove"
+  },
+  "optionsSiteInvalid": {
+    "message": "Enter a valid third-party HTTPS origin (for example, https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "Site permission was not granted."
+  },
+  "optionsAccountHeading": {
+    "message": "Account and session"
+  },
+  "privacyPolicyLink": {
+    "message": "Privacy policy"
   }
 }

@@ -25,7 +25,7 @@
 
 ### 1. Liên kết Phiên mã hóa (Cryptographic Session Binding)
 Ngăn chặn đánh cắp phiên (session hijacking) và đánh cắp mã token. Khi xác thực thành công, UID Link khóa phiên làm việc bằng cách:
-* Tạo dấu vân tay thiết bị phần cứng cục bộ.
+* Tạo dấu vân tay môi trường trình duyệt cục bộ.
 * Tạo chữ ký liên kết HMAC cho tệp tin `sessionToken` hiện hoạt.
 * Đăng ký liên kết bảo mật với API backend `/v1/auth/session-binding/register/`.
 * Xác thực chữ ký cục bộ trước khi cho phép thực hiện các yêu cầu có đặc quyền.
@@ -75,7 +75,7 @@ Khẳng định quyền riêng tư tối cao của người dùng trên mọi t�
 Chọn một trong hai cách dưới đây để cài đặt tiện ích mở rộng:
 
 ### Cách 1: Cài đặt nhanh từ file Zip (Khuyên dùng)
-1. Tải về tệp tin **`uid-link-chrome.zip`** (cho các trình duyệt Chrome, Edge, Brave) hoặc **`uid-link-firefox.zip`** (cho trình duyệt Firefox) ở thư mục gốc của repository này.
+1. Tải về tệp tin **`uid-link-chrome.zip`** (cho các trình duyệt Chrome, Edge, Brave) hoặc **`uid-link-firefox.zip`** (cho trình duyệt Firefox) từ trang [GitHub Releases](https://github.com/oneuid/uid-extension/releases).
 2. Giải nén tệp zip đã tải xuống thành một thư mục trên máy tính của bạn.
 3. Mở trình duyệt và truy cập trang quản lý tiện ích `chrome://extensions/` (hoặc `about:debugging` đối với Firefox).
 4. Bật **"Developer mode"** (Chế độ nhà phát triển) ở góc trên bên phải màn hình.
@@ -91,8 +91,8 @@ Chọn một trong hai cách dưới đây để cài đặt tiện ích mở r�
    ```
 2. Cài đặt các gói phụ thuộc và tiến hành biên dịch:
    ```bash
-   npm install
-   npm run build
+   pnpm install
+   pnpm run build
    ```
 3. Mở trang quản lý tiện ích `chrome://extensions/`, bật chế độ nhà phát triển, bấm **"Load unpacked"** và chọn thư mục đầu ra **`dist/chrome/`** vừa được tạo.
 

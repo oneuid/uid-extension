@@ -69,7 +69,7 @@
     "message": "數位簽章驗證"
   },
   "dialogDesc": {
-    "message": "請開啟 UID.one 行動應用程式或造訪 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> 選擇相符的數字。"
+    "message": "請開啟 UID.one 行動應用程式或造訪 <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> 選擇相符的數字。"
   },
   "dialogCancel": {
     "message": "取消請求"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "請輸入有效的 HTTPS 代理端點 URL 以連線。"
+  },
+  "tabStatus": {
+    "message": "狀態"
+  },
+  "tabShields": {
+    "message": "防護"
+  },
+  "openOptions": {
+    "message": "選項"
+  },
+  "loadingSession": {
+    "message": "正在檢查工作階段..."
+  },
+  "retryButton": {
+    "message": "重試"
+  },
+  "sessionCheckFailed": {
+    "message": "無法驗證您的 UID.one 工作階段。"
+  },
+  "signInPrimary": {
+    "message": "關聯此瀏覽器"
+  },
+  "signInWeb": {
+    "message": "在 UID.one 登入"
+  },
+  "vaultLocked": {
+    "message": "保管庫已鎖定"
+  },
+  "vaultLockedDesc": {
+    "message": "解鎖 UID Link 以使用自動填寫與簽署。"
+  },
+  "unlockButton": {
+    "message": "解鎖"
+  },
+  "lockButton": {
+    "message": "鎖定"
+  },
+  "unlinkButton": {
+    "message": "取消關聯"
+  },
+  "linkedAtLabel": {
+    "message": "關聯時間：$1"
+  },
+  "accountLabel": {
+    "message": "帳號：$1"
+  },
+  "accountSettings": {
+    "message": "帳號設定"
+  },
+  "deleteAccount": {
+    "message": "刪除帳號"
+  },
+  "deleteAccountHint": {
+    "message": "帳號刪除可在 UID.one 資料與隱私頁面中操作。"
+  },
+  "statusUnlinked": {
+    "message": "已取消關聯瀏覽器。"
+  },
+  "statusLocked": {
+    "message": "保管庫已鎖定。"
+  },
+  "statusUnlocked": {
+    "message": "保管庫已解鎖。"
+  },
+  "pairBrowserTitle": {
+    "message": "關聯此瀏覽器"
+  },
+  "pairBrowserDesc": {
+    "message": "使用 UID.one 行動應用程式掃描此 QR 碼並確認相符數字。"
+  },
+  "matchNumberLabel": {
+    "message": "相符數字"
+  },
+  "originLabel": {
+    "message": "來源"
+  },
+  "challengeTitle": {
+    "message": "確認填寫保管庫密碼"
+  },
+  "challengePairTitle": {
+    "message": "確認關聯瀏覽器"
+  },
+  "challengeDesc": {
+    "message": "請在您的 UID.one 裝置上核對相符數字。表單絕不會自動送出。"
+  },
+  "challengeWaiting": {
+    "message": "等待核准..."
+  },
+  "challengeApproved": {
+    "message": "已核准"
+  },
+  "challengeFilled": {
+    "message": "已填寫密碼"
+  },
+  "challengeFilledDesc": {
+    "message": "請核對表單，準備好後手動送出。"
+  },
+  "challengeCancelled": {
+    "message": "請求已取消。"
+  },
+  "challengeRejected": {
+    "message": "請求已被拒絕。"
+  },
+  "challengeExpired": {
+    "message": "請求已過期，請重試。"
+  },
+  "challengeTimedOut": {
+    "message": "請求逾時，請重試。"
+  },
+  "challengeFailed": {
+    "message": "驗證失敗"
+  },
+  "challengeCancelBtn": {
+    "message": "取消"
+  },
+  "challengeApproveBtn": {
+    "message": "核准"
+  },
+  "challengeCloseBtn": {
+    "message": "關閉"
+  },
+  "pairingSuccess": {
+    "message": "裝置已關聯"
+  },
+  "pairingSuccessDesc": {
+    "message": "您的瀏覽器工作階段已通過驗證。"
+  },
+  "pairingTokenUnverified": {
+    "message": "已核准，請在 uid.one 完成登入。"
+  },
+  "extensionContextInvalid": {
+    "message": "擴充功能已更新，請重新整理頁面後重試。"
+  },
+  "challengeInitFailed": {
+    "message": "無法啟動驗證：$1"
+  },
+  "fillFailedDesc": {
+    "message": "無法填寫密碼欄位。"
+  },
+  "openApprovalHint": {
+    "message": "請在 UID Link 視窗中繼續驗證。"
+  },
+  "optionsTitle": {
+    "message": "UID Link 設定"
+  },
+  "optionsSubtitle": {
+    "message": "設定選用隱私防護、允許自動填寫的網站以及已關聯工作階段。"
+  },
+  "optionsShieldsHeading": {
+    "message": "隱私防護"
+  },
+  "optionsShieldsDesc": {
+    "message": "所有防護預設關閉，僅開啟您需要的項目。"
+  },
+  "optionsSitesHeading": {
+    "message": "允許自動填寫的網站"
+  },
+  "optionsSitesDesc": {
+    "message": "密碼填寫僅在您明確允許的 HTTPS 網站上執行。"
+  },
+  "optionsSitesEmpty": {
+    "message": "尚未啟用任何網站。請在下方新增 HTTPS 網站或在彈出視窗中開啟。"
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "新增網站"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "移除"
+  },
+  "optionsSiteInvalid": {
+    "message": "請輸入有效的第三方 HTTPS 來源（例如 https://example.com）。"
+  },
+  "optionsSitePermDenied": {
+    "message": "未授予網站權限。"
+  },
+  "optionsAccountHeading": {
+    "message": "帳號與工作階段"
+  },
+  "privacyPolicyLink": {
+    "message": "隱私權政策"
   }
 }

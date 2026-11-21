@@ -69,7 +69,7 @@
     "message": "数字签名验证"
   },
   "dialogDesc": {
-    "message": "请打开 UID.one 移动应用或访问 <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> 选择匹配的数字。"
+    "message": "请打开 UID.one 移动应用或访问 <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> 选择匹配的数字。"
   },
   "dialogCancel": {
     "message": "取消请求"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "请输入有效的 HTTPS 代理端点 URL 以连接。"
+  },
+  "tabStatus": {
+    "message": "状态"
+  },
+  "tabShields": {
+    "message": "防护"
+  },
+  "openOptions": {
+    "message": "选项"
+  },
+  "loadingSession": {
+    "message": "正在检查会话..."
+  },
+  "retryButton": {
+    "message": "重试"
+  },
+  "sessionCheckFailed": {
+    "message": "无法验证您的 UID.one 会话。"
+  },
+  "signInPrimary": {
+    "message": "关联此浏览器"
+  },
+  "signInWeb": {
+    "message": "在 UID.one 登录"
+  },
+  "vaultLocked": {
+    "message": "保管库已锁定"
+  },
+  "vaultLockedDesc": {
+    "message": "解锁 UID Link 以使用自动填充和签名。"
+  },
+  "unlockButton": {
+    "message": "解锁"
+  },
+  "lockButton": {
+    "message": "锁定"
+  },
+  "unlinkButton": {
+    "message": "取消关联"
+  },
+  "linkedAtLabel": {
+    "message": "关联时间：$1"
+  },
+  "accountLabel": {
+    "message": "账号：$1"
+  },
+  "accountSettings": {
+    "message": "账号设置"
+  },
+  "deleteAccount": {
+    "message": "删除账号"
+  },
+  "deleteAccountHint": {
+    "message": "账号删除可在 UID.one 数据与隐私页面中操作。"
+  },
+  "statusUnlinked": {
+    "message": "已取消关联浏览器。"
+  },
+  "statusLocked": {
+    "message": "保管库已锁定。"
+  },
+  "statusUnlocked": {
+    "message": "保管库已解锁。"
+  },
+  "pairBrowserTitle": {
+    "message": "关联此浏览器"
+  },
+  "pairBrowserDesc": {
+    "message": "使用 UID.one 移动应用扫描此二维码并确认匹配数字。"
+  },
+  "matchNumberLabel": {
+    "message": "匹配数字"
+  },
+  "originLabel": {
+    "message": "来源"
+  },
+  "challengeTitle": {
+    "message": "确认填充保管库密码"
+  },
+  "challengePairTitle": {
+    "message": "确认关联浏览器"
+  },
+  "challengeDesc": {
+    "message": "请在您的 UID.one 设备上核对匹配数字。表单绝不会自动提交。"
+  },
+  "challengeWaiting": {
+    "message": "等待批准..."
+  },
+  "challengeApproved": {
+    "message": "已批准"
+  },
+  "challengeFilled": {
+    "message": "密码已填充"
+  },
+  "challengeFilledDesc": {
+    "message": "请核对表单，准备好后手动提交。"
+  },
+  "challengeCancelled": {
+    "message": "请求已取消。"
+  },
+  "challengeRejected": {
+    "message": "请求已被拒绝。"
+  },
+  "challengeExpired": {
+    "message": "请求已过期，请重试。"
+  },
+  "challengeTimedOut": {
+    "message": "请求超时，请重试。"
+  },
+  "challengeFailed": {
+    "message": "验证失败"
+  },
+  "challengeCancelBtn": {
+    "message": "取消"
+  },
+  "challengeApproveBtn": {
+    "message": "批准"
+  },
+  "challengeCloseBtn": {
+    "message": "关闭"
+  },
+  "pairingSuccess": {
+    "message": "设备已关联"
+  },
+  "pairingSuccessDesc": {
+    "message": "您的浏览器会话已通过验证。"
+  },
+  "pairingTokenUnverified": {
+    "message": "已批准，请在 uid.one 完成登录。"
+  },
+  "extensionContextInvalid": {
+    "message": "扩展已更新，请刷新页面后重试。"
+  },
+  "challengeInitFailed": {
+    "message": "无法启动验证：$1"
+  },
+  "fillFailedDesc": {
+    "message": "无法填充密码字段。"
+  },
+  "openApprovalHint": {
+    "message": "请在 UID Link 窗口中继续验证。"
+  },
+  "optionsTitle": {
+    "message": "UID Link 设置"
+  },
+  "optionsSubtitle": {
+    "message": "配置可选隐私防护、允许自动填充的网站以及已关联会话。"
+  },
+  "optionsShieldsHeading": {
+    "message": "隐私防护"
+  },
+  "optionsShieldsDesc": {
+    "message": "所有防护默认关闭，仅开启您需要的项目。"
+  },
+  "optionsSitesHeading": {
+    "message": "允许自动填充的网站"
+  },
+  "optionsSitesDesc": {
+    "message": "密码填充仅在您明确允许的 HTTPS 网站上运行。"
+  },
+  "optionsSitesEmpty": {
+    "message": "尚未启用任何网站。请在下方添加 HTTPS 网站或在弹窗中开启。"
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "添加网站"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "移除"
+  },
+  "optionsSiteInvalid": {
+    "message": "请输入有效的第三方 HTTPS 来源（例如 https://example.com）。"
+  },
+  "optionsSitePermDenied": {
+    "message": "未授予网站权限。"
+  },
+  "optionsAccountHeading": {
+    "message": "账号与会话"
+  },
+  "privacyPolicyLink": {
+    "message": "隐私政策"
   }
 }

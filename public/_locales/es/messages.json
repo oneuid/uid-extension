@@ -69,7 +69,7 @@
     "message": "Verificación de firma digital"
   },
   "dialogDesc": {
-    "message": "Abra su aplicación móvil UID.one o visite <a href='https://uid.one' target='_blank' style='color:#60a5fa; text-decoration:underline;'>uid.one</a> para seleccionar el número correspondiente."
+    "message": "Abra su aplicación móvil UID.one o visite <a href='https://uid.one' target='_blank' style='color:#6E9BFF; text-decoration:underline;'>uid.one</a> para seleccionar el número correspondiente."
   },
   "dialogCancel": {
     "message": "Cancelar solicitud"
@@ -424,5 +424,188 @@
   },
   "pdfSignerAgentUrlRequired": {
     "message": "Introduce una URL HTTPS válida del agente para conectar."
+  },
+  "tabStatus": {
+    "message": "Estado"
+  },
+  "tabShields": {
+    "message": "Escudos"
+  },
+  "openOptions": {
+    "message": "Opciones"
+  },
+  "loadingSession": {
+    "message": "Comprobando sesión..."
+  },
+  "retryButton": {
+    "message": "Reintentar"
+  },
+  "sessionCheckFailed": {
+    "message": "No se pudo verificar su sesión de UID.one."
+  },
+  "signInPrimary": {
+    "message": "Vincular este navegador"
+  },
+  "signInWeb": {
+    "message": "Iniciar sesión en UID.one"
+  },
+  "vaultLocked": {
+    "message": "Bóveda bloqueada"
+  },
+  "vaultLockedDesc": {
+    "message": "Desbloquee UID Link para usar el autocompletado y la firma."
+  },
+  "unlockButton": {
+    "message": "Desbloquear"
+  },
+  "lockButton": {
+    "message": "Bloquear"
+  },
+  "unlinkButton": {
+    "message": "Desvincular"
+  },
+  "linkedAtLabel": {
+    "message": "Vinculado: $1"
+  },
+  "accountLabel": {
+    "message": "Cuenta: $1"
+  },
+  "accountSettings": {
+    "message": "Ajustes de cuenta"
+  },
+  "deleteAccount": {
+    "message": "Eliminar cuenta"
+  },
+  "deleteAccountHint": {
+    "message": "La eliminación de la cuenta se gestiona en Datos y privacidad de UID.one."
+  },
+  "statusUnlinked": {
+    "message": "Navegador desvinculado."
+  },
+  "statusLocked": {
+    "message": "Bóveda bloqueada."
+  },
+  "statusUnlocked": {
+    "message": "Bóveda desbloqueada."
+  },
+  "pairBrowserTitle": {
+    "message": "Vincular este navegador"
+  },
+  "pairBrowserDesc": {
+    "message": "Escanee este código QR con la app de UID.one y confirme el número."
+  },
+  "matchNumberLabel": {
+    "message": "Número de coincidencia"
+  },
+  "originLabel": {
+    "message": "Origen"
+  },
+  "challengeTitle": {
+    "message": "Confirmar relleno de contraseña"
+  },
+  "challengePairTitle": {
+    "message": "Confirmar vinculación del navegador"
+  },
+  "challengeDesc": {
+    "message": "Verifique el número en su dispositivo UID.one. Los formularios nunca se envían automáticamente."
+  },
+  "challengeWaiting": {
+    "message": "Esperando aprobación..."
+  },
+  "challengeApproved": {
+    "message": "Aprobado"
+  },
+  "challengeFilled": {
+    "message": "Contraseña rellenada"
+  },
+  "challengeFilledDesc": {
+    "message": "Revise el formulario y envíelo manualmente cuando esté listo."
+  },
+  "challengeCancelled": {
+    "message": "Solicitud cancelada."
+  },
+  "challengeRejected": {
+    "message": "La solicitud fue rechazada."
+  },
+  "challengeExpired": {
+    "message": "La solicitud ha expirado. Inténtelo de nuevo."
+  },
+  "challengeTimedOut": {
+    "message": "Se agotó el tiempo de la solicitud. Inténtelo de nuevo."
+  },
+  "challengeFailed": {
+    "message": "Error de verificación"
+  },
+  "challengeCancelBtn": {
+    "message": "Cancelar"
+  },
+  "challengeApproveBtn": {
+    "message": "Aprobar"
+  },
+  "challengeCloseBtn": {
+    "message": "Cerrar"
+  },
+  "pairingSuccess": {
+    "message": "Dispositivo vinculado"
+  },
+  "pairingSuccessDesc": {
+    "message": "Su sesión del navegador ahora está verificada."
+  },
+  "pairingTokenUnverified": {
+    "message": "Aprobado. Finalice el inicio de sesión en uid.one."
+  },
+  "extensionContextInvalid": {
+    "message": "Extensión actualizada. Recargue la página e inténtelo de nuevo."
+  },
+  "challengeInitFailed": {
+    "message": "No se pudo iniciar la verificación: $1"
+  },
+  "fillFailedDesc": {
+    "message": "No se pudo rellenar el campo de contraseña."
+  },
+  "openApprovalHint": {
+    "message": "Continúe la verificación en la ventana de UID Link."
+  },
+  "optionsTitle": {
+    "message": "Ajustes de UID Link"
+  },
+  "optionsSubtitle": {
+    "message": "Configure escudos de privacidad opcionales, sitios permitidos y su sesión vinculada."
+  },
+  "optionsShieldsHeading": {
+    "message": "Escudos de privacidad"
+  },
+  "optionsShieldsDesc": {
+    "message": "Todos los escudos están desactivados por defecto. Active solo los que necesite."
+  },
+  "optionsSitesHeading": {
+    "message": "Sitios permitidos para autocompletar"
+  },
+  "optionsSitesDesc": {
+    "message": "El relleno de contraseñas solo funciona en sitios HTTPS permitidos explícitamente."
+  },
+  "optionsSitesEmpty": {
+    "message": "Aún no hay sitios habilitados. Agregue un sitio HTTPS abajo o actívelo en el popup."
+  },
+  "optionsSitePlaceholder": {
+    "message": "https://example.com"
+  },
+  "optionsAddSiteBtn": {
+    "message": "Agregar sitio"
+  },
+  "optionsRemoveSiteBtn": {
+    "message": "Eliminar"
+  },
+  "optionsSiteInvalid": {
+    "message": "Ingrese un origen HTTPS de terceros válido (por ejemplo, https://example.com)."
+  },
+  "optionsSitePermDenied": {
+    "message": "No se concedió el permiso del sitio."
+  },
+  "optionsAccountHeading": {
+    "message": "Cuenta y sesión"
+  },
+  "privacyPolicyLink": {
+    "message": "Política de privacidad"
   }
 }
